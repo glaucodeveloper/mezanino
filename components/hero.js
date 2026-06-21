@@ -1,8 +1,9 @@
-const HeroComponent = () => {
-  let tab = "comprar";
+const HeroComponent = ({ props }) => {
+  let tab = props.getRouteInfo?.().operation || "comprar";
   return {
     next(message = {}) {
       if (message.type === "setTab") tab = message.value || tab;
+      const ctaLabel = tab === "alugar" ? "Buscar imoveis para alugar" : "Buscar imoveis para comprar";
       return {
         done: false,
         value: /*html*/`
@@ -18,7 +19,7 @@ const HeroComponent = () => {
                     <label class="field"><span>Localizacao</span><input name="quickLocation" placeholder="Cidade, bairro ou condominio"></label>
                     <label class="field"><span>Tipo de imovel</span><select><option>Todos</option><option>Casa</option><option>Apartamento</option><option>Terreno</option></select></label>
                     <label class="field"><span>Faixa de preco</span><select><option>Qualquer preco</option><option>Ate R$ 700 mil</option><option>Acima de R$ 1 mi</option></select></label>
-                    <button class="gold-btn" type="button" data-route="comprar">Buscar imoveis</button>
+                    <button class="gold-btn" type="button" data-route="comprar" data-operation="${tab}">${ctaLabel}</button>
                   </div>
                 </div>
                 <div class="hero-trustbar">

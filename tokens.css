@@ -20,7 +20,7 @@
         --font-body: "Plus Jakarta Sans", "Segoe UI", sans-serif;
         --font-ui: "Plus Jakarta Sans", "Segoe UI", sans-serif;
         --toolbar-offset: clamp(108px, 12vw, 156px);
-        --container-wide: min(1440px, calc(100% - 24px));
+        --container-wide: min(1440px, 90vw);
       }
 
       * {
@@ -3047,3 +3047,5 @@
           transform: translateY(-10px);
         }
       }
+
+

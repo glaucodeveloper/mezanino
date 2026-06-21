@@ -1,4 +1,4 @@
-# SuaImobiliaria Design System
+# Mezanino Imobili�ria Design System
 
 Based on `proposta.png`, translated into tokens for the current hash-routed JS app.
 
@@ -48,3 +48,4 @@ Based on `proposta.png`, translated into tokens for the current hash-routed JS a
 - Identical padding across every section
 - Generic fade-up-only feel
 - Default “AI landing page” gradients
+

@@ -19,3 +19,4 @@ Projeto base para um website imobiliario renderizado no cliente com uma estrutur
 ## Objetivo
 
 Centralizar a vitrine do site e a estrutura de conteudo em um unico repositorio, preparado para evoluir catalogo, filtros, dashboard e integracoes futuras.
+

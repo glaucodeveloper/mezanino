@@ -15,6 +15,9 @@ const ListingComponent = ({ props }) => {
     features: new Set(),
   };
 
+  const routeInfo = props.getRouteInfo?.() || {};
+  const operation = routeInfo.operation || "comprar";
+
   const compareFields = [
     {
       key: "priceNumber",
@@ -75,7 +78,8 @@ const ListingComponent = ({ props }) => {
         (filters.features.size === 0 ||
           [...filters.features].every((feature) =>
             features.has(feature.toLowerCase()),
-          ))
+          )) &&
+        (operation === "comprar" || !property.operation || property.operation === operation || String(property.type || "").toLowerCase().includes(operation === "alugar" ? "alug" : "vend"))
       );
     });
     return [...filtered].sort((a, b) => {
@@ -115,6 +119,7 @@ const ListingComponent = ({ props }) => {
     if (filters.minArea !== "Qualquer") params.set("area", filters.minArea);
     if (filters.features.size)
       params.set("caracteristicas", [...filters.features].join(","));
+    if (operation !== "comprar") params.set("operation", operation);
     if (sortBy !== "recentes") params.set("ordem", sortBy);
     if (page > 1) params.set("pagina", String(page));
     const query = params.toString();
@@ -259,7 +264,7 @@ const ListingComponent = ({ props }) => {
             <div class="container">
               <div class="breadcrumb-row"><span>Home</span><span>Comprar</span></div>
               <div class="section-title">
-                <div><span class="eyebrow">Comprar / Alugar / Buscar</span><h2>Imoveis a venda</h2><p>Encontramos ${filtered.length} imoveis. Clique no card para selecionar comparacao e no titulo para abrir o detalhe.</p></div>
+                <div><span class="eyebrow">${operation === "alugar" ? "Alugar / Buscar" : "Comprar / Alugar / Buscar"}</span><h2>${operation === "alugar" ? "Imoveis para aluguel" : "Imoveis a venda"}</h2><p>Encontramos ${filtered.length} imoveis. ${operation === "alugar" ? "A tela entrou no modo aluguel. Use os filtros para refinar a busca." : "Clique no card para selecionar comparacao e no titulo para abrir o detalhe."}</p></div>
               </div>
               <div class="listing-layout">
                 <aside class="filter-box" aria-label="Filtros">

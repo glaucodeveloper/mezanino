@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
   "use strict";
   const ROUTES = ["home", "destaques", "comprar", "imovel", "favoritos", "quiz", "imovel-novo", "imovel-editar", "anuncie", "login", "dashboard", "contato", "vendedores", "brokers"];
   const CMS_LOGIN_PASSWORD = "ZKUd4uCQ";
@@ -228,7 +228,7 @@
   const cmsConfig = () => ({
       dataUrl: "./cms-imobiliaria/data/site.json",
       repoOwner: "glaucodeveloper",
-      repoName: "nexus-based-imobiliaria-cms",
+      repoName: "mezanino-imobiliaria-cms",
       branch: "main",
       contentPath: "data/site.json",
       ...(window.SuaImobiliariaCmsConfig || {}),
@@ -333,10 +333,10 @@
     const [routePart, queryPart = ""] = hash.split("?");
     const route = ROUTES.includes(routePart) ? routePart : "home";
     const params = new URLSearchParams(queryPart);
-    return { route, propertyId: params.get("propertyId") || null, brokerId: params.get("brokerId") || null };
+    return { route, propertyId: params.get("propertyId") || null, brokerId: params.get("brokerId") || null, operation: params.get("operation") || null };
   };
 
-  const brand = () => /*html*/`<button class="brand" type="button" data-route="home" aria-label="SuaImobiliaria"><span class="brand-mark"></span><span>SuaImobiliaria</span></button>`;
+  const brand = () => /*html*/`<button class="brand" type="button" data-route="home" aria-label="Mezanino Imobiliária"><span class="brand-mark"></span><span>Mezanino Imobiliária</span></button>`;
   const active = (currentRoute, route) => (currentRoute === route ? "active" : "");
   const money = (value) => Number(value).toLocaleString("pt-BR");
   const favoriteMark = (isFavorite) => (isFavorite
@@ -560,3 +560,7 @@
 
   let actionNotice = "";
   const renderActionBanner = () => actionNotice ? `<div class="action-banner" role="status">${escapeHtml(actionNotice)}</div>` : "";
+
+
+
+
