@@ -81,19 +81,7 @@
       },
     };
 
-    const featuredHoverState = {
-      activeRow: null,
-      activePropertyId: null,
-      activePlacement: "top",
-      swapMode: false,
-      pendingRow: null,
-      pendingPropertyId: null,
-      pendingPlacement: "top",
-      enterLockPropertyId: null,
-      openTimer: null,
-      closeTimer: null,
-      expandTimer: null,
-    };
+    const featuredHoverState = {};
 
     const dashboardState = {
       state: dashboardContent,
@@ -186,7 +174,6 @@
     const propsSync = () => requestRender();
     const propertyTools = {
       getRouteInfo: () => routeState.current(),
-      getFeaturedHoverState: () => featuredHoverState,
       getFeaturedScrollState: () => featuredScrollState,
       isFavorite: (id) => getSession().favorites.has(id),
       isCompared: (id) => getSession().compare.has(id),
@@ -296,15 +283,7 @@
       if (sameRoute) return;
       routeState.setRoute(nextRoute, { propertyId, brokerId, dashboardTab: options.dashboardTab, entityId: options.entityId, operation: options.operation, authenticated: getSession().authenticated });
       if (nextRoute !== "destaques") {
-        if (document.pointerLockElement) { try { document.exitPointerLock(); } catch (_) {} }
-        if (featuredHoverState.openTimer) clearTimeout(featuredHoverState.openTimer);
-        if (featuredHoverState.closeTimer) clearTimeout(featuredHoverState.closeTimer);
-        if (featuredHoverState.expandTimer) clearTimeout(featuredHoverState.expandTimer);
-        featuredHoverState.openTimer = null;
-        featuredHoverState.closeTimer = null;
-        featuredHoverState.expandTimer = null;
-        featuredHoverState.activeRow = null;
-        featuredHoverState.activePropertyId = null;
+        featuredForceClose();
       }
       if (options.syncHash !== false) {
         const query = new URLSearchParams();
@@ -364,133 +343,90 @@
       if (getRoute() === routeBefore) render();
     };
 
-    const featuredScrollState = { animating: false, targetRow: null, locked: false, cursorX: 0, cursorY: 0, expandedKey: null };
-    const featuredAnimateScrollToRow = (row) => {
-      const rowEl = root.querySelector(`.featured-showcase-row[data-featured-row="${row}"]`);
-      if (!rowEl || featuredScrollState.animating) return;
-      const rowRect = rowEl.getBoundingClientRect();
-      const viewportCenter = window.innerHeight / 2;
-      const rowCenterY = rowRect.top + rowRect.height / 2;
-      const offset = rowCenterY - viewportCenter;
-      if (Math.abs(offset) < 20) return;
-      featuredScrollState.animating = true;
-      featuredScrollState.targetRow = row;
-      const startY = window.scrollY;
-      const targetY = startY + offset;
-      const duration = 420;
-      const startTime = performance.now();
-      const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-      const step = (now) => {
-        const progress = Math.min((now - startTime) / duration, 1);
-        window.scrollTo(0, startY + (targetY - startY) * easeOutCubic(progress));
-        if (progress < 1) requestAnimationFrame(step);
-        else featuredScrollState.animating = false;
-      };
-      requestAnimationFrame(step);
-    };
+    const featuredScrollState = { locked: false, cursorX: 0, cursorY: 0, expandedPropertyId: null, expandTimerId: null, expandPendingId: null, closeTimer: null, exitEdge: null };
     const featuredReleasePointer = () => {
       if (document.pointerLockElement) { try { document.exitPointerLock(); } catch (_) {} }
       featuredScrollState.locked = false;
     };
-    const openFeaturedCard = (card, placement = "top", immediate = false) => {
-      if (!card || featuredScrollState.locked) return;
-      const row = Number(card.dataset.featuredRow);
+    const featuredActivate = (card) => {
       const propertyId = card.dataset.propertyId;
-      if (Number.isNaN(row) || !propertyId) return;
-      const sameRow = featuredHoverState.activeRow === row;
-      const key = `${row}:${propertyId}`;
-      if (featuredScrollState.expandedKey === key) return;
-      if (!sameRow && featuredHoverState.enterLockPropertyId && featuredHoverState.enterLockPropertyId !== propertyId) return;
-      if (featuredHoverState.pendingRow === row && featuredHoverState.pendingPropertyId === propertyId && featuredHoverState.pendingPlacement === placement && featuredHoverState.expandTimer) return;
-      if (featuredHoverState.closeTimer) {
-        clearTimeout(featuredHoverState.closeTimer);
-        featuredHoverState.closeTimer = null;
-      }
-      if (featuredHoverState.expandTimer) {
-        clearTimeout(featuredHoverState.expandTimer);
-        featuredHoverState.expandTimer = null;
-      }
-      if (featuredHoverState.activeRow !== row) {
-        featuredHoverState.activeRow = row;
-        featuredHoverState.activePropertyId = null;
-        featuredHoverState.activePlacement = placement;
-        featuredHoverState.enterLockPropertyId = propertyId;
-        render();
-      }
-      const activate = () => {
-        if (featuredHoverState.activeRow !== row || featuredHoverState.activePropertyId === propertyId) return;
-        featuredHoverState.activePropertyId = propertyId;
-        featuredHoverState.activePlacement = placement;
-        featuredHoverState.enterLockPropertyId = propertyId;
-        featuredHoverState.pendingRow = null;
-        featuredHoverState.pendingPropertyId = null;
-        featuredScrollState.expandedKey = key;
-        render();
-        requestAnimationFrame(() => featuredAnimateScrollToRow(row));
-      };
-      featuredHoverState.pendingRow = row;
-      featuredHoverState.pendingPropertyId = propertyId;
-      featuredHoverState.pendingPlacement = placement;
-      if (immediate) {
-        activate();
-        return;
-      }
-      featuredHoverState.expandTimer = setTimeout(() => {
-        featuredHoverState.expandTimer = null;
-        activate();
-      }, 90);
+      if (!propertyId || featuredScrollState.expandedPropertyId === propertyId) return;
+      featuredScrollState.expandedPropertyId = propertyId;
+      render();
     };
-    const closeFeaturedCard = (card, immediate = false) => {
-      if (!card) return;
-      if (featuredScrollState.locked) return;
-      const row = Number(card.dataset.featuredRow);
-      const propertyId = card.dataset.propertyId;
-      if (Number.isNaN(row) || !propertyId) return;
-      if (featuredHoverState.openTimer) {
-        clearTimeout(featuredHoverState.openTimer);
-        featuredHoverState.openTimer = null;
-      }
-      if (featuredHoverState.expandTimer) {
-        clearTimeout(featuredHoverState.expandTimer);
-        featuredHoverState.expandTimer = null;
-      }
-      const release = () => {
-        featuredScrollState.expandedKey = null;
-        featuredHoverState.pendingRow = null;
-        featuredHoverState.pendingPropertyId = null;
-        featuredHoverState.pendingPlacement = "top";
-        featuredHoverState.swapMode = false;
-        featuredHoverState.enterLockPropertyId = null;
-      };
-      if (immediate) {
-        release();
-        return;
-      }
-      featuredHoverState.closeTimer = setTimeout(() => {
-        featuredHoverState.closeTimer = null;
-        release();
-      }, 220);
+    const featuredDeactivate = (exitEdge) => {
+      if (!featuredScrollState.expandedPropertyId) return;
+      featuredScrollState.exitEdge = exitEdge || null;
+      featuredScrollState.expandedPropertyId = null;
+      render();
+      setTimeout(() => { featuredScrollState.exitEdge = null; }, 420);
     };
     const featuredForceClose = () => {
       featuredReleasePointer();
-      featuredScrollState.expandedKey = null;
-      featuredScrollState.animating = false;
-      featuredHoverState.activeRow = null;
-      featuredHoverState.activePropertyId = null;
-      featuredHoverState.activePlacement = "top";
-      featuredHoverState.swapMode = false;
-      featuredHoverState.enterLockPropertyId = null;
-      featuredHoverState.pendingRow = null;
-      featuredHoverState.pendingPropertyId = null;
-      if (featuredHoverState.openTimer) { clearTimeout(featuredHoverState.openTimer); featuredHoverState.openTimer = null; }
-      if (featuredHoverState.closeTimer) { clearTimeout(featuredHoverState.closeTimer); featuredHoverState.closeTimer = null; }
-      if (featuredHoverState.expandTimer) { clearTimeout(featuredHoverState.expandTimer); featuredHoverState.expandTimer = null; }
+      if (featuredScrollState.expandTimerId) { clearTimeout(featuredScrollState.expandTimerId); featuredScrollState.expandTimerId = null; }
+      if (featuredScrollState.closeTimer) { clearTimeout(featuredScrollState.closeTimer); featuredScrollState.closeTimer = null; }
+      featuredScrollState.expandedPropertyId = null;
+      featuredScrollState.expandPendingId = null;
+      featuredScrollState.exitEdge = null;
       render();
     };
+    root.addEventListener("pointermove", (event) => {
+      if (featuredScrollState.locked) return;
+      const galleryTarget = event.target.closest(".gallery-main[data-cid='detail'][data-message='openGallery']");
+      if (galleryTarget) {
+        void dispatch(galleryTarget, event);
+        return;
+      }
+      if (getRoute() !== "destaques") return;
+      const card = event.target.closest(".featured-showcase-card[data-property-id]");
+      if (!card) return;
+      const propertyId = card.dataset.propertyId;
+      if (featuredScrollState.expandedPropertyId) return;
+      if (featuredScrollState.expandPendingId === propertyId) return;
+      if (featuredScrollState.expandTimerId) {
+        clearTimeout(featuredScrollState.expandTimerId);
+        featuredScrollState.expandTimerId = null;
+        featuredScrollState.expandPendingId = null;
+      }
+      featuredScrollState.expandPendingId = propertyId;
+      featuredScrollState.expandTimerId = setTimeout(() => {
+        featuredScrollState.expandTimerId = null;
+        featuredScrollState.expandPendingId = null;
+        featuredActivate(card);
+      }, 330);
+    });
+    root.addEventListener("mouseout", (event) => {
+      if (getRoute() !== "destaques") return;
+      const card = event.target.closest(".featured-showcase-card[data-property-id]");
+      if (!card) return;
+      if (featuredScrollState.expandTimerId) {
+        clearTimeout(featuredScrollState.expandTimerId);
+        featuredScrollState.expandTimerId = null;
+        featuredScrollState.expandPendingId = null;
+        return;
+      }
+      if (!featuredScrollState.expandedPropertyId) return;
+      if (featuredScrollState.locked) return;
+      const rect = card.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = (event.clientX || cx) - cx;
+      const dy = (event.clientY || cy) - cy;
+      const edge = Math.abs(dx) * rect.height > Math.abs(dy) * rect.width
+        ? (dx < 0 ? "left" : "right")
+        : (dy < 0 ? "top" : "bottom");
+      const exitRect = event.relatedTarget?.closest?.(".featured-showcase-card")?.getBoundingClientRect();
+      if (exitRect) {
+        const sdx = (exitRect.left + exitRect.width / 2) - cx;
+        const sdy = (exitRect.top + exitRect.height / 2) - cy;
+        if (Math.abs(sdx) > Math.abs(sdy) ? (sdx > 0 ? "right" : "left") === edge : (sdy > 0 ? "bottom" : "top") === edge) return;
+      }
+      featuredDeactivate(edge);
+    });
     root.addEventListener("click", (event) => {
       if (getRoute() === "destaques") {
-        const featuredCard = event.target.closest("[data-featured-card][data-featured-row]");
-        if (featuredCard && featuredCard.classList.contains("is-active") && !featuredScrollState.locked) {
+        const featuredCard = event.target.closest(".featured-showcase-card.is-expanded");
+        if (featuredCard && !featuredScrollState.locked) {
           if (!event.target.closest("a, button, [data-cid], input, textarea")) {
             event.preventDefault();
             featuredScrollState.locked = true;
@@ -537,35 +473,6 @@
         lens.style.left = `${featuredScrollState.cursorX - rect.left}px`;
         lens.style.top = `${featuredScrollState.cursorY - rect.top}px`;
       }
-    });
-    root.addEventListener("pointermove", (event) => {
-      if (featuredScrollState.locked) return;
-      const galleryTarget = event.target.closest(".gallery-main[data-cid='detail'][data-message='openGallery']");
-      if (galleryTarget) {
-        void dispatch(galleryTarget, event);
-        return;
-      }
-      if (getRoute() !== "destaques") return;
-      const card = event.target.closest(".featured-showcase-card[data-featured-row]");
-      if (!card) return;
-      const row = card.closest(".featured-showcase-row");
-      if (!row) return;
-      const rowRect = row.getBoundingClientRect();
-      const placement = event.clientY < rowRect.top + rowRect.height / 2 ? "top" : "bottom";
-      openFeaturedCard(card, placement);
-      if (featuredHoverState.enterLockPropertyId === card.dataset.propertyId && featuredHoverState.activePropertyId === card.dataset.propertyId) {
-        featuredHoverState.enterLockPropertyId = null;
-      }
-    });
-    root.addEventListener("mouseout", (event) => {
-      if (getRoute() !== "destaques") return;
-      const card = event.target.closest(".featured-showcase-card[data-featured-row]");
-      if (!card) return;
-      if (card.classList.contains("is-active")) {
-        const relatedCard = event.relatedTarget?.closest?.(".featured-showcase-card[data-featured-row]");
-        if (relatedCard && relatedCard.dataset.featuredRow === card.dataset.featuredRow) return;
-      }
-      closeFeaturedCard(card);
     });
     root.addEventListener("input", (event) => {
       const actionTarget = event.target.closest("[data-cid][data-message]");

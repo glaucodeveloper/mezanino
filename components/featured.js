@@ -4,8 +4,9 @@ const FeaturedComponent = ({ props }) => ({
     if (message.type === "toggleCompare") props.toggleCompare(message.propertyId);
     const route = props.getRouteInfo?.().route || "home";
     const isDedicatedPage = route === "destaques";
-    const hoverState = props.getFeaturedHoverState?.() || {};
     const scrollState = props.getFeaturedScrollState?.() || {};
+    const expandedId = scrollState.expandedPropertyId || null;
+    const exitEdge = scrollState.exitEdge || null;
 
     const renderSimpleCard = (property) => {
       const favorite = props.isFavorite(property.id);
@@ -33,11 +34,12 @@ const FeaturedComponent = ({ props }) => ({
       `;
     };
 
-    const renderShowcaseCard = (property, rowIndex) => {
+    const renderShowcaseCard = (property) => {
       const favorite = props.isFavorite(property.id);
       const compared = props.isCompared?.(property.id);
-      const isActive = hoverState.activePropertyId === property.id;
-      const isRowOpen = hoverState.activeRow === rowIndex;
+      const isExpanded = expandedId === property.id;
+      const isNeighbor = expandedId && !isExpanded;
+      const isLocked = isExpanded && scrollState.locked;
       const specs = [
         { label: "Area", value: `${property.area}m2` },
         { label: "Quartos", value: `${property.bedrooms}` },
@@ -45,8 +47,16 @@ const FeaturedComponent = ({ props }) => ({
         { label: "Banheiros", value: `${property.bathrooms}` },
       ];
       const highlights = (property.features || []).slice(0, 3);
+      let neighborClass = "";
+      if (isNeighbor) {
+        if (exitEdge === "top") neighborClass = "is-exit-top";
+        else if (exitEdge === "bottom") neighborClass = "is-exit-bottom";
+        else if (exitEdge === "left") neighborClass = "is-exit-left";
+        else if (exitEdge === "right") neighborClass = "is-exit-right";
+        else neighborClass = "is-neighbor";
+      }
       return /*html*/`
-          <article class="featured-showcase-card ${isActive ? "is-active is-expanded" : ""} ${compared ? "is-compared" : ""} ${isActive && scrollState.locked ? "is-locked" : ""}" data-featured-card data-featured-row="${rowIndex}" data-property-id="${property.id}">
+        <article class="featured-showcase-card ${isExpanded ? "is-expanded" : ""} ${isNeighbor ? neighborClass : ""} ${compared ? "is-compared" : ""} ${isLocked ? "is-locked" : ""}" data-featured-card data-property-id="${property.id}">
           <div class="featured-lens-cursor" aria-hidden="true"></div>
           <div class="featured-showcase-media">
             <img src="${property.image}" alt="${property.title}" loading="lazy">
@@ -87,35 +97,6 @@ const FeaturedComponent = ({ props }) => ({
       `;
     };
 
-    const renderShowcaseRows = () => {
-      const featured = properties.slice(0, 4);
-      const rows = [];
-      for (let index = 0; index < featured.length; index += 2) rows.push(featured.slice(index, index + 2));
-      return rows.map((rowItems, rowIndex) => {
-        const isOpen = hoverState.activeRow === rowIndex;
-        const activeId = isOpen ? hoverState.activePropertyId : null;
-        if (isOpen && activeId) {
-          const activeItem = rowItems.find((p) => p.id === activeId) || rowItems[0];
-          const inactiveItems = rowItems.filter((p) => p.id !== activeId);
-          return /*html*/`
-            <div class="featured-showcase-row is-open" data-featured-row="${rowIndex}">
-              ${renderShowcaseCard(activeItem, rowIndex)}
-            </div>
-            ${inactiveItems.map((item) => /*html*/`
-              <div class="featured-showcase-row is-pushed" data-featured-row="${rowIndex}" data-pushed-from="${rowIndex}">
-                ${renderShowcaseCard(item, rowIndex)}
-              </div>
-            `).join("")}
-          `;
-        }
-        return /*html*/`
-          <div class="featured-showcase-row" data-featured-row="${rowIndex}">
-            ${rowItems.map((property) => renderShowcaseCard(property, rowIndex)).join("")}
-          </div>
-        `;
-      }).join("");
-    };
-
     return {
       done: false,
       value: /*html*/`
@@ -126,7 +107,7 @@ const FeaturedComponent = ({ props }) => ({
               <button class="ghost-btn" type="button" data-route="comprar">Ver todos</button>
             </div>
             <div class="${isDedicatedPage ? "featured-showcase-grid" : "featured-mini-grid"}">
-              ${isDedicatedPage ? renderShowcaseRows() : properties.slice(0, 4).map((property) => renderSimpleCard(property)).join("")}
+              ${isDedicatedPage ? properties.slice(0, 4).map((property) => renderShowcaseCard(property)).join("") : properties.slice(0, 4).map((property) => renderSimpleCard(property)).join("")}
             </div>
           </div>
         </section>
@@ -134,12 +115,3 @@ const FeaturedComponent = ({ props }) => ({
     };
   },
 });
-
-
-
-
-
-
-
-
-
