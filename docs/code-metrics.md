@@ -1,5 +1,9 @@
 # Code Metrics
 
+Primary standard used here:
+
+- `norm65`, as defined in [docs/software-production-metric-standard.md](/home/wqsaxz/dev/nexus-based-imobiliaria-app/docs/software-production-metric-standard.md)
+
 ## Scope
 
 This measurement covers the application source currently present in this repository:
@@ -91,7 +95,11 @@ If you want a single headline number for the project, use:
 
 ## Reproducibility
 
-Command used:
+Canonical tooling:
+
+- [scripts/measure_norm65.sh](/home/wqsaxz/dev/nexus-based-imobiliaria-app/scripts/measure_norm65.sh)
+
+Equivalent command used:
 
 ```bash
 awk '
@@ -119,3 +127,4 @@ END{
 - `state/app-state.js` and `events/bootapp.js` form the application kernel.
 - `components/product-editor.js` and `components/listing.js` are the heaviest UI modules and likely the first places to modularize if the system grows.
 - In academic-document scale, the codebase is roughly an `80`-lauda project, depending on the chosen convention.
+- For cycle-based planning, this repository now pairs `norm65` with `COSMIC-lite`; see [docs/development-cycle-metric-model.md](/home/wqsaxz/dev/nexus-based-imobiliaria-app/docs/development-cycle-metric-model.md).

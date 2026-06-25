@@ -4,6 +4,11 @@
 
 `nexus-based-imobiliaria-app` is a monolithic client-rendered real estate website with an embedded lightweight CMS workflow.
 
+Engineering measurement in this repository is based on:
+
+- `norm65` for technical production volume
+- `COSMIC-lite` for lightweight functional cycle sizing
+
 It is built with:
 
 - static `index.html`
