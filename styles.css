@@ -6121,6 +6121,7 @@ img {
 .app-shell .topbar-search-shell {
   width: min(76vw, 1220px);
   margin-left: auto;
+  border-top: 30px solid transparent;
   max-height: 0;
   opacity: 0;
   overflow: hidden;
