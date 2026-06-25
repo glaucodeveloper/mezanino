@@ -42,6 +42,28 @@ This means a dense file with long lines scores higher than a sparse file with sh
 - Useful characters: `163345`
 - Normalized useful lines at `65` chars: `2513.00`
 
+## Academic Lauda Estimate
+
+There is no single universal academic lauda standard, so the estimate depends on the convention used.
+
+Using the measured `163345` useful characters:
+
+| Convention | Chars per lauda | Estimated laudas |
+| --- | ---: | ---: |
+| compact academic page | 1800 | 90.75 |
+| medium academic page | 2000 | 81.67 |
+| dense academic page | 2100 | 77.78 |
+
+Practical reading:
+
+- around `82` academic laudas if you use `2000` characters per lauda
+- around `78` academic laudas if you use `2100` characters per lauda
+- around `91` academic laudas if you use `1800` characters per lauda
+
+If you want a single headline number for the project, use:
+
+- `~82 laudas academicas` at the `2000 chars/lauda` convention
+
 ## Breakdown By Area
 
 | Area | Raw useful lines | Useful chars | norm65 |
@@ -96,3 +118,4 @@ END{
 - Styling alone is a major part of the codebase, which matches the single-page, highly visual nature of the site.
 - `state/app-state.js` and `events/bootapp.js` form the application kernel.
 - `components/product-editor.js` and `components/listing.js` are the heaviest UI modules and likely the first places to modularize if the system grows.
+- In academic-document scale, the codebase is roughly an `80`-lauda project, depending on the chosen convention.
