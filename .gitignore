@@ -3,3 +3,8 @@ __pycache__/
 pdf_preview/
 .DS_Store
 Thumbs.db
+.env
+.env.local
+env-config.js
+capacitor-crm/.env
+capacitor-crm/.env.local

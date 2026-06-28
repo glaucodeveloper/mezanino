@@ -18,7 +18,9 @@ const ROUTES = [
   "sobre",
   "financiamento",
 ];
-const CMS_LOGIN_PASSWORD = "ZKUd4uCQ";
+const CMS_LOGIN_EMAIL =
+  window.SuaImobiliariaCmsConfig?.loginEmail || "admin@suaimobiliaria.com.br";
+const CMS_LOGIN_PASSWORD = window.SuaImobiliariaCmsConfig?.loginPassword || "";
 const CMS_GITHUB_TOKEN = window.SuaImobiliariaCmsConfig?.githubToken || "";
 
 let properties = [
@@ -458,25 +460,586 @@ let dashboardContent = {
 };
 
 const cmsConfig = () => ({
-  dataUrl: "./cms-imobiliaria/data/site.json",
+  dataUrl: "./cms-imobiliaria/okf/manifest.json",
   repoOwner: "glaucodeveloper",
   repoName: "mezanino-imobiliaria-cms",
   branch: "main",
-  contentPath: "data/site.json",
+  contentPath: "okf/manifest.json",
+  legacyDataUrl: "./cms-imobiliaria/data/site.json",
+  legacyContentPath: "data/site.json",
   ...(window.SuaImobiliariaCmsConfig || {}),
 });
 
+const AI_TEXT_MODEL =
+  window.SuaImobiliariaCmsConfig?.geminiTextModel || "gemini-2.5-flash";
+const AI_TTS_MODEL =
+  window.SuaImobiliariaCmsConfig?.geminiTtsModel ||
+  "gemini-2.5-flash-preview-tts";
+const AI_TTS_VOICE =
+  window.SuaImobiliariaCmsConfig?.geminiTtsVoice || "Kore";
+const VOICE_ASSETS_KEY = "suaimobiliaria:voiceAssets";
+
+const parseYamlScalar = (value) => {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    return trimmed.slice(1, -1);
+  }
+  if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+    return trimmed
+      .slice(1, -1)
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .map((item) =>
+        item.startsWith('"') && item.endsWith('"') ? item.slice(1, -1) : item,
+      );
+  }
+  if (/^-?\d+(\.\d+)?$/.test(trimmed)) return Number(trimmed);
+  return trimmed;
+};
+
+const parseFrontmatter = (markdown) => {
+  const match = String(markdown || "").match(/^---\n([\s\S]*?)\n---/);
+  if (!match) return {};
+  return match[1].split("\n").reduce((acc, line) => {
+    const separatorIndex = line.indexOf(":");
+    if (separatorIndex === -1) return acc;
+    const key = line.slice(0, separatorIndex).trim();
+    const value = line.slice(separatorIndex + 1);
+    acc[key] = parseYamlScalar(value);
+    return acc;
+  }, {});
+};
+
+const parseOkfJsonBlock = (markdown) => {
+  const match = String(markdown || "").match(
+    /```json okf-profile\n([\s\S]*?)\n```/,
+  );
+  if (!match) return null;
+  try {
+    return JSON.parse(match[1]);
+  } catch (error) {
+    console.warn("Bloco JSON invalido em arquivo OKF.", error);
+    return null;
+  }
+};
+
+const extractCmsPayload = (data) => {
+  if (data?.format === "okf" || data?.okfVersion || data?.collections || data?.views) {
+    return {
+      properties: data?.collections?.properties || [],
+      brokers: data?.collections?.brokers || [],
+      dashboard: data?.views?.dashboard || {},
+    };
+  }
+  return data || {};
+};
+
+const buildOkfBundleFromCurrentState = () =>
+  createOkfPayload({
+    properties,
+    brokers,
+    dashboard: dashboardContent,
+  });
+
+const buildOkfContextSummary = ({
+  propertyId = null,
+  query = "",
+  maxProperties = 6,
+} = {}) => {
+  const bundle = window.SuaImobiliariaOkfBundle || buildOkfBundleFromCurrentState();
+  const payload = extractCmsPayload(bundle);
+  const focusedProperty =
+    payload.properties?.find((item) => item.id === propertyId) || null;
+  const shortlist = focusedProperty
+    ? [focusedProperty]
+    : (payload.properties || []).slice(0, maxProperties);
+  const brokerList = (payload.brokers || []).slice(0, 4);
+  const leadList = (payload.dashboard?.leads || []).slice(0, 4);
+  const activityList = (payload.dashboard?.activities || []).slice(0, 3);
+
+  return [
+    "Contexto OKF do CRM imobiliario:",
+    focusedProperty
+      ? `Imovel foco: ${focusedProperty.title} | ${focusedProperty.type} | ${focusedProperty.city} | ${focusedProperty.price}.`
+      : "Catalogo principal:",
+    ...shortlist.map(
+      (item) =>
+        `- ${item.title} | ${item.type} | ${item.city} | ${item.price} | ${(
+          item.features || []
+        ).join(", ")}`,
+    ),
+    "Corretores disponiveis:",
+    ...brokerList.map((item) => `- ${item.name} | ${item.creci || ""} | ${item.phone || ""}`),
+    "Leads recentes:",
+    ...leadList.map(
+      (item) => `- ${item.name} | interesse: ${item.interest} | etapa: ${item.stage}`,
+    ),
+    "Atividades recentes:",
+    ...activityList.map((item) => `- ${item.title}: ${item.detail} (${item.time})`),
+    query ? `Solicitacao atual: ${query}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+};
+
+const fallbackAiInference = ({
+  prompt = "",
+  propertyId = null,
+  customerName = "",
+  channel = "whatsapp",
+} = {}) => {
+  const property =
+    properties.find((item) => item.id === propertyId) || properties[0] || null;
+  const name = customerName || "cliente";
+  const opening =
+    channel === "whatsapp" ? `Oi ${name}!` : `Olá ${name},`;
+  const recommendation = property
+    ? `${property.title} em ${property.city}, com valor de ${property.price}`
+    : "algumas opcoes alinhadas ao seu perfil";
+  const detail = prompt
+    ? `Considerando o que voce pediu sobre "${prompt}",`
+    : "Pelo contexto do CRM e do OKF,";
+  const close =
+    "se quiser, eu posso te enviar disponibilidade, detalhes de documentacao e os proximos passos por aqui.";
+
+  return {
+    text: `${opening} ${detail} a melhor recomendacao inicial e ${recommendation}. ${close}`,
+    source: "local-okf",
+    context: buildOkfContextSummary({ propertyId, query: prompt }),
+  };
+};
+
+const callGeminiText = async ({
+  prompt = "",
+  propertyId = null,
+  customerName = "",
+  channel = "whatsapp",
+} = {}) => {
+  const apiKey = window.SuaImobiliariaCmsConfig?.geminiApiKey;
+  if (!apiKey) {
+    return fallbackAiInference({ prompt, propertyId, customerName, channel });
+  }
+
+  const context = buildOkfContextSummary({ propertyId, query: prompt });
+  const body = {
+    systemInstruction: {
+      parts: [
+        {
+          text:
+            "Voce e um assistente comercial imobiliario. Responda em pt-BR, com foco em WhatsApp, objetividade comercial, contexto do CRM e sem inventar fatos fora do contexto fornecido."
+        }
+      ]
+    },
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            text: [
+              context,
+              `Nome do cliente: ${customerName || "cliente"}`,
+              `Canal: ${channel}`,
+              `Pedido: ${prompt || "Gerar uma resposta comercial curta e util."}`,
+              "Entregue apenas a mensagem final pronta para envio no WhatsApp."
+            ].join("\n\n")
+          }
+        ]
+      }
+    ]
+  };
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${AI_TEXT_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    },
+  );
+
+  if (!response.ok) {
+    return fallbackAiInference({ prompt, propertyId, customerName, channel });
+  }
+
+  const data = await response.json();
+  const text =
+    data?.candidates?.[0]?.content?.parts
+      ?.map((part) => part.text || "")
+      .join("\n")
+      .trim() || fallbackAiInference({ prompt, propertyId, customerName, channel }).text;
+
+  return {
+    text,
+    source: AI_TEXT_MODEL,
+    context,
+  };
+};
+
+const saveVoiceAsset = (asset) => {
+  const record = {
+    id: `voice-${Date.now()}`,
+    createdAt: new Date().toISOString(),
+    ...asset,
+  };
+  const current = JSON.parse(localStorage.getItem(VOICE_ASSETS_KEY) || "[]");
+  localStorage.setItem(VOICE_ASSETS_KEY, JSON.stringify([record, ...current].slice(0, 24)));
+  return record;
+};
+
+const listVoiceAssets = () =>
+  JSON.parse(localStorage.getItem(VOICE_ASSETS_KEY) || "[]");
+
+const decodeInlineAudio = (data) => {
+  if (!data) return null;
+  const mimeType =
+    data?.mimeType ||
+    data?.inlineData?.mimeType ||
+    data?.audio?.mimeType ||
+    "audio/wav";
+  const base64 =
+    data?.data || data?.inlineData?.data || data?.audio?.data || null;
+  if (!base64) return null;
+  return {
+    mimeType,
+    base64,
+    dataUrl: `data:${mimeType};base64,${base64}`,
+  };
+};
+
+const callGeminiTts = async ({
+  text,
+  label = "Resposta comercial",
+  voiceName = AI_TTS_VOICE,
+  propertyId = null,
+} = {}) => {
+  const apiKey = window.SuaImobiliariaCmsConfig?.geminiApiKey;
+  if (!apiKey || !text) {
+    return saveVoiceAsset({
+      label,
+      text,
+      propertyId,
+      mimeType: "",
+      base64: "",
+      dataUrl: "",
+      pendingAudio: true,
+      provider: "local-script",
+    });
+  }
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${AI_TTS_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: "user",
+            parts: [{ text }],
+          },
+        ],
+        generationConfig: {
+          responseModalities: ["AUDIO"],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: {
+                voiceName,
+              },
+            },
+          },
+        },
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    return saveVoiceAsset({
+      label,
+      text,
+      propertyId,
+      mimeType: "",
+      base64: "",
+      dataUrl: "",
+      pendingAudio: true,
+      provider: "tts-fallback",
+    });
+  }
+
+  const data = await response.json();
+  const parts = data?.candidates?.[0]?.content?.parts || [];
+  const audioPart =
+    parts.find((part) => part.inlineData?.data) ||
+    parts.find((part) => part.data) ||
+    null;
+  const audio = decodeInlineAudio(audioPart);
+
+  return saveVoiceAsset({
+    label,
+    text,
+    propertyId,
+    mimeType: audio?.mimeType || "",
+    base64: audio?.base64 || "",
+    dataUrl: audio?.dataUrl || "",
+    pendingAudio: !audio?.dataUrl,
+    provider: AI_TTS_MODEL,
+  });
+};
+
+const buildWhatsappHref = (phone, text) => {
+  const normalizedPhone = String(phone || "5571999990000").replace(/\D/g, "");
+  return `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(text || "")}`;
+};
+
+window.SuaImobiliariaAI = {
+  buildOkfContextSummary,
+  callGeminiText,
+  callGeminiTts,
+  saveVoiceAsset,
+  listVoiceAssets,
+  buildWhatsappHref,
+};
+
+const loadOkfBundle = async (manifestUrl) => {
+  const manifestResponse = await fetch(manifestUrl, { cache: "no-store" });
+  if (!manifestResponse.ok) {
+    throw new Error(`Nao foi possivel carregar o manifest OKF em ${manifestUrl}`);
+  }
+  const manifest = await manifestResponse.json();
+  const baseUrl = new URL("./", new URL(manifestUrl, window.location.href));
+  const entries = Array.isArray(manifest?.entries) ? manifest.entries : [];
+  const markdownEntries = entries.filter((entry) => /\.md$/i.test(entry));
+  const contents = await Promise.all(
+    markdownEntries.map(async (entry) => {
+      const url = new URL(entry, baseUrl).toString();
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error(`Nao foi possivel carregar ${url}`);
+      }
+      const markdown = await response.text();
+      return {
+        entry,
+        frontmatter: parseFrontmatter(markdown),
+        data: parseOkfJsonBlock(markdown),
+      };
+    }),
+  );
+
+  return {
+    format: "okf",
+    okfVersion: manifest?.okfVersion || "0.1",
+    meta: {
+      generatedAt: manifest?.generatedAt || null,
+      manifestUrl,
+    },
+    collections: {
+      properties: contents
+        .filter((item) => item.frontmatter.type === "property" && item.data)
+        .map((item) => item.data),
+      brokers: contents
+        .filter((item) => item.frontmatter.type === "broker" && item.data)
+        .map((item) => item.data),
+    },
+    views: {
+      dashboard:
+        contents.find(
+          (item) => item.frontmatter.type === "dashboard-view" && item.data,
+        )?.data || {},
+    },
+  };
+};
+
+const createOkfPayload = (payload) => ({
+  format: "okf",
+  okfVersion: "1.0",
+  meta: {
+    id: "mezanino-imobiliaria-cms",
+    title: "Mezanino Imobiliaria CMS",
+    generatedAt: new Date().toISOString(),
+    source: "nexus-based-imobiliaria",
+  },
+  collections: {
+    properties: payload.properties || [],
+    brokers: payload.brokers || [],
+  },
+  views: {
+    dashboard: payload.dashboard || {},
+  },
+});
+
+const cmsSlugify = (value) =>
+  String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "item";
+
+const yamlSerialize = (value) => {
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => JSON.stringify(item)).join(", ")}]`;
+  }
+  if (typeof value === "string") return JSON.stringify(value);
+  if (value === undefined || value === null) return '""';
+  return String(value);
+};
+
+const createFrontmatter = (fields) =>
+  `---\n${Object.entries(fields)
+    .map(([key, value]) => `${key}: ${yamlSerialize(value)}`)
+    .join("\n")}\n---`;
+
+const createConceptMarkdown = ({
+  type,
+  title,
+  description,
+  tags,
+  body,
+  timestamp,
+}) =>
+  `${createFrontmatter({
+    type,
+    title,
+    description,
+    tags,
+    timestamp,
+  })}\n\n# ${title}\n\n${body}\n`;
+
+const createJsonBlock = (value) =>
+  `\`\`\`json okf-profile\n${JSON.stringify(value, null, 2)}\n\`\`\``;
+
+const createOkfBundleFiles = (payload) => {
+  const timestamp = new Date().toISOString();
+  const files = {
+    "okf/index.md": createConceptMarkdown({
+      type: "catalog",
+      title: "Mezanino Imobiliaria CMS",
+      description: "Bundle OKF raiz do CMS imobiliario.",
+      tags: ["cms", "real-estate", "okf"],
+      timestamp,
+      body: [
+        "Bundle principal do projeto.",
+        "",
+        "## Navegacao",
+        "- [Catalogo](./catalog/index.md)",
+        "- [Views](./views/index.md)",
+      ].join("\n"),
+    }),
+    "okf/catalog/index.md": createConceptMarkdown({
+      type: "collection-index",
+      title: "Catalogo",
+      description: "Colecoes principais do CRM imobiliario.",
+      tags: ["catalog"],
+      timestamp,
+      body: [
+        "## Colecoes",
+        "- [Imoveis](./properties/index.md)",
+        "- [Corretores](./brokers/index.md)",
+      ].join("\n"),
+    }),
+    "okf/catalog/properties/index.md": createConceptMarkdown({
+      type: "collection-index",
+      title: "Imoveis",
+      description: "Inventario de imoveis.",
+      tags: ["properties"],
+      timestamp,
+      body: (payload.properties || [])
+        .map((property) => `- [${property.title}](./${property.id}.md)`)
+        .join("\n"),
+    }),
+    "okf/catalog/brokers/index.md": createConceptMarkdown({
+      type: "collection-index",
+      title: "Corretores",
+      description: "Diretorio de corretores.",
+      tags: ["brokers"],
+      timestamp,
+      body: (payload.brokers || [])
+        .map((broker) => `- [${broker.name}](./${cmsSlugify(broker.name)}.md)`)
+        .join("\n"),
+    }),
+    "okf/views/index.md": createConceptMarkdown({
+      type: "view-index",
+      title: "Views",
+      description: "Views consumidas pelo site e pelo app mobile.",
+      tags: ["views"],
+      timestamp,
+      body: "- [Dashboard](./dashboard.md)",
+    }),
+    "okf/views/dashboard.md": createConceptMarkdown({
+      type: "dashboard-view",
+      title: "Dashboard",
+      description: "Dados agregados do dashboard.",
+      tags: ["dashboard", "crm"],
+      timestamp,
+      body: ["View agregada para o dashboard.", "", createJsonBlock(payload.dashboard || {})].join(
+        "\n",
+      ),
+    }),
+  };
+
+  (payload.properties || []).forEach((property) => {
+    files[`okf/catalog/properties/${property.id}.md`] = createConceptMarkdown({
+      type: "property",
+      title: property.title,
+      description: `${property.type || "Imovel"} em ${property.city || ""}`.trim(),
+      tags: ["property", property.kind || "imovel", property.cityName || ""].filter(
+        Boolean,
+      ),
+      timestamp,
+      body: [`Preco de referencia: ${property.price || "-"}.`, "", createJsonBlock(property)].join(
+        "\n",
+      ),
+    });
+  });
+
+  (payload.brokers || []).forEach((broker) => {
+    const id = cmsSlugify(broker.name);
+    files[`okf/catalog/brokers/${id}.md`] = createConceptMarkdown({
+      type: "broker",
+      title: broker.name,
+      description: broker.creci || "Corretor imobiliario",
+      tags: ["broker", "crm"],
+      timestamp,
+      body: createJsonBlock({ id, ...broker }),
+    });
+  });
+
+  files["okf/manifest.json"] = `${JSON.stringify(
+    {
+      format: "okf-manifest",
+      okfVersion: "0.1",
+      generatedAt: timestamp,
+      root: "index.md",
+      entries: Object.keys(files).map((path) => path.replace(/^okf\//, "")),
+    },
+    null,
+    2,
+  )}\n`;
+
+  files["data/site.okf.json"] = `${JSON.stringify(createOkfPayload(payload), null, 2)}\n`;
+  files["data/site.json"] = `${JSON.stringify(payload, null, 2)}\n`;
+
+  return files;
+};
+
 const applyCmsData = (data) => {
-  if (Array.isArray(data?.properties) && data.properties.length)
-    properties = data.properties.map((item, index) =>
+  const payload = extractCmsPayload(data);
+  window.SuaImobiliariaOkfBundle =
+    data?.format === "okf" || data?.okfVersion ? data : createOkfPayload(payload);
+  if (Array.isArray(payload?.properties) && payload.properties.length)
+    properties = payload.properties.map((item, index) =>
       normalizeDashboardItem("properties", item, index),
     );
-  if (Array.isArray(data?.brokers) && data.brokers.length)
-    brokers = data.brokers;
-  if (data?.dashboard && typeof data.dashboard === "object")
+  if (Array.isArray(payload?.brokers) && payload.brokers.length)
+    brokers = payload.brokers;
+  if (payload?.dashboard && typeof payload.dashboard === "object")
     dashboardContent = normalizeDashboardContent({
       ...dashboardContent,
-      ...data.dashboard,
+      ...payload.dashboard,
     });
 };
 
@@ -493,11 +1056,26 @@ const loadCmsData = async () => {
     }
   }
   if (!config?.dataUrl) return;
-  const response = await fetch(config.dataUrl, { cache: "no-store" });
-  if (!response.ok)
-    throw new Error(`Nao foi possivel carregar o CMS em ${config.dataUrl}`);
-  applyCmsData(await response.json());
-  window.SuaImobiliariaCmsState = { source: config.dataUrl };
+  const attemptUrls = [config.dataUrl, config.legacyDataUrl].filter(Boolean);
+  let lastError = null;
+  for (const url of attemptUrls) {
+    try {
+      const data = /\.json$/i.test(url) && /\/okf\/manifest\.json$/i.test(url)
+        ? await loadOkfBundle(url)
+        : await (async () => {
+            const response = await fetch(url, { cache: "no-store" });
+            if (!response.ok)
+              throw new Error(`Nao foi possivel carregar o CMS em ${url}`);
+            return response.json();
+          })();
+      applyCmsData(data);
+      window.SuaImobiliariaCmsState = { source: url };
+      return;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError || new Error("Nao foi possivel carregar o CMS.");
 };
 
 const saveCmsDataLocally = (payload, message = "Produto salvo localmente.") => {
@@ -528,11 +1106,12 @@ const fileToDataUrl = (file) =>
     reader.readAsDataURL(file);
   });
 
-const createCmsPayload = () => ({
-  properties,
-  brokers,
-  dashboard: dashboardContent,
-});
+const createCmsPayload = () =>
+  createOkfPayload({
+    properties,
+    brokers,
+    dashboard: dashboardContent,
+  });
 
 const saveCmsDataToGitHub = async (token, payload) => {
   if (!token)
@@ -541,53 +1120,62 @@ const saveCmsDataToGitHub = async (token, payload) => {
       "Produto salvo localmente. Configure githubToken para publicar no GitHub.",
     );
   const config = cmsConfig();
-  const apiUrl = `https://api.github.com/repos/${config.repoOwner}/${config.repoName}/contents/${config.contentPath}`;
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
   const headers = {
     ...authHeaders,
     Accept: "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28",
   };
-  let currentResponse = await fetch(`${apiUrl}?ref=${config.branch}`, {
-    headers,
-  });
-  if (currentResponse.status === 401 && token) {
-    currentResponse = await fetch(`${apiUrl}?ref=${config.branch}`, {
-      headers: {
-        Accept: "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-      },
+  const bundleFiles = createOkfBundleFiles(extractCmsPayload(payload));
+  const repoBase = `https://api.github.com/repos/${config.repoOwner}/${config.repoName}/contents`;
+
+  for (const [path, content] of Object.entries(bundleFiles)) {
+    const apiUrl = `${repoBase}/${path}`;
+    let currentResponse = await fetch(`${apiUrl}?ref=${config.branch}`, {
+      headers,
     });
-  }
-  if (!currentResponse.ok)
-    throw new Error(
-      `Nao foi possivel ler o arquivo atual do CMS (${currentResponse.status}).`,
-    );
-  const currentFile = await currentResponse.json();
-  const updateResponse = await fetch(apiUrl, {
-    method: "PUT",
-    headers: { ...headers, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message: "update cms data from dashboard",
-      content: encodeBase64Utf8(`${JSON.stringify(payload, null, 2)}\n`),
-      sha: currentFile.sha,
-      branch: config.branch,
-    }),
-  });
-  if (!updateResponse.ok) {
-    const errorData = await updateResponse.json().catch(() => ({}));
-    if ([401, 403].includes(updateResponse.status)) {
-      return saveCmsDataLocally(
-        payload,
-        "Nao foi possivel autenticar no GitHub. Alteracoes salvas localmente.",
+    if (currentResponse.status === 401 && token) {
+      currentResponse = await fetch(`${apiUrl}?ref=${config.branch}`, {
+        headers: {
+          Accept: "application/vnd.github+json",
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+      });
+    }
+    let sha;
+    if (currentResponse.ok) {
+      const currentFile = await currentResponse.json();
+      sha = currentFile.sha;
+    } else if (![404].includes(currentResponse.status)) {
+      throw new Error(
+        `Nao foi possivel ler o arquivo atual do CMS (${currentResponse.status}).`,
       );
     }
-    throw new Error(
-      errorData.message ||
-        `Falha ao salvar no GitHub (${updateResponse.status}).`,
-    );
+
+    const updateResponse = await fetch(apiUrl, {
+      method: "PUT",
+      headers: { ...headers, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: `update cms data ${path}`,
+        content: encodeBase64Utf8(content),
+        sha,
+        branch: config.branch,
+      }),
+    });
+    if (!updateResponse.ok) {
+      const errorData = await updateResponse.json().catch(() => ({}));
+      if ([401, 403].includes(updateResponse.status)) {
+        return saveCmsDataLocally(
+          payload,
+          "Nao foi possivel autenticar no GitHub. Alteracoes salvas localmente.",
+        );
+      }
+      throw new Error(
+        errorData.message || `Falha ao salvar no GitHub (${updateResponse.status}).`,
+      );
+    }
   }
-  return updateResponse.json();
+  return { savedTo: "github", message: "Bundle OKF salvo no GitHub." };
 };
 
 const parseRoute = () => {
@@ -610,7 +1198,7 @@ const parseRoute = () => {
     operation: params.get("operation") || null,
   };
 };
-const brand = () => /*html*/ `<img src="./wordmark.svg"/> `;
+const brand = () => /*html*/ `<img src="./logo.svg" alt="Mezanino Imobiliaria"/> `;
 const active = (currentRoute, route) =>
   currentRoute === route ? "active" : "";
 const money = (value) => Number(value).toLocaleString("pt-BR");

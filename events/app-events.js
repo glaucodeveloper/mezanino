@@ -255,6 +255,11 @@ const bootApp = (rootSelector = "#app") => {
         (property) => property.id === routeState.current().selectedPropertyId,
       ) || properties[0],
     addLead,
+    generateAiReply: (options = {}) => window.SuaImobiliariaAI.callGeminiText(options),
+    generateAiVoice: (options = {}) => window.SuaImobiliariaAI.callGeminiTts(options),
+    listAiVoiceAssets: () => window.SuaImobiliariaAI.listVoiceAssets(),
+    buildWhatsappHref: (phone, text) =>
+      window.SuaImobiliariaAI.buildWhatsappHref(phone, text),
     saveProperty,
     deleteProperty,
     goToRoute: (route, options = {}) => setRoute(route, options),
@@ -275,7 +280,10 @@ const bootApp = (rootSelector = "#app") => {
   add("listing", ListingComponent, propertyTools);
   add("detail", DetailComponent, propertyTools);
   add("favorites", FavoritesComponent, propertyTools);
-  add("quiz", QuizComponent, { addLead });
+  add("quiz", QuizComponent, {
+    addLead,
+    requestRender: () => requestRender(),
+  });
   add("editor", ProductEditorComponent, {
     getRoute,
     getSelectedProperty: () =>
@@ -309,7 +317,7 @@ const bootApp = (rootSelector = "#app") => {
   add("login", LoginComponent, {
     login: (email, password) => {
       const ok =
-        email === "admin@suaimobiliaria.com.br" &&
+        email === CMS_LOGIN_EMAIL &&
         password === CMS_LOGIN_PASSWORD;
       if (ok) {
         sessionState.apply({ type: "login" });
@@ -322,7 +330,14 @@ const bootApp = (rootSelector = "#app") => {
       return ok;
     },
   });
-  add("contact", ContactComponent, { addLead });
+  add("contact", ContactComponent, {
+    addLead,
+    generateAiReply: (options = {}) => window.SuaImobiliariaAI.callGeminiText(options),
+    generateAiVoice: (options = {}) => window.SuaImobiliariaAI.callGeminiTts(options),
+    listAiVoiceAssets: () => window.SuaImobiliariaAI.listVoiceAssets(),
+    buildWhatsappHref: (phone, text) =>
+      window.SuaImobiliariaAI.buildWhatsappHref(phone, text),
+  });
   add("about", AboutComponent, { ...routeTools });
   add("dashboard-about", AboutComponent, {
     ...routeTools,
@@ -741,9 +756,10 @@ const bootApp = (rootSelector = "#app") => {
 window.SuaImobiliariaApp = { bootApp };
 
 document.addEventListener("DOMContentLoaded", () => {
+  const app = bootApp("#app");
   loadCmsData()
+    .then(() => app.next({ type: "render" }))
     .catch((error) => {
       console.warn("CMS indisponivel, usando dados locais.", error);
-    })
-    .then(() => bootApp("#app"));
+    });
 });

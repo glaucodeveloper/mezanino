@@ -1,0 +1,27 @@
+{
+  "format": "okf-manifest",
+  "okfVersion": "0.1",
+  "generatedAt": "2026-06-28T16:26:25.221Z",
+  "root": "index.md",
+  "entries": [
+    "index.md",
+    "catalog/index.md",
+    "catalog/properties/index.md",
+    "catalog/brokers/index.md",
+    "views/index.md",
+    "views/dashboard.md",
+    "catalog/properties/alphaville.md",
+    "catalog/properties/jardim-armacao.md",
+    "catalog/properties/vilarejo.md",
+    "catalog/properties/busca-vida.md",
+    "catalog/properties/cobertura-barra.md",
+    "catalog/properties/studio-caminho.md",
+    "catalog/properties/casa-ipitanga.md",
+    "catalog/properties/sala-comercial-pituba.md",
+    "catalog/properties/terreno-jaua.md",
+    "catalog/brokers/joao-almeida.md",
+    "catalog/brokers/mariana-santos.md",
+    "catalog/brokers/carlos-mendes.md",
+    "catalog/brokers/juliana-oliveira.md"
+  ]
+}

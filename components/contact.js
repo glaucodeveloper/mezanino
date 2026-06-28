@@ -2,9 +2,15 @@ const ContactComponent = ({ props }) => {
   let status = "";
   let announceStatus = "";
   let announceOpen = false;
+  let aiStatus = "";
+  let aiReply = "";
+  let aiPhone = "";
+  let aiName = "";
+  let aiVoiceAsset = null;
+  const escapeText = (value) => String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
   return {
-    next(message = {}) {
+    async next(message = {}) {
       if (message.type === "contact") {
         props.addLead({
           name: message.fields.name || "Contato",
@@ -29,6 +35,34 @@ const ContactComponent = ({ props }) => {
         });
         announceOpen = true;
         announceStatus = "Lead de captacao salvo no dashboard.";
+      }
+
+      if (message.type === "generateAiContactReply") {
+        aiName = message.fields.customerName || aiName;
+        aiPhone = message.fields.customerPhone || aiPhone;
+        const result = await props.generateAiReply({
+          prompt: message.fields.aiPrompt || message.fields.interest || "Contato comercial",
+          propertyId: properties[0]?.id || null,
+          customerName: aiName,
+          channel: "whatsapp",
+        });
+        aiReply = result.text || "";
+        aiStatus = `Mensagem inferida sobre o OKF (${result.source || "local"}).`;
+      }
+
+      if (message.type === "generateAiContactVoice") {
+        if (!aiReply) {
+          aiStatus = "Gere a mensagem antes do audio.";
+        } else {
+          aiVoiceAsset = await props.generateAiVoice({
+            text: aiReply,
+            label: "Contato WhatsApp",
+            propertyId: properties[0]?.id || null,
+          });
+          aiStatus = aiVoiceAsset?.pendingAudio
+            ? "Roteiro salvo, mas sem audio real ainda."
+            : "Audio gerado e salvo.";
+        }
       }
 
       const announcePanelClass = announceOpen ? "is-active" : "is-inactive";
@@ -81,6 +115,29 @@ const ContactComponent = ({ props }) => {
                             <button class="gold-btn" type="submit">Enviar</button>
                             ${status ? `<p class="login-error">${status}</p>` : ""}
                           </div>
+                        </form>
+                        <form class="phone-card" data-cid="contact" data-message="generateAiContactReply">
+                          <h3>IA + OKF</h3>
+                          <div class="mini-field">
+                            <label>Cliente</label>
+                            <input name="customerName" value="${escapeText(aiName)}" placeholder="Nome do cliente">
+                          </div>
+                          <div class="mini-field">
+                            <label>Telefone</label>
+                            <input name="customerPhone" value="${escapeText(aiPhone)}" placeholder="5571999990000">
+                          </div>
+                          <div class="mini-field">
+                            <label>Pedido</label>
+                            <input name="aiPrompt" placeholder="Quero uma mensagem para lead quente pedindo visita">
+                          </div>
+                          <button class="gold-btn" type="submit">Gerar mensagem</button>
+                          ${aiReply ? `<div class="mini-field"><label>Resposta</label><textarea rows="5" readonly>${escapeText(aiReply)}</textarea></div>` : ""}
+                          <div class="action-stack">
+                            <button class="ghost-btn" type="button" data-cid="contact" data-message="generateAiContactVoice">Gerar voz</button>
+                            ${aiReply ? `<a class="ghost-btn whatsapp" href="${props.buildWhatsappHref(aiPhone, aiReply)}" target="_blank" rel="noreferrer">Abrir WhatsApp</a>` : ""}
+                          </div>
+                          ${aiVoiceAsset?.dataUrl ? `<audio controls preload="none" src="${escapeText(aiVoiceAsset.dataUrl)}"></audio>` : ""}
+                          ${aiStatus ? `<p class="login-error">${escapeText(aiStatus)}</p>` : ""}
                         </form>
                         <article class="phone-card">
                           <h3>Endereco</h3>

@@ -20,3 +20,24 @@ Projeto base para um website imobiliario renderizado no cliente com uma estrutur
 
 Centralizar a vitrine do site e a estrutura de conteudo em um unico repositorio, preparado para evoluir catalogo, filtros, dashboard e integracoes futuras.
 
+## Setup rapido
+
+```bash
+npm run setup
+```
+
+Gera `env-config.js` a partir de `.env`.
+
+## Build
+
+```bash
+npm run web:prepare
+npm run mobile:build
+```
+
+Ou tudo de uma vez:
+
+```bash
+npm run build
+```
+

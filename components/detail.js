@@ -1,5 +1,10 @@
 const DetailComponent = ({ props }) => {
   let status = "";
+  let aiStatus = "";
+  let aiReply = "";
+  let aiCustomerPhone = "";
+  let aiCustomerName = "";
+  let aiVoiceAsset = null;
   let galleryOpen = false;
   let galleryIndex = 0;
   let activePropertyId = "";
@@ -9,7 +14,7 @@ const DetailComponent = ({ props }) => {
   const escapeText = (value) => String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
   return {
-    next(message = {}) {
+    async next(message = {}) {
       if (message.type === "toggleFavorite") props.toggleFavorite(message.propertyId);
       if (message.type === "setDetailTab") activeTab = message.value || activeTab;
       if (message.type === "openGallery") {
@@ -39,6 +44,32 @@ const DetailComponent = ({ props }) => {
         props.addLead({ name: message.fields.name || "Proposta", source: "Pagina do imovel", interest: props.getSelectedProperty().title, stage: "novo" });
         status = "Proposta registrada no dashboard.";
       }
+      if (message.type === "generateAiReply") {
+        aiCustomerName = message.fields.customerName || aiCustomerName;
+        aiCustomerPhone = message.fields.customerPhone || aiCustomerPhone;
+        const result = await props.generateAiReply({
+          prompt: message.fields.aiPrompt || "",
+          propertyId: props.getSelectedProperty().id,
+          customerName: aiCustomerName,
+          channel: "whatsapp",
+        });
+        aiReply = result.text || "";
+        aiStatus = `Mensagem inferida pelo contexto OKF (${result.source || "local"}).`;
+      }
+      if (message.type === "generateAiVoice") {
+        if (!aiReply) {
+          aiStatus = "Gere a mensagem antes de criar o audio.";
+        } else {
+          aiVoiceAsset = await props.generateAiVoice({
+            text: aiReply,
+            label: `WhatsApp ${props.getSelectedProperty().title}`,
+            propertyId: props.getSelectedProperty().id,
+          });
+          aiStatus = aiVoiceAsset?.pendingAudio
+            ? "Roteiro salvo, mas sem arquivo de audio real. Configure TTS para enviar audio no WhatsApp."
+            : "Audio gerado e salvo para reaproveitamento.";
+        }
+      }
 
       const property = props.getSelectedProperty();
       if (property?.id !== activePropertyId) {
@@ -47,6 +78,11 @@ const DetailComponent = ({ props }) => {
         galleryIndex = 0;
         galleryZoom = null;
         activeTab = "sobre";
+        aiStatus = "";
+        aiReply = "";
+        aiCustomerPhone = "";
+        aiCustomerName = "";
+        aiVoiceAsset = null;
       }
 
       const broker = brokers[0];
@@ -199,6 +235,21 @@ const DetailComponent = ({ props }) => {
                   <div class="mini-field"><label>Telefone</label><input name="phone" required placeholder="(71) 99999-0000"></div>
                   <button class="gold-btn" type="submit">Enviar proposta</button>
                   ${status ? `<p class="login-error">${escapeText(status)}</p>` : ""}
+                </form>
+                <form class="broker-card" data-cid="detail" data-message="generateAiReply">
+                  <strong>IA para WhatsApp</strong>
+                  <div class="mini-field"><label>Cliente</label><input name="customerName" value="${escapeText(aiCustomerName)}" placeholder="Nome do cliente"></div>
+                  <div class="mini-field"><label>Telefone</label><input name="customerPhone" value="${escapeText(aiCustomerPhone)}" placeholder="5571999990000"></div>
+                  <div class="mini-field"><label>Briefing</label><textarea name="aiPrompt" rows="3" placeholder="Ex.: quer saber se aceita financiamento e quando pode visitar."></textarea></div>
+                  <button class="gold-btn" type="submit">Gerar mensagem</button>
+                  ${aiReply ? `<div class="mini-field"><label>Resposta pronta</label><textarea rows="5" readonly>${escapeText(aiReply)}</textarea></div>` : ""}
+                  <div class="action-stack">
+                    <button class="ghost-btn" type="button" data-cid="detail" data-message="generateAiVoice">Gerar e salvar audio</button>
+                    ${aiReply ? `<a class="ghost-btn whatsapp" href="${props.buildWhatsappHref(aiCustomerPhone, aiReply)}" target="_blank" rel="noreferrer">Abrir no WhatsApp</a>` : ""}
+                  </div>
+                  ${aiVoiceAsset ? `<p class="route-note">${aiVoiceAsset.pendingAudio ? "Audio pendente de TTS real." : "Audio salvo com sucesso."}</p>` : ""}
+                  ${aiVoiceAsset?.dataUrl ? `<audio controls preload="none" src="${aiVoiceAsset.dataUrl}"></audio><a class="ghost-btn" href="${aiVoiceAsset.dataUrl}" download="${escapeText(aiVoiceAsset.id)}.wav">Baixar audio</a>` : ""}
+                  ${aiStatus ? `<p class="login-error">${escapeText(aiStatus)}</p>` : ""}
                 </form>
                 <div class="broker-card">
                   <strong>Corretor responsavel</strong>

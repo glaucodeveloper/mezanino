@@ -1,0 +1,14 @@
+{
+  "name": "nexus-based-imobiliaria",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "env:sync": "node tools/generate-env-config.mjs",
+    "okf:build": "node cms-imobiliaria/scripts/build-okf.mjs",
+    "web:prepare": "npm run env:sync && npm run okf:build",
+    "mobile:build": "npm --prefix capacitor-crm run build",
+    "mobile:sync": "npm --prefix capacitor-crm run cap:sync",
+    "build": "npm run web:prepare && npm run mobile:build",
+    "setup": "npm run env:sync"
+  }
+}
