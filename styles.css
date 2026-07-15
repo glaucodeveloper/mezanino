@@ -6017,9 +6017,9 @@ img {
   pointer-events: none;
 }
 .app-shell.route-home.is-scrolled .topbar {
-  background: linear-gradient(180deg, rgba(8, 14, 16, 0.98), rgba(8, 14, 16, 0.94));
+  background: linear-gradient(180deg, rgba(8, 14, 16, 0.63), rgba(8, 14, 16, 0.94));
   backdrop-filter: blur(18px);
-  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.15);
 }
 .app-shell .topbar-shell {
   grid-column: 2 / 2;
