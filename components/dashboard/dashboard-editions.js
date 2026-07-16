@@ -22,7 +22,7 @@ const DashboardEditionsComponent = ({ props }) => {
   };
 
   const sections = {
-    hero: { label: "Hero", icon: "\u2302", description: "Sessao principal da home com titulo e chamada." },
+    hero: { label: "Abertura", icon: "\u2302", description: "Primeira seção do site, com título e chamada." },
     featured: { label: "Destaques", icon: "\u2726", description: "Sessao de imoveis em destaque do site." },
     about: { label: "Sobre nos", icon: "\u25c6", description: "Sessao institucional com historia e valores." },
     contact: { label: "Contato", icon: "\u2709", description: "Sessao de contato e atendimento." },
@@ -110,8 +110,11 @@ const DashboardEditionsComponent = ({ props }) => {
         });
       }
       if (message.type === "saveEditions") {
-        status = "Edicoes salvas.";
-        if (typeof props.saveDashboard === "function") return props.saveDashboard(dashboardContent).then(() => { props.requestRender?.(); });
+        status = "Salvando alterações...";
+        if (typeof props.saveDashboard === "function") return props.saveDashboard(dashboardContent).then((result = {}) => {
+          status = result.message || "Alterações salvas.";
+          props.requestRender?.();
+        });
         props.requestRender?.();
       }
 
@@ -122,9 +125,9 @@ const DashboardEditionsComponent = ({ props }) => {
         value: /*html*/`
           <div class="editions-section about-section--editor">
             <div class="editions-hero">
-              <span class="eyebrow">Edicoes do site</span>
-              <h3>Editar sessoes</h3>
-              <p>Clique nos campos de texto para editar direto na pagina. Clique no slot de imagem para fazer upload.</p>
+              <span class="eyebrow">Conteúdo do site</span>
+              <h3>Editar seções</h3>
+              <p>Toque no texto para editá-lo. Toque na imagem para substituí-la.</p>
             </div>
             <div class="about-tabs">
               ${Object.keys(sections).map(renderTab).join("")}
@@ -132,9 +135,9 @@ const DashboardEditionsComponent = ({ props }) => {
             ${renderSection(currentEditions)}
             <div class="about-editor-actions">
               <button class="ghost-btn" type="button" data-cid="dashboard" data-message="setTab" data-value="overview">Voltar</button>
-              <button class="gold-btn" type="button" data-cid="editions" data-message="saveEditions">Salvar edicoes</button>
+              <button class="gold-btn" type="button" data-cid="editions" data-message="saveEditions">Salvar alterações</button>
             </div>
-            ${status ? `<p class="route_note">${status}</p>` : ""}
+            ${status ? `<p class="route-note">${status}</p>` : ""}
           </div>
         `,
       };

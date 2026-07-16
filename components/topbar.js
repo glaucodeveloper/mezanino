@@ -58,10 +58,7 @@ const TopbarComponent = ({ props }) => {
           operation: "alugar",
           active: route === "comprar" && operation === "alugar",
         },
-        { route: "destaques", label: "Lançamentos" },
         { route: "anuncie", label: "Anuncie" },
-        { route: "favoritos", label: "Favoritos" },
-        { route: "quiz", label: "Quiz" },
         { route: "contato", label: "Contato" },
       ];
       const renderSearchPanel = () => /*html*/ `
@@ -84,12 +81,9 @@ const TopbarComponent = ({ props }) => {
         value: /*html*/ `
           <header class="topbar ${mobileMenuOpen ? "topbar--mobile-open" : ""}">
             <div class="topbar-title-slot container">
-              <span class="eyebrow">${route === "dashboard" ? "Area interna" : "Navegacao"}</span>
-              <h1>${pageTitle}</h1>
-              <p>${pageSubtitle}</p>
+              <a class="${active(route, "home")} topbar-brand" href="#home" data-route="home">${window.LOGO_SVG}</a>
             </div>
             <div class="topbar-brand-slot container">
-              <a class="${active(route, "home")} topbar-brand" href="#home" data-route="home">${window.LOGO_SVG}</a>
               <button class="topbar-burger" type="button" data-cid="topbar" data-message="toggleMobileMenu" aria-label="${mobileMenuOpen ? "Fechar menu" : "Abrir menu"}" aria-expanded="${mobileMenuOpen ? "true" : "false"}" aria-controls="topbar-navigation">
                 <span class="topbar-burger-logo" aria-hidden="true">${window.LOGO_SVG}</span>
               </button>
@@ -114,10 +108,6 @@ const TopbarComponent = ({ props }) => {
               <a class="icon-btn" href="#comprar" data-route="comprar" data-operation="${operation}" aria-label="Buscar">
                 <span>&#128269;</span>
               </a>
-              <a class="icon-btn ${active(route, "favoritos")}" href="#favoritos" data-route="favoritos" aria-label="Favoritos">
-                <span>${favoriteMark(favoritesCount > 0)}</span>
-                ${favoritesCount ? `<small>${favoritesCount}</small>` : ""}
-              </a>
               <a class="icon-btn ${active(route, session.authenticated ? "dashboard" : "login")}" href="#${session.authenticated ? "dashboard" : "login"}" data-route="${session.authenticated ? "dashboard" : "login"}" aria-label="Conta">
                 <span>${session.authenticated ? "&#9786;" : "&#9675;"}</span>
               </a>
@@ -128,6 +118,12 @@ const TopbarComponent = ({ props }) => {
                 ${renderSearchPanel()}
               </div>
             </div>
+            <p class="topbar-contact-info">
+              (71) 99999-0000<br>
+              contato@suaimobiliaria.com.br<br>
+              Rua das Acacias, 129<br>
+              Salvador/BA
+            </p>
           </header>
         `,
       };

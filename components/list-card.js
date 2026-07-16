@@ -17,11 +17,11 @@ const ListCardComponent = ({ props }) => ({
             <span class="property-type">${property.type}</span>
             <h3>${titleLink}</h3>
             <div class="location">${property.city}</div>
+            ${property.observedAt ? `<p class="compare-hint">Observado em ${property.observedAt}. ${property.availabilityStatus || "Confirmar disponibilidade na fonte."}</p>` : ""}
             <div class="meta">${property.meta.map((item) => /*html*/`<span>${item}</span>`).join("")}</div>
             ${isListing ? `<p class="compare-hint">Clique no card para comparar. O titulo abre o detalhe.</p>` : ""}
           </div>
           <div class="list-price">
-            <button class="heart ${favorite ? "active" : ""}" type="button" data-cid="listing" data-message="toggleFavorite" data-property-id="${property.id}">${favoriteMark(favorite)}</button>
             <strong class="price">${property.price}</strong>
             ${isListing ? `<span class="compare-chip">${compared ? "Selecionado" : "Comparar"}</span>` : `<button class="ghost-btn compare-btn ${compared ? "active" : ""}" type="button" data-cid="listing" data-message="toggleCompare" data-property-id="${property.id}">${compared ? "Comparando" : "Comparar"}</button><button class="ghost-btn" type="button" data-route="imovel" data-property-id="${property.id}">Ver detalhes</button>`}
           </div>
@@ -30,4 +30,3 @@ const ListCardComponent = ({ props }) => ({
     };
   },
 });
-

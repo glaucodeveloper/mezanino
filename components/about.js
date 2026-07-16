@@ -140,8 +140,11 @@ const AboutComponent = ({ props }) => {
         const dataToSave = draft || about;
         dashboardContent = { ...dashboardContent, about: dataToSave };
         draft = null;
-        status = "Conteudo salvo.";
-        if (typeof props.saveDashboard === "function") return props.saveDashboard(dashboardContent).then(() => { props.requestRender?.(); });
+        status = "Salvando conteúdo...";
+        if (typeof props.saveDashboard === "function") return props.saveDashboard(dashboardContent).then((result = {}) => {
+          status = result.message || "Conteúdo salvo.";
+          props.requestRender?.();
+        });
         props.requestRender?.();
       }
 

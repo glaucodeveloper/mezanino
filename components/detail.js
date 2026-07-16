@@ -36,8 +36,20 @@ const DetailComponent = ({ props }) => {
       if (message.type === "nextGallery") galleryIndex += 1;
       if (message.type === "prevGallery") galleryIndex -= 1;
       if (message.type === "proposal") {
-        props.addLead({ name: message.fields.name || "Proposta", source: "Pagina do imovel", interest: props.getSelectedProperty().title, stage: "novo" });
-        status = "Proposta registrada no dashboard.";
+        const selected = props.getSelectedProperty();
+        props.addLead({
+          name: message.fields.name || "Contato de agendamento",
+          source: "Agendamento de visita",
+          interest: `Visita agendada para ${message.fields.date || "data não informada"}: ${selected.title}`,
+          propertyId: selected.id,
+          transaction: selected.purpose || "analise",
+          email: message.fields.email || "",
+          phone: message.fields.phone || "",
+          narrative: `Solicitou agendamento de visita para o dia ${message.fields.date || "não especificado"}.`,
+          nextAction: "Confirmar agendamento de visita.",
+          stage: "novo",
+        });
+        status = "Agendamento enviado imediatamente!";
       }
 
       const property = props.getSelectedProperty();
@@ -49,7 +61,7 @@ const DetailComponent = ({ props }) => {
         activeTab = "sobre";
       }
 
-      const broker = brokers[0];
+      const broker = brokers[0] || null;
       const renderPropertyCard = (item) => PropertyCardComponent({
         props: {
           property: item,
@@ -119,6 +131,17 @@ const DetailComponent = ({ props }) => {
               <li><strong>Bairro:</strong> ${escapeText(property.neighborhood)}</li>
               <li><strong>Operacao:</strong> ${escapeText(property.operation || "Comprar")}</li>
             </ul>
+            <div class="detail-map" style="margin-top: 20px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); height: 260px;">
+              <iframe 
+                width="100%" 
+                height="100%" 
+                style="border:0;" 
+                loading="lazy" 
+                allowfullscreen 
+                referrerpolicy="no-referrer-when-downgrade"
+                src="https://maps.google.com/maps?q=${encodeURIComponent(property.city)}&t=&z=15&ie=UTF8&iwloc=&output=embed">
+              </iframe>
+            </div>
           `,
         },
         {
@@ -167,7 +190,7 @@ const DetailComponent = ({ props }) => {
                 <div class="detail-copy">
                   <span class="eyebrow">${escapeText(property.type)}</span>
                   <h2>${escapeText(property.title)}</h2>
-                  <p>Projeto pensado para uma rotina sofisticada, com implantacao funcional, acabamentos consistentes e posicionamento forte dentro do bairro.</p>
+                  <p>${property.recordType === "market-comparable" ? `Referencia observada em ${escapeText(property.observedAt || "data nao informada")}. O preco e pedido, a imagem e ilustrativa e a disponibilidade precisa ser confirmada na fonte.` : "Cadastro comercial do imovel."}</p>
                   <ul class="feature-list">
                     <li>Area total: ${escapeText(property.area)}m2</li>
                     <li>Area privativa: ${Math.max(Number(property.area) - 20, Number(property.area))}m2</li>
@@ -189,22 +212,20 @@ const DetailComponent = ({ props }) => {
                 <div class="meta">${(property.meta || []).map((item) => /*html*/`<span>${escapeText(item)}</span>`).join("")}</div>
                 <strong class="price">${escapeText(property.price)}</strong>
                 <div class="action-stack">
-                  <button class="gold-btn" type="button" data-route="contato">Agendar visita</button>
+                  <button class="gold-btn" type="button" data-route="contato">Solicitar confirmacao</button>
                   <button class="ghost-btn whatsapp" type="button" data-route="contato">WhatsApp</button>
-                  <button class="ghost-btn" type="button" data-cid="detail" data-message="toggleFavorite" data-property-id="${escapeText(property.id)}">${favoriteMark(props.isFavorite(property.id))} Favoritar</button>
                 </div>
                 <form class="broker-card" data-cid="detail" data-message="proposal">
-                  <strong>Formulario de proposta</strong>
-                  <div class="mini-field"><label>Nome</label><input name="name" required placeholder="Seu nome"></div>
-                  <div class="mini-field"><label>Telefone</label><input name="phone" required placeholder="(71) 99999-0000"></div>
-                  <button class="gold-btn" type="submit">Enviar proposta</button>
-                  ${status ? `<p class="login-error">${escapeText(status)}</p>` : ""}
+                  <strong>Agendar Visita ao Imóvel</strong>
+                  <div class="mini-field"><label>Nome *</label><input name="name" required placeholder="Seu nome"></div>
+                  <div class="mini-field"><label>Telefone *</label><input name="phone" required placeholder="(71) 99999-0000"></div>
+                  <div class="mini-field"><label>E-mail *</label><input name="email" type="email" required placeholder="seu@email.com"></div>
+                  <div class="mini-field"><label>Data Desejada *</label><input name="date" type="date" required></div>
+                  <button class="gold-btn" type="submit" style="width: 100%; margin-top: 10px;">Enviar Agendamento Imediato</button>
+                  ${status ? `<p class="login-error" style="color: var(--gold); margin-top: 8px;">${escapeText(status)}</p>` : ""}
                 </form>
-                <div class="broker-card">
-                  <strong>Corretor responsavel</strong>
-                  <div class="broker-person"><img class="avatar" src="${broker.photo}" alt="${escapeText(broker.name)}"><div><strong>${escapeText(broker.name)}</strong><div class="location">${escapeText(broker.creci)}</div></div></div>
-                  <button class="ghost-btn" type="button" data-route="comprar">Ver todos os imoveis</button>
-                </div>
+                ${property.sourceUrl ? `<div class="broker-card"><strong>Fonte da observacao</strong><p class="route-note">${escapeText(property.availabilityStatus || "Confirmar disponibilidade na origem.")}</p><a class="ghost-btn" href="${escapeText(property.sourceUrl)}" target="_blank" rel="noreferrer">Abrir fonte</a></div>` : ""}
+                ${broker ? `<div class="broker-card"><strong>Corretor responsavel</strong><div class="broker-person"><img class="avatar" src="${broker.photo}" alt="${escapeText(broker.name)}"><div><strong>${escapeText(broker.name)}</strong><div class="location">${escapeText(broker.creci)}</div></div></div><button class="ghost-btn" type="button" data-route="comprar">Ver comparaveis</button></div>` : `<div class="broker-card"><strong>Sem responsavel atribuido</strong><p class="route-note">Cadastre um corretor com CRECI verificado antes do atendimento.</p></div>`}
               </aside>
             </div>
             ${galleryOpen ? `
