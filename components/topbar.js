@@ -26,7 +26,6 @@ const TopbarComponent = ({ props }) => {
         dashboard: "Dashboard",
         contato: "Contato",
         sobre: "Sobre",
-        financiamento: "Financiamento",
         vendedores: "Vendedores",
         brokers: "Vendedores",
       };
@@ -50,11 +49,9 @@ const TopbarComponent = ({ props }) => {
       const pageTitle = pageTitleMap[route] || "Página";
       const pageSubtitle = pageSubtitleMap[route] || "";
       const navLinks = [
-        { route: "sobre", label: "Sobre nós" },
-        { route: "comprar", label: "Buscar imóvel" },
+        { route: "imoveis", label: "Buscar imóvel" },
         { route: "anuncie", label: "Anunciar imóvel" },
         { route: "contato", label: "Contato" },
-        { route: "financiamento", label: "Financiamentos" },
       ];
       const renderSearchPanel = () => /*html*/ `
         <div class="search-panel topbar-search-panel" role="search" aria-label="Pesquisa principal">
@@ -66,7 +63,7 @@ const TopbarComponent = ({ props }) => {
             <label class="field"><span>Localizacao</span><input name="quickLocation" placeholder="Cidade, bairro ou condominio"></label>
             <label class="field"><span>Tipo de imovel</span><select><option>Todos</option><option>Casa</option><option>Apartamento</option><option>Terreno</option></select></label>
             <label class="field"><span>Faixa de preco</span><select><option>Qualquer preco</option><option>Ate R$ 700 mil</option><option>Acima de R$ 1 mi</option></select></label>
-            <button class="gold-btn topbar-search-btn" type="button" data-route="comprar" data-operation="${operation}">${operation === "alugar" ? "Buscar para alugar" : "Buscar para comprar"}</button>
+            <button class="gold-btn topbar-search-btn" type="button" data-route="imoveis" data-operation="${operation}">${operation === "alugar" ? "Buscar para alugar" : "Buscar para comprar"}</button>
           </div>
         </div>
       `;
@@ -82,7 +79,7 @@ const TopbarComponent = ({ props }) => {
                   <span>📞 (77) 3028-0606</span>
                 </div>
                 <div class="topbar-eyebrow-right">
-                  <button class="eyebrow-buscar-btn" type="button" data-route="comprar">Buscar</button>
+                  <button class="eyebrow-buscar-btn" type="button" data-route="imoveis">Buscar</button>
                 </div>
               </div>
             </div>
@@ -103,7 +100,7 @@ const TopbarComponent = ({ props }) => {
                         : `#${item.route}`;
                       const operationAttr = item.operation
                         ? ` data-operation="${item.operation}"`
-                        : item.route === "comprar"
+                        : item.route === "imoveis"
                           ? ` data-operation="${operation}"`
                           : "";
                       return `<a class="${isActive}" href="${href}" data-route="${item.route}"${operationAttr}>${item.label}</a>`;

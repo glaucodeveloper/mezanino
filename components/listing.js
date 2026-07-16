@@ -6,6 +6,7 @@ const ListingComponent = ({ props }) => {
   const routeInfo = props.getRouteInfo?.() || {};
   const operation = routeInfo.operation || "comprar";
   const defaultMaxPrice = operation === "alugar" ? 10000 : 2500000;
+  let lastUrlHash = "";
   const filters = {
     kinds: new Set(),
     city: "Todos",
@@ -17,36 +18,6 @@ const ListingComponent = ({ props }) => {
     minArea: "Qualquer",
     features: new Set(),
   };
-
-  const compareFields = [
-    {
-      key: "priceNumber",
-      label: "Preco",
-      render: (property) => property.price,
-    },
-    { key: "area", label: "Area", render: (property) => `${property.area}m2` },
-    {
-      key: "bedrooms",
-      label: "Quartos",
-      render: (property) => `${property.bedrooms}`,
-    },
-    {
-      key: "suites",
-      label: "Suites",
-      render: (property) => `${property.suites}`,
-    },
-    {
-      key: "bathrooms",
-      label: "Banheiros",
-      render: (property) => `${property.bathrooms}`,
-    },
-    {
-      key: "parking",
-      label: "Vagas",
-      render: (property) => `${property.parking}`,
-    },
-    { key: "city", label: "Cidade", render: (property) => property.cityName },
-  ];
 
   const filterProperties = () => {
     const filtered = properties.filter((property) => {
@@ -125,70 +96,73 @@ const ListingComponent = ({ props }) => {
     if (sortBy !== "recentes") params.set("ordem", sortBy);
     if (page > 1) params.set("pagina", String(page));
     const query = params.toString();
+    const newHash = `#comprar${query ? `?${query}` : ""}`;
     window.history.replaceState(
       { route: "comprar" },
       "",
-      `#comprar${query ? `?${query}` : ""}`,
+      newHash,
     );
-  };
-
-  const compareDifferenceCount = (baseline, property) =>
-    compareFields.reduce((count, field) => {
-      const baselineValue =
-        field.key === "city" ? baseline.cityName : baseline[field.key];
-      const propertyValue =
-        field.key === "city" ? property.cityName : property[field.key];
-      return count + (String(baselineValue) === String(propertyValue) ? 0 : 1);
-    }, 0);
-
-  const compareItems = () =>
-    (props.getCompareSelection?.() || [])
-      .map((propertyId) =>
-        properties.find((property) => property.id === propertyId),
-      )
-      .filter(Boolean);
-
-  const renderCompareDock = (items) => {
-    if (items.length < 2) return "";
-    const baseline = items[0];
-    return /*html*/ `
-      <div class="compare-dock" role="complementary" aria-label="Comparacao ativa">
-        <div class="compare-dock-head">
-          <div>
-            <span class="eyebrow">Comparador ativo</span>
-            <h3>${items.length} imoveis selecionados</h3>
-          </div>
-          <button class="ghost-btn" type="button" data-cid="listing" data-message="clearCompare">Limpar comparacao</button>
-        </div>
-        <div class="compare-track">
-          ${items
-            .map((property, index) => {
-              const diffCount =
-                index === 0 ? 0 : compareDifferenceCount(baseline, property);
-              return /*html*/ `
-              <article class="compare-column ${index === 0 ? "is-baseline" : ""}">
-                <span class="compare-rank">${index === 0 ? "Base" : `#${index + 1}`}</span>
-                <strong>${property.title}</strong>
-                <div class="compare-delta">${index === 0 ? "Referencia" : `${diffCount} diferencas`}</div>
-                <div class="compare-specs">
-                  ${compareFields.map((field) => `<span><label>${field.label}</label><b>${field.render(property)}</b></span>`).join("")}
-                </div>
-              </article>
-            `;
-            })
-            .join("")}
-        </div>
-      </div>
-    `;
+    lastUrlHash = newHash;
   };
 
   return {
     next(message = {}) {
+      const currentHash = window.location.hash;
+      if (currentHash !== lastUrlHash) {
+        lastUrlHash = currentHash;
+        
+        // Parse parameters from window.location.hash
+        const [, queryPart = ""] = currentHash.split("?");
+        const params = new URLSearchParams(queryPart);
+        
+        if (params.has("tipo") || params.has("type")) {
+          const t = params.get("tipo") || params.get("type");
+          filters.kinds = new Set(t.split(",").map(item => item.trim()).filter(Boolean));
+        } else {
+          filters.kinds.clear();
+        }
+        
+        if (params.has("cidade") || params.has("city")) {
+          filters.city = params.get("cidade") || params.get("city");
+        } else {
+          filters.city = "Todos";
+        }
+
+        if (params.has("bairro") || params.has("neighborhood")) {
+          const nb = params.get("bairro") || params.get("neighborhood");
+          const firstNb = nb.split(",")[0];
+          filters.neighborhood = firstNb === "(Selecionar tudo)" ? "Todos" : firstNb;
+        } else {
+          filters.neighborhood = "Todos";
+        }
+        
+        if (params.has("preco")) {
+          filters.maxPrice = Number(params.get("preco"));
+        } else {
+          filters.maxPrice = defaultMaxPrice;
+        }
+        
+        if (params.has("quartos")) {
+          filters.bedrooms = params.get("quartos");
+        } else {
+          filters.bedrooms = "Qualquer";
+        }
+        
+        if (params.has("vagas")) {
+          filters.parking = params.get("vagas");
+        } else {
+          filters.parking = "Qualquer";
+        }
+        
+        if (params.has("area")) {
+          filters.minArea = params.get("area");
+        } else {
+          filters.minArea = "Qualquer";
+        }
+      }
+
       if (message.type === "toggleFavorite")
         props.toggleFavorite(message.propertyId);
-      if (message.type === "toggleCompare")
-        props.toggleCompare(message.propertyId);
-      if (message.type === "clearCompare") props.clearCompare?.();
       if (message.type === "setView") viewMode = message.value || viewMode;
       if (message.type === "sort") {
         sortBy = message.value || sortBy;
@@ -229,7 +203,6 @@ const ListingComponent = ({ props }) => {
             .map((property) => property.neighborhood),
         ),
       ];
-      const compareSelection = compareItems();
       const renderPropertyCard = (property) =>
         PropertyCardComponent({
           props: {
@@ -237,7 +210,6 @@ const ListingComponent = ({ props }) => {
             tools: {
               componentId: "listing",
               isFavorite: props.isFavorite,
-              isCompared: props.isCompared,
             },
           },
         }).next().value;
@@ -248,7 +220,6 @@ const ListingComponent = ({ props }) => {
             tools: {
               componentId: "listing",
               isFavorite: props.isFavorite,
-              isCompared: props.isCompared,
             },
           },
         }).next().value;
@@ -264,7 +235,6 @@ const ListingComponent = ({ props }) => {
         value: /*html*/ `
           <section id="comprar" class="section listing-section">
             <div class="container">
-              <div class="breadcrumb-row"><span>Home</span><span>Comprar</span></div>
               <div class="section-title">
                 <div><span class="eyebrow">Vitoria da Conquista / BA</span><h2>${operation === "alugar" ? "Comparaveis de locacao" : "Comparaveis de venda"}</h2><p>${filtered.length} referencias observadas. Precos pedidos, imagens ilustrativas e disponibilidade a confirmar na fonte.</p></div>
               </div>
@@ -301,13 +271,11 @@ const ListingComponent = ({ props }) => {
                   </div>
                   <div class="results-meta-strip">
                     <span>${filtered.length} resultados</span>
-                    <span>${compareSelection.length} em comparacao</span>
                   </div>
                   <div class="${viewMode === "grid" ? "property-grid listing-grid" : "list-stack"}">
                     ${visibleProperties.length ? visibleProperties.map((property) => (viewMode === "grid" ? renderPropertyCard(property) : renderListCard(property))).join("") : `<article class="list-card empty-list-card"><div class="list-info"><h3>Nenhuma referencia encontrada</h3><div class="location">Tente limpar filtros.</div></div></article>`}
                   </div>
                   <div class="pager"><button type="button" data-cid="listing" data-message="setPage" data-value="${page - 1}" ${page === 1 ? "disabled" : ""}>&#8249;</button>${pager}<button type="button" data-cid="listing" data-message="setPage" data-value="${page + 1}" ${page === totalPages ? "disabled" : ""}>&#8250;</button></div>
-                  ${compareSelection.length >= 2 ? renderCompareDock(compareSelection) : `<p class="route-note compare-note">Clique nos cards para comparar. O titulo abre o detalhe.</p>`}
                 </div>
               </div>
             </div>

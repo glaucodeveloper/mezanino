@@ -63,58 +63,40 @@ const ContactComponent = ({ props }) => {
                         <article class="phone-card">
                           <h3>WhatsApp</h3>
                           <p class="location">(71) 99999-0000</p>
-                          <button class="gold-btn" type="button">Iniciar conversa</button>
+                          <a class="gold-btn" href="https://api.whatsapp.com/send?phone=5571999990000&text=${encodeURIComponent('Olá! Gostaria de falar com um corretor da Mezanino Imobiliária.')}" target="_blank" rel="noreferrer" style="text-decoration: none; text-align: center; display: inline-flex; align-items: center; justify-content: center;">Iniciar conversa</a>
                         </article>
                         <form class="phone-card" data-cid="contact" data-message="contact">
                           <h3>Formulario</h3>
                           <div>
                             <div class="mini-field">
-                              <label>Nome *</label>
-                              <input name="name" required placeholder="Seu nome">
+                              <label>Mensagem / Interesse *</label>
+                              <textarea name="interest" required placeholder="Quero saber mais sobre..." style="width: 100%; height: 110px; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e0; background: #ffffff; color: #2d3748; outline: none; box-sizing: border-box; font-family: var(--font-body); font-size: 0.9rem;"></textarea>
                             </div>
-                            <div class="mini-field">
-                              <label>Telefone *</label>
-                              <input name="phone" required placeholder="(71) 99999-0000">
-                            </div>
-                            <div class="mini-field">
-                              <label>E-mail *</label>
-                              <input name="email" type="email" required placeholder="seu@email.com">
-                            </div>
-                            <div class="mini-field">
-                              <label>Mensagem / Interesse</label>
-                              <input name="interest" placeholder="Quero saber mais sobre...">
-                            </div>
-                            <button class="gold-btn" type="submit" style="width: 100%; margin-top: 10px;">Enviar Imediato</button>
+                            <button class="gold-btn" type="submit" style="width: 100%; margin-top: 15px;">Enviar Imediato</button>
                             ${status ? `<p class="login-error" style="color: var(--gold); margin-top: 8px;">${status}</p>` : ""}
                           </div>
                         </form>
                         <article class="phone-card">
                           <h3>Endereco</h3>
                           <p class="location">Rua das Acacias, 129<br>Caminho das Arvores, Salvador/BA</p>
-                          <button class="ghost-btn" type="button">Ver mapa</button>
+                          <a class="ghost-btn" href="https://www.google.com/maps?q=${encodeURIComponent('Rua das Acacias, 129, Caminho das Arvores, Salvador, BA')}" target="_blank" rel="noreferrer" style="text-decoration: none; text-align: center; display: inline-flex; align-items: center; justify-content: center;">Ver mapa</a>
                         </article>
                       </div>
                     </div>
                     <div class="contact-panel ${announcePanelClass}">
-                      <form class="phone-strip announce-form-grid" data-cid="contact" data-message="announce" aria-label="Fluxo de anuncio">
+                      <form class="phone-strip announce-form-grid" data-cid="contact" data-message="announce" aria-label="Fluxo de anuncio" style="grid-template-columns: 1fr 1fr; gap: 20px;">
                         <article class="phone-card">
-                          <h3>1. Proprietario</h3>
-                          <div class="mini-field"><label>Nome</label><input name="ownerName" required placeholder="Digite seu nome"></div>
-                          <div class="mini-field"><label>Telefone</label><input name="phone" required placeholder="(71) 99999-0000"></div>
-                          <div class="mini-field"><label>E-mail</label><input name="email" type="email" placeholder="seuemail@email.com"></div>
-                        </article>
-                        <article class="phone-card">
-                          <h3>2. Imovel</h3>
+                          <h3>1. Imovel</h3>
                           <div class="mini-field"><label>Tipo</label><select name="propertyType"><option>Casa</option><option>Apartamento</option><option>Terreno</option></select></div>
                           <div class="mini-field"><label>Bairro</label><input name="neighborhood" placeholder="Informe o bairro"></div>
                           <div class="mini-field"><label>Valor estimado</label><input name="value" placeholder="R$"></div>
                         </article>
                         <article class="phone-card">
-                          <h3>3. Envio</h3>
+                          <h3>2. Envio</h3>
                           <div class="mini-field"><label>Descricao</label><input name="description" placeholder="Resumo do imovel"></div>
                           <label class="check-list"><span><input name="privacy" type="checkbox" required> Aceito a politica de privacidade</span></label>
                           ${announceStatus ? `<p class="login-error">${announceStatus}</p>` : `<p class="location">Notificacao simulada para a equipe comercial.</p>`}
-                          <button class="gold-btn" style="width:100%;" type="submit">Continuar</button>
+                          <button class="gold-btn" style="width:100%; margin-top: 15px;" type="submit">Continuar</button>
                         </article>
                       </form>
                     </div>

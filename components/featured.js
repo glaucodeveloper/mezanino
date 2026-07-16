@@ -1,7 +1,6 @@
 const FeaturedComponent = ({ props }) => ({
   next(message = {}) {
     if (message.type === "toggleFavorite") props.toggleFavorite(message.propertyId);
-    if (message.type === "toggleCompare") props.toggleCompare(message.propertyId);
     const route = props.getRouteInfo?.().route || "home";
     const isDedicatedPage = route === "destaques";
     const scrollState = props.getFeaturedScrollState?.() || {};
@@ -37,7 +36,6 @@ const FeaturedComponent = ({ props }) => ({
 
     const renderShowcaseCard = (property) => {
       const favorite = props.isFavorite(property.id);
-      const compared = props.isCompared?.(property.id);
       const isExpanded = expandedId === property.id;
       const isNeighbor = expandedId && !isExpanded;
       const isCompacting = isExpanded && expansionStage === "compact";
@@ -58,7 +56,7 @@ const FeaturedComponent = ({ props }) => ({
         neighborClass = neighborIndex >= 0 ? `is-gallery-${neighborSlots[neighborIndex]}` : "";
       }
       return /*html*/`
-        <article class="featured-showcase-card ${isExpanded ? "is-expanded" : ""} ${isCompacting ? "is-compact" : ""} ${isNeighbor ? `is-neighbor ${neighborClass}` : ""} ${compared ? "is-compared" : ""}" data-featured-card data-property-id="${property.id}">
+        <article class="featured-showcase-card ${isExpanded ? "is-expanded" : ""} ${isCompacting ? "is-compact" : ""} ${isNeighbor ? `is-neighbor ${neighborClass}` : ""}" data-featured-card data-property-id="${property.id}">
           <div class="featured-showcase-media">
             <img src="${property.image}" alt="${property.title}" loading="lazy">
             <span class="badge">${property.tag}</span>
@@ -88,7 +86,6 @@ const FeaturedComponent = ({ props }) => ({
                 </div>
               </div>
               <div class="featured-showcase-actions">
-                <button class="ghost-btn compare-btn ${compared ? "active" : ""}" type="button" data-cid="featured" data-message="toggleCompare" data-property-id="${property.id}">${compared ? "Comparando" : "Comparar"}</button>
                 <a class="gold-btn" href="#imovel#${encodeURIComponent(property.id)}" data-route="imovel" data-property-id="${property.id}">Ver detalhes</a>
               </div>
             </div>

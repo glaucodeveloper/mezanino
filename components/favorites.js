@@ -1,7 +1,6 @@
   const FavoritesComponent = ({ props }) => ({
     next(message = {}) {
       if (message.type === "toggleFavorite") props.toggleFavorite(message.propertyId);
-      const isCompared = (propertyId) => props.isCompared?.(propertyId);
       const favorites = properties.filter((property) => props.isFavorite(property.id));
       return {
         done: false,
@@ -13,7 +12,7 @@
                   <div class="breadcrumb-row"><span>Home</span><span>Favoritos</span></div>
                   <span class="eyebrow">Sua selecao</span>
                   <h2>Favoritos</h2>
-                  <p>Reuna os imoveis mais promissores antes de enviar para um corretor ou seguir para comparacao.</p>
+                  <p>Reuna os imoveis mais promissores antes de enviar para um corretor.</p>
                 </div>
                 <div class="utility-highlight">
                   <strong>${favorites.length}</strong>
@@ -34,7 +33,6 @@
                       </div>
                       <div class="favorite-card-actions">
                         <a class="ghost-btn" href="#imovel#${encodeURIComponent(property.id)}" data-route="imovel" data-property-id="${property.id}">Ver detalhes</a>
-                        <button class="ghost-btn compare-btn ${isCompared(property.id) ? "active" : ""}" type="button" data-cid="favorites" data-message="toggleCompare" data-property-id="${property.id}">${isCompared(property.id) ? "Comparando" : "Comparar"}</button>
                         <button class="ghost-btn danger-btn" type="button" data-cid="favorites" data-message="toggleFavorite" data-property-id="${property.id}">Remover</button>
                       </div>
                     </article>

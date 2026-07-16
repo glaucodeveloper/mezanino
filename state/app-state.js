@@ -2,7 +2,7 @@
 "use strict";
 const ROUTES = [
   "home",
-  "comprar",
+  "imoveis",
   "imovel",
   "imovel-novo",
   "imovel-editar",
