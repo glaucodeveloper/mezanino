@@ -873,6 +873,24 @@ const DASHBOARD_COLLECTION_SCHEMAS = {
         placeholder: "Mariana Costa",
       },
       {
+        name: "cpf",
+        label: "CPF",
+        type: "text",
+        placeholder: "000.000.000-00",
+      },
+      {
+        name: "phone",
+        label: "Telefone",
+        type: "text",
+        placeholder: "(71) 99999-0000",
+      },
+      {
+        name: "email",
+        label: "E-mail",
+        type: "text",
+        placeholder: "cliente@email.com",
+      },
+      {
         name: "profile",
         label: "Perfil",
         type: "text",
@@ -1301,3 +1319,115 @@ const renderActionBanner = () =>
   actionNotice
     ? `<div class="action-banner" role="status">${escapeHtml(actionNotice)}</div>`
     : "";
+
+// --- SISTEMA GLOBAL DE VALIDAÇÃO, INTEGRIDADE DE TIPOS E QUANTIDADES E ANTI-EXPLOITS ---
+const FormValidator = {
+  lastSubmissions: new Map(),
+
+  /**
+   * Valida se um CPF é matematicamente correto.
+   */
+  validateCPF(cpf) {
+    const cleanCPF = String(cpf || "").replace(/[^\d]/g, "");
+    if (cleanCPF.length !== 11) return false;
+    if (/^(\d)\1{10}$/.test(cleanCPF)) return false;
+
+    let sum = 0;
+    let remainder;
+    for (let i = 1; i <= 9; i++) {
+      sum += parseInt(cleanCPF.substring(i - 1, i), 10) * (11 - i);
+    }
+    remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cleanCPF.substring(9, 10), 10)) return false;
+
+    sum = 0;
+    for (let i = 1; i <= 10; i++) {
+      sum += parseInt(cleanCPF.substring(i - 1, i), 10) * (12 - i);
+    }
+    remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cleanCPF.substring(10, 11), 10)) return false;
+
+    return true;
+  },
+
+  /**
+   * Valida se o formato do e-mail é válido.
+   */
+  validateEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return typeof email === "string" && regex.test(email.trim()) && email.length <= 150;
+  },
+
+  /**
+   * Valida o telefone (mínimo 10 dígitos numéricos).
+   */
+  validatePhone(phone) {
+    const cleanPhone = String(phone || "").replace(/[^\d]/g, "");
+    return cleanPhone.length >= 10 && cleanPhone.length <= 15;
+  },
+
+  /**
+   * Valida nome completo (mínimo 3 caracteres, sem números/caracteres suspeitos de injeção).
+   */
+  validateName(name) {
+    if (typeof name !== "string") return false;
+    const trimmed = name.trim();
+    if (trimmed.length < 3 || trimmed.length > 100) return false;
+    // Permitir letras, espaços e acentos comuns
+    const regex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'.~^-]+$/;
+    return regex.test(trimmed);
+  },
+
+  /**
+   * Valida limites e integridade de quantidades numéricas.
+   */
+  validateQuantity(value, min = 0, max = 1000000000, allowFloat = false) {
+    const num = allowFloat ? parseFloat(value) : parseInt(value, 10);
+    if (Number.isNaN(num)) return false;
+    return num >= min && num <= max;
+  },
+
+  /**
+   * Sanitiza strings de forma agressiva contra XSS, injeções de tags e buffers.
+   */
+  sanitizeString(key, val) {
+    if (typeof val !== "string") return val;
+    let maxLength = 150;
+    if (["interest", "description", "notes", "profile", "narrative", "outcome", "nextAction", "msg", "text", "about"].includes(key)) {
+      maxLength = 1500;
+    }
+    // Remove tags de script e seus conteúdos
+    let sanitized = val.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
+    // Remove qualquer outra tag HTML
+    sanitized = sanitized.replace(/<[^>]*>/g, "");
+    // Escapa aspas e barras para evitar quebras em atributos HTML
+    sanitized = sanitized
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+    
+    if (sanitized.length > maxLength) {
+      sanitized = sanitized.substring(0, maxLength);
+    }
+    return sanitized;
+  },
+
+  /**
+   * Mecanismo anti-spam / anti-double-click contra múltiplos envios rápidos de formulários.
+   */
+  antiSpamCheck(formKey, cooldownMs = 2000) {
+    const now = Date.now();
+    const lastTime = this.lastSubmissions.get(formKey) || 0;
+    if (now - lastTime < cooldownMs) {
+      console.warn(`Envio bloqueado por cooldown anti-spam (${formKey})`);
+      return false; // Bloqueado
+    }
+    this.lastSubmissions.set(formKey, now);
+    return true; // Permitido
+  }
+};
+window.FormValidator = FormValidator;

@@ -307,25 +307,60 @@ const bootApp = (rootSelector = "#app") => {
         leadAuthModal.error = "";
         render();
       }
-      else if (message.type === "submitContactDetails") {
+      else if (message.type === "submitContactDetails" || message.type === "submitCpfRegistration") {
         const name = message.fields.name;
         const phone = message.fields.phone;
         const email = message.fields.email;
+        const cpf = message.fields.cpf;
         
-        if (!name || !phone || !email) {
+        // Cooldown anti-spam
+        if (!FormValidator.antiSpamCheck("leadAuthForm")) {
+          leadAuthModal.error = "Por favor, aguarde alguns segundos antes de enviar novamente.";
+          render();
+          return;
+        }
+
+        if (!name || !phone || !email || !cpf) {
           leadAuthModal.error = "Por favor, preencha todos os campos obrigatórios (*).";
           render();
           return;
         }
+
+        // Validações de tipo, integridade e quantidade
+        if (!FormValidator.validateName(name)) {
+          leadAuthModal.error = "Nome inválido. Por favor, insira seu nome e sobrenome (somente letras).";
+          render();
+          return;
+        }
+
+        if (!FormValidator.validatePhone(phone)) {
+          leadAuthModal.error = "Telefone inválido. Por favor, insira um número com DDD (mínimo 10 dígitos).";
+          render();
+          return;
+        }
+
+        if (!FormValidator.validateEmail(email)) {
+          leadAuthModal.error = "E-mail inválido. Por favor, insira um endereço de e-mail correto.";
+          render();
+          return;
+        }
+
+        if (!FormValidator.validateCPF(cpf)) {
+          leadAuthModal.error = "CPF inválido. Por favor, digite um CPF correto.";
+          render();
+          return;
+        }
         
-        // Registra o cliente de forma simplificada no banco de dados
+        // Registra o cliente de forma simplificada no banco de dados com seu CPF
         const cleanPhone = String(phone).replace(/[^\d]/g, "");
+        const cleanCpf = String(cpf).replace(/[^\d]/g, "");
         const newClient = {
           id: `client-${Date.now()}`,
           name,
-          phone,
+          phone: cleanPhone,
           email,
-          profile: "Registrado via formulário de contato simplificado do site.",
+          cpf: cleanCpf,
+          profile: "Registrado via formulário de cadastro e autenticação por CPF.",
           focus: "Comprar",
           created: new Date().toISOString(),
         };
@@ -340,13 +375,14 @@ const bootApp = (rootSelector = "#app") => {
           console.error("Erro ao registrar cliente no CMS:", err);
         }
         
-        // Salva a sessão do usuário
+        // Salva a sessão do usuário com o CPF
         sessionState.state = {
           ...sessionState.state,
           leadUser: {
             name,
-            phone,
+            phone: cleanPhone,
             email,
+            cpf: cleanCpf,
           }
         };
         
@@ -357,8 +393,9 @@ const bootApp = (rootSelector = "#app") => {
           const pending = { ...leadAuthModal.leadData };
           leadAuthModal.leadData = null;
           pending.name = name;
-          pending.phone = phone;
+          pending.phone = cleanPhone;
           pending.email = email;
+          pending.cpf = cleanCpf;
           await submitLeadAndPersist(pending);
         } else {
           render();
@@ -589,6 +626,10 @@ const bootApp = (rootSelector = "#app") => {
               <label>E-mail *</label>
               <input name="email" type="email" required placeholder="seu@email.com" autocomplete="email">
             </div>
+            <div class="mini-field">
+              <label>CPF *</label>
+              <input name="cpf" type="text" required placeholder="000.000.000-00" autocomplete="off">
+            </div>
             
             ${leadAuthModal.error ? `<div class="lead-modal-error">${escapeHtml(leadAuthModal.error)}</div>` : ""}
             
@@ -717,11 +758,12 @@ const bootApp = (rootSelector = "#app") => {
   const fieldsFrom = (form) => {
     const result = {};
     for (const [key, value] of new FormData(form).entries()) {
+      const sanitized = typeof value === "string" ? FormValidator.sanitizeString(key, value) : value;
       if (key in result) {
-        if (Array.isArray(result[key])) result[key].push(value);
-        else result[key] = [result[key], value];
+        if (Array.isArray(result[key])) result[key].push(sanitized);
+        else result[key] = [result[key], sanitized];
       } else {
-        result[key] = value;
+        result[key] = sanitized;
       }
     }
     return result;
@@ -969,6 +1011,19 @@ const bootApp = (rootSelector = "#app") => {
       void dispatch(actionTarget, event);
   });
   root.addEventListener("input", (event) => {
+    if (event.target.name === "cpf") {
+      let value = event.target.value.replace(/\D/g, "");
+      if (value.length > 11) value = value.slice(0, 11);
+      if (value.length > 9) {
+        event.target.value = `${value.slice(0, 3)}.${value.slice(3, 6)}.${value.slice(6, 9)}-${value.slice(9)}`;
+      } else if (value.length > 6) {
+        event.target.value = `${value.slice(0, 3)}.${value.slice(3, 6)}.${value.slice(6)}`;
+      } else if (value.length > 3) {
+        event.target.value = `${value.slice(0, 3)}.${value.slice(3)}`;
+      } else {
+        event.target.value = value;
+      }
+    }
     const actionTarget = event.target.matches?.("[data-cid][data-message]")
       ? event.target
       : null;
