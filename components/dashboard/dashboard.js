@@ -1,23 +1,34 @@
 ﻿const DashboardComponentStateful = ({ props }) => {
-  let activeTab = props.getRouteInfo?.().dashboardTab || "overview";
+  let activeTab = props.getRouteInfo?.().dashboardTab || "properties";
   let crudStatus = "";
   let clientAttachmentRows = 2;
   let crudWorkspace = null;
-  const viewModes = { clients: "grid", brokers: "grid", properties: "grid", reports: "grid" };
+  let sidebarCollapsed = false;
+  const escapeText = (value) =>
+    String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  const viewModes = {
+    clients: "grid",
+    deals: "grid",
+    marketAnalyses: "grid",
+    brokers: "grid",
+    properties: "grid",
+    reports: "grid",
+  };
 
-  const tabs = [
-    ["overview", "Painel", "&#8962;"],
-    ["metrics", "Metricas", "&#128200;"],
-    ["activities", "Atividades", "&#8635;"],
-    ["appointments", "Agendamentos", "&#128197;"],
-    ["clients", "Clientes", "&#128100;"],
-    ["brokers", "Vendedores", "&#128101;"],
-    ["reports", "Relatorios", "&#128196;"],
-    ["properties", "Imoveis", "&#127968;"],
-    ["settings", "Configuracoes", "&#9881;"],
-    ["about", "Sobre nos", "&#8505;"],
-    ["editions", "Edicoes", "&#9998;"],
+  const nativeDashboardOnly = Boolean(window.SuaImobiliariaCmsConfig?.nativeDashboardOnly);
+  const allTabs = [
+    ["properties", "Imóveis", "&#127968;"],
   ];
+  const tabs = allTabs;
+  const adminBroker = brokers[1] || brokers[0] || {
+    name: "Equipe Mezanino",
+    photo: ""
+  };
 
   const getRouteInfo = () => props.getRouteInfo?.() || {};
   const getSession = () => props.getSession?.() || { favorites: new Set() };
@@ -44,11 +55,15 @@
     const reports = getCollectionItems("reports");
     const clients = getCollectionItems("clients");
     const leads = getCollectionItems("leads");
+    const deals = getCollectionItems("deals");
+    const marketAnalyses = getCollectionItems("marketAnalyses");
     return [
-      { label: "Imoveis ativos", value: String(properties.length), note: "vitrine publicada" },
+      { label: "Comparaveis", value: String(properties.length), note: "disponibilidade a confirmar" },
       { label: "Leads captados", value: String(leads.length), note: "entradas do site" },
+      { label: "Negocios ativos", value: String(deals.length), note: "casos reais vinculados" },
+      { label: "Leituras de mercado", value: String(marketAnalyses.length), note: "Vitoria da Conquista" },
+      { label: "Clientes cadastrados", value: String(clients.length), note: "cadastros autorizados" },
       { label: "Agendamentos ativos", value: String(appointments.length), note: "calendario operacional" },
-      { label: "Clientes cadastrados", value: String(clients.length), note: "cadastros manuais" },
       { label: "Relatorios gerados", value: String(reports.length), note: "pdfs e cards" },
       { label: "Favoritos salvos", value: String(session.favorites?.size || 0), note: "movimento do publico" },
     ];
@@ -113,12 +128,15 @@
   return {
     next(message = {}) {
       dashboardContent = { ...dashboardContent, metrics: buildMetrics() };
-      const routeTab = getRouteInfo().dashboardTab || "overview";
+      const routeTab = getRouteInfo().dashboardTab || "properties";
       if (routeTab !== activeTab) activeTab = routeTab;
       if (message.type === "setTab") {
         activeTab = message.value || activeTab;
         crudWorkspace = null;
         props.goToRoute?.("dashboard", { dashboardTab: activeTab });
+      }
+      if (message.type === "toggleSidebar") {
+        sidebarCollapsed = !sidebarCollapsed;
       }
       if (message.type === "setCollectionView") {
         viewModes[message.collection] = message.value || viewModes[message.collection] || "grid";
@@ -138,12 +156,20 @@
         activeTab = "brokers";
         props.goToRoute?.("dashboard", { dashboardTab: "brokers", entityId: message.brokerId || null });
       }
+      if (message.type === "editItem") {
+        const collection = message.collection || activeTab;
+        crudWorkspace = { collection, mode: "edit", entityId: message.itemId || null };
+        activeTab = collection;
+        props.goToRoute?.("dashboard", { dashboardTab: collection, entityId: message.itemId || null });
+      }
       if (message.type === "closeCrudWorkspace") crudWorkspace = null;
       if (message.type === "addAttachmentRow") clientAttachmentRows += 1;
-      if (message.type === "refreshMetrics") crudStatus = "Metricas fixas calculadas a partir da movimentacao do site.";
+      if (message.type === "refreshMetrics") crudStatus = "Indicadores atualizados com os registros disponíveis.";
       if (message.type === "newActivity") {
-        dashboardContent = { ...dashboardContent, activities: [{ icon: "A", title: "Nova ocorrencia registrada", detail: "Evento manual adicionado ao topo da timeline.", time: "Agora", color: "var(--gold)", properties: [], brokers: [], clients: [] }, ...dashboardContent.activities] };
-        persistDashboard();
+        crudStatus = "";
+        crudWorkspace = { collection: "activities", mode: "create", entityId: null };
+        activeTab = "activities";
+        props.goToRoute?.("dashboard", { dashboardTab: "activities" });
       }
       if (message.type === "jumpToday") {
         activeTab = "appointments";
@@ -174,10 +200,10 @@
         const itemId = message.itemId;
         const item = getCollectionItems(collection).find((entry) => entry.id === itemId);
         if (item && window.confirm(`Excluir ${item.title || item.name || item.label || "este item"}?`)) {
-          if (collection === "properties") return props.deleteProperty(itemId).then((result) => { crudStatus = result.message || "Produto removido do GitHub."; props.requestRender?.(); });
+          if (collection === "properties") return props.deleteProperty(itemId).then((result) => { crudStatus = result.message || "Imóvel removido."; props.requestRender?.(); });
           if (collection === "brokers") return props.deleteBroker?.(itemId).then((result) => { crudStatus = result.message || "Vendedor removido."; props.requestRender?.(); });
           setCollectionItems(collection, getCollectionItems(collection).filter((entry) => entry.id !== itemId));
-          crudStatus = "Item removido localmente.";
+          crudStatus = "Registro removido.";
           persistDashboard();
         }
       }
@@ -201,10 +227,31 @@
             const dataUrl = await readFile(file);
             attachments.push({ name: file.name, label: labelInputs[index]?.value || file.name, type: file.type, size: file.size, dataUrl });
           })).then(() => {
-            const client = normalizeDashboardItem("clients", { ...fields, attachments });
-            dashboardContent = { ...dashboardContent, clients: [client, ...dashboardContent.clients] };
-            crudStatus = `Cliente ${client.name || "salvo"} cadastrado com ${attachments.length} anexo(s).`;
-            clientAttachmentRows = Math.max(2, attachments.length || 2);
+            const currentClient = dashboardContent.clients.find(
+              (item) => String(item.id) === String(fields.id || ""),
+            );
+            const nextAttachments = attachments.length
+              ? [...(currentClient?.attachments || []), ...attachments]
+              : currentClient?.attachments || [];
+            const client = normalizeDashboardItem("clients", {
+              ...(currentClient || {}),
+              ...fields,
+              objections: Array.isArray(fields.objections)
+                ? fields.objections
+                : String(fields.objections || "")
+                    .split(/\r?\n|,/)
+                    .map((entry) => entry.trim())
+                    .filter(Boolean),
+              attachments: nextAttachments,
+            });
+            const nextClients = currentClient
+              ? dashboardContent.clients.map((item) =>
+                  String(item.id) === String(currentClient.id) ? client : item,
+                )
+              : [client, ...dashboardContent.clients];
+            dashboardContent = { ...dashboardContent, clients: nextClients };
+            crudStatus = `Cliente ${client.name || "salvo"} ${currentClient ? "atualizado" : "cadastrado"} com ${nextAttachments.length} anexo(s).`;
+            clientAttachmentRows = Math.max(2, nextAttachments.length || 2);
             crudWorkspace = null;
             props.goToRoute?.("dashboard", { dashboardTab: "clients", entityId: client.id || client.name || null });
             return persistDashboard();
@@ -226,24 +273,36 @@
             brokers: Array.isArray(fields.brokers) ? fields.brokers : (fields.brokers ? String(fields.brokers).split(/\r?\n|,/).map((entry) => entry.trim()).filter(Boolean) : []),
             status: fields.status || "confirmado",
           });
-          dashboardContent = { ...dashboardContent, appointments: [appointment, ...dashboardContent.appointments] };
-          crudStatus = `Agendamento salvo para ${appointment.date || "nova data"}.`;
+          const currentAppointment = dashboardContent.appointments.find((item) => String(item.id) === String(fields.id || ""));
+          dashboardContent = {
+            ...dashboardContent,
+            appointments: currentAppointment
+              ? dashboardContent.appointments.map((item) => String(item.id) === String(currentAppointment.id) ? appointment : item)
+              : [appointment, ...dashboardContent.appointments],
+          };
+          crudStatus = `Agendamento ${currentAppointment ? "atualizado" : "salvo"} para ${appointment.date || "nova data"}.`;
           crudWorkspace = null;
           return persistDashboard();
         }
         if (collection === "properties") {
           const draft = normalizeDashboardItem("properties", fields);
-          crudStatus = "Salvando imovel...";
+          crudStatus = "Salvando imóvel...";
           return props.saveProperty?.(draft, fields.id || null).then((result = {}) => {
-            crudStatus = result.message || "Imovel salvo.";
+            crudStatus = result.message || "Imóvel salvo.";
             crudWorkspace = null;
             props.goToRoute?.("dashboard", { dashboardTab: "properties", entityId: result.property?.id || draft.id || null });
             props.requestRender?.();
           });
         }
         const nextItem = normalizeDashboardItem(collection, fields);
-        dashboardContent = { ...dashboardContent, [collection]: [nextItem, ...getCollectionItems(collection)] };
-        crudStatus = `${schemaLabel(collection)} salvo.`;
+        const currentItem = getCollectionItems(collection).find((item) => String(item.id) === String(fields.id || ""));
+        dashboardContent = {
+          ...dashboardContent,
+          [collection]: currentItem
+            ? getCollectionItems(collection).map((item) => String(item.id) === String(currentItem.id) ? nextItem : item)
+            : [nextItem, ...getCollectionItems(collection)],
+        };
+        crudStatus = `${schemaLabel(collection)} ${currentItem ? "atualizado" : "salvo"}.`;
         crudWorkspace = null;
         persistDashboard();
         if (nextItem?.id || nextItem?.name || nextItem?.title) {
@@ -251,45 +310,42 @@
         }
       }
 
+      actionNotice = crudStatus;
       const currentLabel = tabs.find(([id]) => id === activeTab)?.[1] || "Painel";
       const mainPanel = () => {
-        if (activeTab === "overview") return renderOverview();
-        if (activeTab === "metrics") return renderCollectionCard("metrics");
-        if (activeTab === "activities") return renderCollectionCard("activities");
-        if (activeTab === "appointments") return renderCollectionCard("appointments");
-        if (activeTab === "clients") return renderCollectionCard("clients");
-        if (activeTab === "brokers") return renderCollectionCard("brokers");
-        if (activeTab === "reports") return renderCollectionCard("reports");
         if (activeTab === "properties") return renderCollectionCard("properties");
-        if (activeTab === "settings") return renderCollectionCard("settings");
-        if (activeTab === "about") return props.renderAbout?.() || "";
-        if (activeTab === "editions") return props.renderEditions?.() || "";
-        return renderOverview();
+        return renderCollectionCard("properties");
       };
 
       return {
         done: false,
         value: /*html*/`
           <section id="dashboard" class="dashboard-section dashboard-fullscreen">
-            <div class="dashboard-shell">
+            <div class="dashboard-shell ${sidebarCollapsed ? "is-sidebar-collapsed" : ""}">
               <aside class="dashboard-nav">
                 <div class="dashboard-nav-top">
-                  ${brand()}
-                  <button class="ghost-btn dashboard-back" type="button" data-route="home">Voltar ao site</button>
+                  <div class="dashboard-brand-row">
+                    ${brand()}
+                    <button class="dashboard-nav-toggle" type="button" data-cid="dashboard" data-message="toggleSidebar" aria-expanded="${sidebarCollapsed ? "false" : "true"}" aria-label="${sidebarCollapsed ? "Expandir navegacao" : "Recolher navegacao"}">
+                      <span aria-hidden="true">${sidebarCollapsed ? "›" : "‹"}</span>
+                    </button>
+                  </div>
+                  ${nativeDashboardOnly ? "" : '<button class="ghost-btn dashboard-back" type="button" data-route="home">Voltar ao site</button>'}
                 </div>
                 <div class="dash-menu">
                   ${tabs.map(([id, label, icon]) => /*html*/`<button class="${id === activeTab ? "active" : ""}" type="button" data-cid="dashboard" data-message="setTab" data-value="${id}"><span class="dash-menu-icon">${icon}</span><span>${label}</span></button>`).join("")}
                   <button type="button" data-cid="dashboard" data-message="logout"><span class="dash-menu-icon">&#8599;</span><span>Sair</span></button>
                 </div>
               </aside>
+              ${sidebarCollapsed ? `<button class="dashboard-edge-toggle" type="button" data-cid="dashboard" data-message="toggleSidebar" aria-label="Expandir navegacao"><span aria-hidden="true">›</span></button>` : ""}
               <div class="dashboard-board">
                 <div class="dashboard-head">
                   <div>
-                    <span class="eyebrow">Area interna</span>
+                    <span class="eyebrow">Mezanino CRM</span>
                     <h2>${currentLabel}</h2>
-                    <p>${activeTab === "overview" ? "Visao geral com acesso rapido para os modulos do painel." : activeTab === "properties" ? "Gerencie os produtos com uma toolbar de utilidade e a pagina de edicao ao vivo." : activeTab === "brokers" ? "Equipe comercial com grid/list e CRUD completo." : activeTab === "clients" ? "Base de clientes com ficha e anexos dinamicos." : activeTab === "editions" ? "Edite titulos, textos e imagens das sessoes do site com upload de imagem." : DASHBOARD_COLLECTION_SCHEMAS[activeTab]?.description || "Gestao interna do painel."}</p>
+                    <p>${activeTab === "overview" ? "Visão geral para priorizar a operação comercial." : activeTab === "properties" ? "Cadastre e atualize os imóveis disponíveis para atendimento e publicação." : activeTab === "brokers" ? "Cadastre e acompanhe a equipe comercial." : activeTab === "clients" ? "Base de clientes com ficha, contexto e anexos." : activeTab === "activities" ? "Acompanhe os acontecimentos e os registros relacionados." : activeTab === "editions" ? "Atualize textos e imagens das páginas públicas." : DASHBOARD_COLLECTION_SCHEMAS[activeTab]?.description || "Operação do CRM."}</p>
                   </div>
-                  <div class="broker-person"><img class="avatar" src="${brokers[1].photo}" alt="Admin"><div><strong>Admin</strong><div class="location">Conteudo do painel</div></div></div>
+                  <div class="broker-person">${adminBroker.photo ? `<img class="avatar" src="${adminBroker.photo}" alt="${escapeText(adminBroker.name)}">` : '<span class="avatar avatar--fallback">M</span>'}<div><strong>${escapeText(adminBroker.name)}</strong><div class="location">Operação comercial</div></div></div>
                 </div>
                 ${renderActionBanner()}
                 ${mainPanel()}

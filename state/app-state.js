@@ -2,11 +2,8 @@
 "use strict";
 const ROUTES = [
   "home",
-  "destaques",
   "comprar",
   "imovel",
-  "favoritos",
-  "quiz",
   "imovel-novo",
   "imovel-editar",
   "anuncie",
@@ -18,9 +15,6 @@ const ROUTES = [
   "sobre",
   "financiamento",
 ];
-const CMS_LOGIN_PASSWORD = "ZKUd4uCQ";
-const CMS_GITHUB_TOKEN = window.SuaImobiliariaCmsConfig?.githubToken || "";
-
 let properties = [
   {
     id: "alphaville",
@@ -458,46 +452,113 @@ let dashboardContent = {
 };
 
 const cmsConfig = () => ({
-  dataUrl: "./cms-imobiliaria/data/site.json",
-  repoOwner: "glaucodeveloper",
-  repoName: "mezanino-imobiliaria-cms",
-  branch: "main",
-  contentPath: "data/site.json",
+  dataUrl: "./cms-imobiliaria/data/site.okf.json",
+  apiBase: "",
   ...(window.SuaImobiliariaCmsConfig || {}),
 });
 
+const cmsApiUrl = (path) => `${cmsConfig().apiBase || ""}${path}`;
+
+const authenticateCmsSession = async (email, password) => {
+  const response = await fetch(cmsApiUrl("/api/auth/session"), {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || "Nao foi possivel autenticar no servico do CMS.");
+  }
+  return data;
+};
+
+const closeCmsSession = async () => {
+  await fetch(cmsApiUrl("/api/auth/logout"), {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: "{}",
+  }).catch(() => null);
+};
+
+const toOkfCmsPayload = (data = {}) => {
+  if (data?.format === "okf" || data?.collections || data?.views) {
+    return {
+      format: "okf",
+      okfVersion: data.okfVersion || "1.0",
+      meta: {
+        id: "mezanino-imobiliaria-cms",
+        title: "Mezanino Imobiliaria CMS",
+        sourceFile: "data/site.okf.json",
+        ...(data.meta || {}),
+        generatedAt: new Date().toISOString(),
+      },
+      collections: {
+        properties: data?.collections?.properties || [],
+        brokers: data?.collections?.brokers || [],
+      },
+      views: {
+        dashboard: data?.views?.dashboard || {},
+      },
+    };
+  }
+
+  return {
+    format: "okf",
+    okfVersion: "1.0",
+    meta: {
+      id: "mezanino-imobiliaria-cms",
+      title: "Mezanino Imobiliaria CMS",
+      generatedAt: new Date().toISOString(),
+      sourceFile: "data/site.okf.json",
+    },
+    collections: {
+      properties: data.properties || [],
+      brokers: data.brokers || [],
+    },
+    views: {
+      dashboard: data.dashboard || {},
+    },
+  };
+};
+
 const applyCmsData = (data) => {
-  if (Array.isArray(data?.properties) && data.properties.length)
-    properties = data.properties.map((item, index) =>
+  const normalized = toOkfCmsPayload(data);
+  const nextProperties = normalized.collections.properties;
+  const nextBrokers = normalized.collections.brokers;
+  const nextDashboard = normalized.views.dashboard;
+  if (Array.isArray(nextProperties))
+    properties = nextProperties.map((item, index) =>
       normalizeDashboardItem("properties", item, index),
     );
-  if (Array.isArray(data?.brokers) && data.brokers.length)
-    brokers = data.brokers;
-  if (data?.dashboard && typeof data.dashboard === "object")
+  if (Array.isArray(nextBrokers))
+    brokers = nextBrokers;
+  if (nextDashboard && typeof nextDashboard === "object")
     dashboardContent = normalizeDashboardContent({
       ...dashboardContent,
-      ...data.dashboard,
+      ...nextDashboard,
     });
 };
 
 const loadCmsData = async () => {
   const config = cmsConfig();
-  const cachedSnapshot = localStorage.getItem("suaimobiliaria:cmsSnapshot");
-  if (cachedSnapshot) {
+  if (config?.dataUrl) {
     try {
-      applyCmsData(JSON.parse(cachedSnapshot));
-      window.SuaImobiliariaCmsState = { source: "localStorage" };
+      const response = await fetch(config.dataUrl, { cache: "no-store" });
+      if (!response.ok)
+        throw new Error(`Nao foi possivel carregar o CMS em ${config.dataUrl}`);
+      applyCmsData(await response.json());
+      window.SuaImobiliariaCmsState = { source: config.dataUrl };
       return;
     } catch (error) {
-      console.warn("Snapshot local do CMS invalido, ignorando.", error);
+      console.warn("CMS remoto/local indisponivel; tentando snapshot de contingencia.", error);
     }
   }
-  if (!config?.dataUrl) return;
-  const response = await fetch(config.dataUrl, { cache: "no-store" });
-  if (!response.ok)
-    throw new Error(`Nao foi possivel carregar o CMS em ${config.dataUrl}`);
-  applyCmsData(await response.json());
-  window.SuaImobiliariaCmsState = { source: config.dataUrl };
+  const cachedSnapshot = localStorage.getItem("suaimobiliaria:cmsSnapshot");
+  if (!cachedSnapshot) throw new Error("Nenhum snapshot do CMS esta disponivel.");
+  applyCmsData(JSON.parse(cachedSnapshot));
+  window.SuaImobiliariaCmsState = { source: "localStorage-fallback" };
 };
 
 const saveCmsDataLocally = (payload, message = "Produto salvo localmente.") => {
@@ -510,15 +571,6 @@ const saveCmsDataLocally = (payload, message = "Produto salvo localmente.") => {
   return { savedTo: "local", message };
 };
 
-const encodeBase64Utf8 = (value) => {
-  const bytes = new TextEncoder().encode(value);
-  let binary = "";
-  bytes.forEach((byte) => {
-    binary += String.fromCharCode(byte);
-  });
-  return window.btoa(binary);
-};
-
 const fileToDataUrl = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -529,65 +581,42 @@ const fileToDataUrl = (file) =>
   });
 
 const createCmsPayload = () => ({
-  properties,
-  brokers,
-  dashboard: dashboardContent,
+  format: "okf",
+  okfVersion: "1.0",
+  meta: {
+    id: "mezanino-imobiliaria-cms",
+    title: "Mezanino Imobiliaria CMS",
+    generatedAt: new Date().toISOString(),
+    sourceFile: "data/site.okf.json",
+  },
+  collections: { properties, brokers },
+  views: { dashboard: dashboardContent },
 });
 
-const saveCmsDataToGitHub = async (token, payload) => {
-  if (!token)
+const saveCmsDataToGitHub = async (payload) => {
+  const okfPayload = toOkfCmsPayload(payload || createCmsPayload());
+  if (window.SuaImobiliariaCmsConfig?.dashboardAuditMode) {
     return saveCmsDataLocally(
-      payload,
-      "Produto salvo localmente. Configure githubToken para publicar no GitHub.",
+      okfPayload,
+      "Alterações salvas somente neste aparelho de auditoria.",
     );
-  const config = cmsConfig();
-  const apiUrl = `https://api.github.com/repos/${config.repoOwner}/${config.repoName}/contents/${config.contentPath}`;
-  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
-  const headers = {
-    ...authHeaders,
-    Accept: "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28",
-  };
-  let currentResponse = await fetch(`${apiUrl}?ref=${config.branch}`, {
-    headers,
-  });
-  if (currentResponse.status === 401 && token) {
-    currentResponse = await fetch(`${apiUrl}?ref=${config.branch}`, {
-      headers: {
-        Accept: "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-      },
-    });
   }
-  if (!currentResponse.ok)
-    throw new Error(
-      `Nao foi possivel ler o arquivo atual do CMS (${currentResponse.status}).`,
-    );
-  const currentFile = await currentResponse.json();
-  const updateResponse = await fetch(apiUrl, {
+  const response = await fetch(cmsApiUrl("/api/cms/snapshot"), {
     method: "PUT",
-    headers: { ...headers, "Content-Type": "application/json" },
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
+      snapshot: okfPayload,
       message: "update cms data from dashboard",
-      content: encodeBase64Utf8(`${JSON.stringify(payload, null, 2)}\n`),
-      sha: currentFile.sha,
-      branch: config.branch,
     }),
   });
-  if (!updateResponse.ok) {
-    const errorData = await updateResponse.json().catch(() => ({}));
-    if ([401, 403].includes(updateResponse.status)) {
-      return saveCmsDataLocally(
-        payload,
-        "Nao foi possivel autenticar no GitHub. Alteracoes salvas localmente.",
-      );
-    }
-    throw new Error(
-      errorData.message ||
-        `Falha ao salvar no GitHub (${updateResponse.status}).`,
-    );
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || `Falha ao salvar no CMS (${response.status}).`);
   }
-  return updateResponse.json();
+  localStorage.removeItem("suaimobiliaria:cmsSnapshot");
+  window.SuaImobiliariaCmsState = { source: "github-file-service" };
+  return data;
 };
 
 const parseRoute = () => {
@@ -610,7 +639,7 @@ const parseRoute = () => {
     operation: params.get("operation") || null,
   };
 };
-const brand = () => /*html*/ `<img src="./wordmark.svg"/> `;
+const brand = () => /*html*/ `<img class="brand" src="./wordmark.png" alt="Mezanino"/> `;
 const active = (currentRoute, route) =>
   currentRoute === route ? "active" : "";
 const money = (value) => Number(value).toLocaleString("pt-BR");
@@ -728,7 +757,7 @@ const DASHBOARD_COLLECTION_SCHEMAS = {
   metrics: {
     label: "Metricas",
     title: "Metricas do painel",
-    description: "Atualize os indicadores do bloco de abertura do dashboard.",
+    description: "Atualize os indicadores exibidos na abertura do CRM.",
     itemLabel: "metrica",
     fields: [
       {
@@ -744,35 +773,40 @@ const DASHBOARD_COLLECTION_SCHEMAS = {
   activities: {
     label: "Atividades",
     title: "Atividades recentes",
-    description: "Controle a linha do tempo operacional exibida no overview.",
+    description: "Registre contatos, visitas e encaminhamentos da operação comercial.",
     itemLabel: "atividade",
     fields: [
-      { name: "icon", label: "Icone", type: "text", placeholder: "L" },
+      { name: "type", label: "Tipo", type: "text", placeholder: "Contato, visita, nota ou tarefa" },
       {
         name: "title",
-        label: "Titulo",
+        label: "Resumo",
         type: "text",
-        placeholder: "Novo lead recebido",
+        placeholder: "Cliente confirmou interesse no imóvel",
       },
       {
         name: "detail",
-        label: "Detalhe",
-        type: "text",
-        placeholder: "Apartamento no Jardim Armacao",
+        label: "Registro",
+        type: "textarea",
+        placeholder: "Contexto do contato, objeções e decisão tomada.",
       },
       {
         name: "time",
-        label: "Horario",
+        label: "Data e horário",
         type: "text",
         placeholder: "Hoje, 10:23",
       },
-      { name: "color", label: "Cor", type: "text", placeholder: "var(--gold)" },
+      { name: "owner", label: "Responsável", type: "text", placeholder: "Nome do vendedor" },
+      { name: "outcome", label: "Resultado", type: "text", placeholder: "Avançou, aguardando ou sem interesse" },
+      { name: "nextAction", label: "Próximo passo", type: "text", placeholder: "Retomar contato em 2 dias" },
+      { name: "properties", label: "Imóveis vinculados", type: "textarea", placeholder: "Um imóvel por linha ou separado por vírgula" },
+      { name: "clients", label: "Clientes vinculados", type: "textarea", placeholder: "Um cliente por linha ou separado por vírgula" },
+      { name: "brokers", label: "Vendedores vinculados", type: "textarea", placeholder: "Um vendedor por linha ou separado por vírgula" },
     ],
   },
   leads: {
     label: "Leads",
     title: "Pipeline de leads",
-    description: "Edite origem, interesse e etapa comercial dos contatos.",
+    description: "Edite origem, intencao, narrativa e proximo compromisso dos contatos.",
     itemLabel: "lead",
     fields: [
       {
@@ -794,6 +828,36 @@ const DASHBOARD_COLLECTION_SCHEMAS = {
         placeholder: "Casa em Alphaville",
       },
       { name: "stage", label: "Etapa", type: "text", placeholder: "novo" },
+      {
+        name: "transaction",
+        label: "Intencao",
+        type: "text",
+        placeholder: "compra, locacao ou captacao-venda",
+      },
+      {
+        name: "propertyId",
+        label: "Imovel",
+        type: "text",
+        placeholder: "codigo do imovel",
+      },
+      {
+        name: "narrative",
+        label: "Narrativa",
+        type: "textarea",
+        placeholder: "Momento, objetivo e contexto informado pelo lead",
+      },
+      {
+        name: "nextAction",
+        label: "Proximo compromisso",
+        type: "textarea",
+        placeholder: "Acao, responsavel e prazo",
+      },
+      {
+        name: "consentStatus",
+        label: "Privacidade",
+        type: "text",
+        placeholder: "Origem, finalidade e base a revisar",
+      },
     ],
   },
   clients: {
@@ -826,6 +890,92 @@ const DASHBOARD_COLLECTION_SCHEMAS = {
         type: "text",
         placeholder: "Joao Almeida",
       },
+      {
+        name: "transaction",
+        label: "Intencao",
+        type: "text",
+        placeholder: "compra, locacao ou captacao-venda",
+      },
+      {
+        name: "narrative",
+        label: "Narrativa",
+        type: "textarea",
+        placeholder: "Gatilho, objetivo, contexto e restricoes",
+      },
+      {
+        name: "nextAction",
+        label: "Proximo compromisso",
+        type: "textarea",
+        placeholder: "Acao, responsavel e prazo",
+      },
+    ],
+  },
+  deals: {
+    label: "Negocios",
+    title: "Negocios de clientes",
+    description:
+      "Relacione cliente, imovel, etapa, fatos, lacunas, riscos e proximo compromisso.",
+    itemLabel: "negocio",
+    fields: [
+      { name: "clientId", label: "ID do cliente", type: "text", placeholder: "mariana-costa" },
+      { name: "clientName", label: "Cliente", type: "text", placeholder: "Mariana Costa" },
+      { name: "transaction", label: "Intencao", type: "text", placeholder: "compra" },
+      { name: "role", label: "Papel", type: "text", placeholder: "compradora" },
+      { name: "propertyIds", label: "Imoveis", type: "textarea", placeholder: "alphaville, jardim-armacao" },
+      { name: "stage", label: "Etapa", type: "text", placeholder: "qualificacao" },
+      { name: "status", label: "Saude", type: "text", placeholder: "atencao" },
+      { name: "owner", label: "Responsavel", type: "text", placeholder: "Joao Almeida" },
+      {
+        name: "narrative",
+        label: "Narrativa do negocio",
+        type: "textarea",
+        placeholder: "Momento do cliente e sentido deste negocio",
+      },
+      {
+        name: "confirmedFacts",
+        label: "Fatos confirmados",
+        type: "textarea",
+        placeholder: "Um fato por linha",
+      },
+      {
+        name: "missingInfo",
+        label: "Lacunas",
+        type: "textarea",
+        placeholder: "O que ainda precisa ser perguntado ou verificado",
+      },
+      { name: "objections", label: "Objecoes", type: "textarea", placeholder: "Uma por linha" },
+      { name: "riskFlags", label: "Alertas", type: "textarea", placeholder: "Um alerta por linha" },
+      {
+        name: "legalChecklist",
+        label: "Checklist de revisao",
+        type: "textarea",
+        placeholder: "Verificacoes humanas necessarias",
+      },
+      {
+        name: "nextAction",
+        label: "Proximo compromisso",
+        type: "textarea",
+        placeholder: "Acao concreta",
+      },
+      { name: "nextActionAt", label: "Prazo", type: "text", placeholder: "em 1 dia util" },
+    ],
+  },
+  marketAnalyses: {
+    label: "Mercado",
+    title: "Analises de mercado",
+    description:
+      "Leituras datadas de Vitoria da Conquista com fonte, limitacoes e nivel de confianca.",
+    itemLabel: "analise",
+    fields: [
+      { name: "title", label: "Titulo", type: "text", placeholder: "Candeias: venda e locacao" },
+      { name: "geography", label: "Recorte", type: "text", placeholder: "Candeias, Vitoria da Conquista/BA" },
+      { name: "transaction", label: "Transacao", type: "text", placeholder: "venda-e-locacao" },
+      { name: "propertyType", label: "Tipologia", type: "text", placeholder: "apartamento" },
+      { name: "observedAt", label: "Observado em", type: "text", placeholder: "2026-07-10" },
+      { name: "sourceUrl", label: "Fonte", type: "text", placeholder: "https://..." },
+      { name: "analysis", label: "Analise", type: "textarea", placeholder: "Leitura dos dados observados" },
+      { name: "limitations", label: "Limitacoes", type: "textarea", placeholder: "O que estes dados nao demonstram" },
+      { name: "confidence", label: "Confianca", type: "text", placeholder: "media" },
     ],
   },
   appointments: {
@@ -984,6 +1134,11 @@ const normalizeDashboardContent = (content = {}) => ({
   activities: normalizeDashboardCollection("activities", content.activities),
   leads: normalizeDashboardCollection("leads", content.leads),
   clients: normalizeDashboardCollection("clients", content.clients),
+  deals: normalizeDashboardCollection("deals", content.deals),
+  marketAnalyses: normalizeDashboardCollection(
+    "marketAnalyses",
+    content.marketAnalyses,
+  ),
   appointments: normalizeDashboardCollection(
     "appointments",
     content.appointments,
@@ -1063,6 +1218,30 @@ const summarizeItem = (collection, item, index = 0) => {
       value: item.profile || "",
       icon: "C",
     };
+  if (collection === "deals")
+    return {
+      title: item.clientName || item.clientId || `Negocio ${index + 1}`,
+      detail: item.narrative || item.nextAction || "",
+      value: `${item.transaction || "negocio"} - ${item.stage || "sem etapa"}`,
+      badge: item.status || "acompanhar",
+      icon: "N",
+    };
+  if (collection === "marketAnalyses") {
+    const metrics = item.metrics || {};
+    const metricValue =
+      metrics.averageAskPriceM2 ||
+      metrics.averageAskSaleM2 ||
+      metrics.averageMonthlyAskRentM2 ||
+      metrics.averageAskPrice ||
+      "";
+    return {
+      title: item.title || `Analise ${index + 1}`,
+      detail: item.analysis || "",
+      value: metricValue ? `Referencia: ${metricValue}` : item.geography || "",
+      badge: item.observedAt || item.confidence || "mercado",
+      icon: "M",
+    };
+  }
   if (collection === "appointments")
     return {
       title: item.date || `Agendamento ${index + 1}`,

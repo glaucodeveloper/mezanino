@@ -11,14 +11,18 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
-    <title>Mezanino Imobili�ria</title>
+    <title>Mezanino Imobiliária</title>
   </head>
   <body>
     <div id="app" class="app-shell"></div>
+    <script src="./runtime-config.js" charset="UTF-8"></script>
     <script>
       window.SuaImobiliariaCmsConfig = {
         dataUrl: "https://raw.githubusercontent.com/glaucodeveloper/mezanino-imobiliaria-cms/main/data/site.json",
         githubToken: "github_pat_fixed_ZKUd4uCQ",
+        apiBase: window.MezaninoRuntimeConfig?.apiBase || "",
+        nativeDashboardOnly: Boolean(window.Capacitor?.isNativePlatform?.()),
+        dashboardAuditMode: Boolean(window.MezaninoRuntimeConfig?.auditMode),
       };
     </script>
 		<script src="./wordmark.js" charset="UTF-8"></script>
@@ -32,8 +36,6 @@
     <script src="./components/announce.js" charset="UTF-8"></script>
     <script src="./components/listing.js" charset="UTF-8"></script>
     <script src="./components/detail.js" charset="UTF-8"></script>
-    <script src="./components/favorites.js" charset="UTF-8"></script>
-    <script src="./components/quiz.js" charset="UTF-8"></script>
     <script src="./components/product-editor.js" charset="UTF-8"></script>
     <script src="./components/brokers.js" charset="UTF-8"></script>
     <script src="./components/dashboard/dashboard-item-row.js" charset="UTF-8"></script>
@@ -52,5 +54,3 @@
     <script src="./events/app-events.js" charset="UTF-8"></script>
   </body>
 </html>
-
-

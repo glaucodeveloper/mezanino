@@ -174,15 +174,23 @@
         </div>
       </div>
       <form class="client-cv-form dashboard-crud-form" data-cid="dashboard" data-message="saveItem" data-collection="clients">
+        <input type="hidden" name="id" value="${escapeText(draft.id || crudDraftId || "")}">
         <div class="client-cv-grid dashboard-crud-grid">
           <label class="mini-field"><span>Nome</span><input name="name" type="text" placeholder="Nome completo" value="${escapeText(draft.name || "")}"></label>
           <label class="mini-field"><span>Telefone</span><input name="phone" type="text" placeholder="(71) 99999-0000" value="${escapeText(draft.phone || "")}"></label>
           <label class="mini-field"><span>E-mail</span><input name="email" type="email" placeholder="cliente@dominio.com" value="${escapeText(draft.email || "")}"></label>
           <label class="mini-field"><span>Perfil</span><input name="profile" type="text" placeholder="Comprador, investidor, etc." value="${escapeText(draft.profile || "")}"></label>
+          <label class="mini-field"><span>Intencao</span><input name="transaction" type="text" placeholder="compra, locacao ou captacao-venda" value="${escapeText(draft.transaction || "")}"></label>
           <label class="mini-field"><span>Foco</span><input name="focus" type="text" placeholder="3 quartos em Salvador" value="${escapeText(draft.focus || "")}"></label>
           <label class="mini-field"><span>Faixa</span><input name="budget" type="text" placeholder="Ate R$ 1,2 mi" value="${escapeText(draft.budget || "")}"></label>
+          <label class="mini-field"><span>Prazo</span><input name="timeframe" type="text" placeholder="ate 90 dias" value="${escapeText(draft.timeframe || "")}"></label>
           <label class="mini-field"><span>Cidade</span><input name="city" type="text" placeholder="Salvador" value="${escapeText(draft.city || "")}"></label>
           <label class="mini-field"><span>Responsavel</span><input name="owner" type="text" placeholder="Corretor responsavel" value="${escapeText(draft.owner || "")}"></label>
+          <label class="mini-field"><span>Contato preferido</span><input name="contactPreference" type="text" placeholder="WhatsApp no fim da tarde" value="${escapeText(draft.contactPreference || "")}"></label>
+          <label class="mini-field"><span>Privacidade</span><input name="privacyStatus" type="text" placeholder="Finalidade e base legal registradas" value="${escapeText(draft.privacyStatus || "")}"></label>
+          <label class="mini-field mini-field--wide"><span>Narrativa</span><textarea name="narrative" rows="4" placeholder="Gatilho, objetivo, contexto e restricoes">${escapeText(draft.narrative || "")}</textarea></label>
+          <label class="mini-field mini-field--wide"><span>Objecoes</span><textarea name="objections" rows="3" placeholder="Uma por linha">${escapeText(Array.isArray(draft.objections) ? draft.objections.join("\n") : draft.objections || "")}</textarea></label>
+          <label class="mini-field mini-field--wide"><span>Proximo compromisso</span><textarea name="nextAction" rows="3" placeholder="Acao, responsavel e prazo">${escapeText(draft.nextAction || "")}</textarea></label>
           <label class="mini-field mini-field--wide client-notes"><span>Notas</span><textarea name="notes" rows="4" placeholder="Preferencias, historia, restricoes e observacoes">${escapeText(draft.notes || "")}</textarea></label>
         </div>
         <div class="attachment-stack">
@@ -225,7 +233,10 @@
         <div class="appointment-entity-section">
           <strong>Imoveis</strong>
           <div class="appointment-entity-grid">
-            ${properties.map((prop) => /*html*/ `<label class="appointment-check"><input type="checkbox" name="properties" value="${escapeText(prop.id)}" ${Array.isArray(draft.properties) && draft.properties.includes(prop.id) ? "checked" : ""}><span>${escapeText(prop.title || prop.id)}</span></label>`).join("")}
+            ${properties.map((prop) => {
+              const city = prop.cityName || prop.city?.split(",")[0]?.trim() || "Salvador";
+              return /*html*/ `<label class="appointment-check"><input type="checkbox" name="properties" value="${escapeText(prop.id)}" ${Array.isArray(draft.properties) && draft.properties.includes(prop.id) ? "checked" : ""}><span>${escapeText(city)}, ${escapeText(prop.id)}</span></label>`;
+            }).join("")}
           </div>
         </div>
         <div class="appointment-entity-section">
@@ -285,7 +296,7 @@
     </article>
   `;
   const renderMetrics = () => /*html*/ `
-    ${toolbar("Metricas fixas", "Indicadores derivados da movimentacao do site.", `<button class="ghost-btn" type="button" data-cid="dashboard" data-message="refreshMetrics">Atualizar</button>`)}
+    ${toolbar("Indicadores", "Leitura atual da movimentação comercial.", `<button class="ghost-btn" type="button" data-cid="dashboard" data-message="refreshMetrics">Atualizar</button>`)}
     <div class="metric-grid metric-grid--fixed">
       ${metrics.map((metric, index) => /*html*/ `<article class="metric metric--fixed metric-${index + 1} metric-link" role="button" tabindex="0"><small>${escapeText(metric.label)}</small><strong>${escapeText(metric.value)}</strong><span>${escapeText(metric.note || "")}</span></article>`).join("")}
     </div>
@@ -359,7 +370,7 @@
       </button>`;
     };
     return /*html*/ `
-    ${toolbar("Linha do tempo", "Accordion com cards e links para os elementos envolvidos.", `<button class="ghost-btn" type="button" data-cid="dashboard" data-message="newActivity">Novo evento</button>`)}
+    ${toolbar("Linha do tempo", "Acompanhe contatos, visitas e próximos passos relacionados.", `<button class="gold-btn" type="button" data-cid="dashboard" data-message="newActivity">Registrar atividade</button>`)}
     <div class="timeline-accordion">
       ${activities
         .map((item, index) => {
@@ -394,6 +405,8 @@
             </summary>
             <div class="timeline-copy">
               <p>${escapeText(item.detail || "")}</p>
+              ${item.outcome ? `<p class="timeline-outcome"><strong>Resultado:</strong> ${escapeText(item.outcome)}</p>` : ""}
+              ${item.nextAction ? `<p class="timeline-next-action"><strong>Próximo passo:</strong> ${escapeText(item.nextAction)}</p>` : ""}
               ${
                 hasEntities
                   ? /*html*/ `
@@ -406,6 +419,10 @@
                   : ""
               }
               ${item.image ? `<img class="timeline-image" src="${item.image}" alt="${escapeText(item.title || "Atividade")}">` : ""}
+              <div class="timeline-actions">
+                <button class="ghost-btn" type="button" data-cid="dashboard" data-message="editItem" data-collection="activities" data-item-id="${escapeText(itemId(item))}">Editar</button>
+                <button class="ghost-btn danger-btn" type="button" data-cid="dashboard" data-message="deleteItem" data-collection="activities" data-item-id="${escapeText(itemId(item))}">Excluir</button>
+              </div>
             </div>
           </details>
         `;
@@ -540,6 +557,7 @@
                   </div>
                   <div class="calendar-item-actions">
                     ${phone ? `<a class="gold-btn" href="${whatsappLink(phone, text)}" target="_blank" rel="noreferrer">WhatsApp</a>` : ""}
+                    <button class="ghost-btn" type="button" data-cid="dashboard" data-message="editItem" data-collection="appointments" data-item-id="${escapeText(itemId(item))}">Editar</button>
                     <button class="ghost-btn danger-btn" type="button" data-cid="dashboard" data-message="deleteItem" data-collection="appointments" data-item-id="${escapeText(itemId(item))}">Excluir</button>
                   </div>
                 </article>
@@ -561,7 +579,7 @@
         "Cadastro manual",
         "Ficha em estilo CV com anexos dinamicos e controle comercial.",
         `
-        <button class="ghost-btn" type="button" data-cid="dashboard" data-message="setCollectionView" data-collection="clients" data-value="grid">Grid</button>
+        <button class="ghost-btn" type="button" data-cid="dashboard" data-message="setCollectionView" data-collection="clients" data-value="grid">Cards</button>
         <button class="ghost-btn" type="button" data-cid="dashboard" data-message="setCollectionView" data-collection="clients" data-value="list">Lista</button>
         <button class="gold-btn" type="button" data-cid="dashboard" data-message="newItem" data-collection="clients">Novo cliente</button>
       `,
@@ -592,6 +610,7 @@
                 .join("")}</div>
               <div class="entity-row-actions">
                 <a class="ghost-btn" href="${openDashboard("clients", itemId(client))}" data-route="dashboard" data-dashboard-tab="clients" data-entity-id="${escapeText(itemId(client))}">Abrir</a>
+                <button class="ghost-btn" type="button" data-cid="dashboard" data-message="editItem" data-collection="clients" data-item-id="${escapeText(itemId(client))}">Editar</button>
                 <button class="ghost-btn danger-btn" type="button" data-cid="dashboard" data-message="deleteItem" data-collection="clients" data-item-id="${escapeText(itemId(client))}">Excluir</button>
               </div>
             </article>
@@ -612,7 +631,7 @@
         "Cadastro de vendedores",
         "Equipe comercial com cards e list view.",
         `
-        <button class="ghost-btn" type="button" data-cid="dashboard" data-message="setCollectionView" data-collection="brokers" data-value="grid">Grid</button>
+        <button class="ghost-btn" type="button" data-cid="dashboard" data-message="setCollectionView" data-collection="brokers" data-value="grid">Cards</button>
         <button class="ghost-btn" type="button" data-cid="dashboard" data-message="setCollectionView" data-collection="brokers" data-value="list">Lista</button>
         <button class="gold-btn" type="button" data-cid="dashboard" data-message="newItem" data-collection="brokers">Novo vendedor</button>
       `,
@@ -670,7 +689,7 @@
         "Relatorios corporativos",
         "Cards do historico e botao para gerar um novo PDF com metricas e atividades.",
         `
-        <button class="ghost-btn" type="button" data-cid="dashboard" data-message="setCollectionView" data-collection="reports" data-value="grid">Grid</button>
+        <button class="ghost-btn" type="button" data-cid="dashboard" data-message="setCollectionView" data-collection="reports" data-value="grid">Cards</button>
         <button class="ghost-btn" type="button" data-cid="dashboard" data-message="setCollectionView" data-collection="reports" data-value="list">Lista</button>
         <button class="gold-btn" type="button" data-cid="dashboard" data-message="generateReport">Gerar novo relatorio</button>
       `,
@@ -702,10 +721,10 @@
       : "";
     return /*html*/ `
       ${toolbar(
-        "Imoveis e entidades",
-        "Listagem CRUD com acesso direto a pagina de edicao do produto.",
+        "Comparaveis e imoveis",
+        "Registros observados devem ter fonte, data e disponibilidade confirmada antes do atendimento.",
         `
-        <button class="ghost-btn" type="button" data-cid="dashboard" data-message="setCollectionView" data-collection="properties" data-value="grid">Grid</button>
+        <button class="ghost-btn" type="button" data-cid="dashboard" data-message="setCollectionView" data-collection="properties" data-value="grid">Cards</button>
         <button class="ghost-btn" type="button" data-cid="dashboard" data-message="setCollectionView" data-collection="properties" data-value="list">Lista</button>
         <button class="gold-btn" type="button" data-cid="dashboard" data-message="newItem" data-collection="properties">Novo imovel</button>
         <button class="ghost-btn" type="button" data-route="comprar">Ver vitrine</button>
@@ -713,7 +732,7 @@
       )}
       ${inlineForm}
       <div class="dashboard-card">
-        <div class="dashboard-card-head"><h3>Produtos cadastrados</h3><span>${props.items.length}</span></div>
+        <div class="dashboard-card-head"><h3>Registros de referencia</h3><span>${props.items.length}</span></div>
         <div class="${listMode ? "entity-list" : "property-card-grid"}">
           ${props.items
             .map(
@@ -722,11 +741,12 @@
               <div>
                 <strong><a class="property-title-link" href="#imovel#${encodeURIComponent(item.id)}" data-route="imovel" data-property-id="${item.id}">${escapeText(item.title || item.name || "Imovel")}</a></strong>
                 <p>${escapeText(item.city || item.neighborhood || "")}</p>
+                ${item.observedAt ? `<small>Observado em ${escapeText(item.observedAt)} - ${escapeText(item.availabilityStatus || "confirmar disponibilidade")}</small>` : ""}
               </div>
               <div class="entity-row-actions">
                 <span>${escapeText(item.price || "Sem preco")}</span>
                 <a class="ghost-btn" href="#imovel#${encodeURIComponent(item.id)}" data-route="imovel" data-property-id="${item.id}">Abrir</a>
-                <a class="ghost-btn" href="#imovel-editar#${encodeURIComponent(item.id)}" data-route="imovel-editar" data-property-id="${item.id}">Editar</a>
+                <button class="ghost-btn" type="button" data-cid="dashboard" data-message="editItem" data-collection="properties" data-item-id="${escapeText(item.id)}">Editar</button>
                 <button class="ghost-btn danger-btn" type="button" data-cid="dashboard" data-message="deleteItem" data-collection="properties" data-item-id="${item.id}">Excluir</button>
               </div>
             </article>
@@ -746,9 +766,9 @@
     return /*html*/ `
       ${toolbar(
         schema?.title || "Itens",
-        schema?.description || "Gestao interna do painel.",
+        schema?.description || "Registros da operação comercial.",
         `
-        <button class="ghost-btn" type="button" data-cid="dashboard" data-message="setCollectionView" data-collection="${collection}" data-value="grid">Grid</button>
+        <button class="ghost-btn" type="button" data-cid="dashboard" data-message="setCollectionView" data-collection="${collection}" data-value="grid">Cards</button>
         <button class="ghost-btn" type="button" data-cid="dashboard" data-message="setCollectionView" data-collection="${collection}" data-value="list">Lista</button>
         <button class="gold-btn" type="button" data-cid="dashboard" data-message="newItem" data-collection="${collection}">Novo ${schema?.itemLabel || "item"}</button>
       `,
@@ -757,7 +777,27 @@
       <div class="dashboard-card">
         <div class="dashboard-card-head"><h3>${schema?.title || "Itens"}</h3><span>${props.items.length}</span></div>
         <div class="${listMode ? "entity-list" : "activity dashboard-items"}">
-          ${props.items.map((item, index) => /*html*/ `<article class="activity-row dashboard-item-row"><span class="dot">&#8226;</span><div class="dashboard-item-copy"><strong>${escapeText(item.title || item.name || item.label || `Item ${index + 1}`)}</strong><div class="location">${escapeText(item.detail || item.value || "")}</div></div></article>`).join("")}
+          ${props.items
+            .map((item, index) => {
+              const summary = summarizeItem(collection, item, index);
+              return /*html*/ `
+                <article class="activity-row dashboard-item-row">
+                  <span class="dot">${escapeText(summary.icon || "M")}</span>
+                  <div class="dashboard-item-copy">
+                    <strong>${escapeText(summary.title)}</strong>
+                    <div class="location">${escapeText(summary.detail || "")}</div>
+                    <small>${escapeText(summary.value || "")}${summary.badge ? ` - ${escapeText(summary.badge)}` : ""}</small>
+                    ${item.limitations ? `<p class="route-note">Limite: ${escapeText(item.limitations)}</p>` : ""}
+                    ${item.sourceUrl ? `<a class="ghost-btn" href="${escapeText(item.sourceUrl)}" target="_blank" rel="noreferrer">Abrir fonte</a>` : ""}
+                  </div>
+                  <div class="dashboard-item-actions">
+                    <button class="ghost-btn" type="button" data-cid="dashboard" data-message="editItem" data-collection="${collection}" data-item-id="${escapeText(itemId(item))}">Editar</button>
+                    <button class="ghost-btn danger-btn" type="button" data-cid="dashboard" data-message="deleteItem" data-collection="${collection}" data-item-id="${escapeText(itemId(item))}">Excluir</button>
+                  </div>
+                </article>
+              `;
+            })
+            .join("")}
         </div>
       </div>
     `;

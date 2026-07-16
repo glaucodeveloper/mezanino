@@ -1,6 +1,30 @@
   const FooterComponent = () => ({
     next: () => ({
       done: false,
-      value: /*html*/`<footer id="contato" class="site-footer"><div class="container footer-grid"><div>${brand()}<p>Conectando pessoas aos melhores imoveis e oportunidades.</p><p>Instagram · Facebook · WhatsApp · YouTube</p><a class="footer-dashboard" href="#dashboard" data-route="dashboard">Dashboard</a></div><div><h4>Institucional</h4><div class="footer-links"><a href="#home" data-route="home">Sobre nos</a><a href="#contato" data-route="contato">Trabalhe conosco</a><a href="#contato" data-route="contato">Politica de privacidade</a><a href="#contato" data-route="contato">Termos de uso</a></div></div><div><h4>Imoveis</h4><div class="footer-links"><a href="#comprar" data-route="comprar">Comprar</a><a href="#comprar" data-route="comprar">Alugar</a><a href="#destaques" data-route="destaques">Lancamentos</a><a href="#favoritos" data-route="favoritos">Favoritos</a><a href="#anuncie" data-route="anuncie">Anuncie seu imovel</a></div></div><div><h4>Ajuda</h4><div class="footer-links"><a href="#quiz" data-route="quiz">Quiz de perfil</a><a href="#contato" data-route="contato">Contato</a><a href="#login" data-route="login">Area interna</a></div></div><div><h4>Contato</h4><p>(71) 99999-0000<br>contato@suaimobiliaria.com.br<br>Rua das Acacias, 129<br>Salvador/BA</p></div></div></footer>`,
+      value: /*html*/`<footer id="contato" class="site-footer">
+        <div class="container footer-grid" style="grid-template-columns: 1fr 1fr; gap: 40px;">
+          <div>
+            ${brand()}
+            <p style="margin: 15px 0 20px; color: #4a5568; max-width: 420px;">Conectando pessoas aos melhores imóveis e oportunidades com curadoria premium.</p>
+            <p style="color: #bd8d44; font-weight: 500; font-size: 0.92rem;">Instagram · Facebook · WhatsApp · YouTube</p>
+          </div>
+          <div class="footer-contact-column" style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 12px;">
+            <h4 style="margin: 0; color: #16273f; font-family: var(--font-display); font-size: 1.25rem;">Contato</h4>
+            <p style="margin: 0; color: #4a5568; line-height: 1.6; font-size: 0.95rem;">
+              (71) 99999-0000<br>
+              contato@suaimobiliaria.com.br<br>
+              Rua das Acácias, 129 - Salvador/BA
+            </p>
+            <div style="display: flex; gap: 15px; margin-top: 10px; flex-wrap: wrap; justify-content: flex-end;">
+              <a href="#home" data-route="home" style="color: #4a5568; font-size: 0.88rem; text-decoration: none;">Início</a>
+              <a href="#comprar" data-route="comprar" style="color: #4a5568; font-size: 0.88rem; text-decoration: none;">Comprar</a>
+              <a href="#comprar?operation=alugar" data-route="comprar" data-operation="alugar" style="color: #4a5568; font-size: 0.88rem; text-decoration: none;">Alugar</a>
+              <a href="#anuncie" data-route="anuncie" style="color: #4a5568; font-size: 0.88rem; text-decoration: none;">Anuncie</a>
+              <a href="#contato" data-route="contato" style="color: #4a5568; font-size: 0.88rem; text-decoration: none;">Contato</a>
+              <a href="#login" data-route="login" style="color: #4a5568; font-size: 0.88rem; text-decoration: none;">Área Interna</a>
+            </div>
+          </div>
+        </div>
+      </footer>`,
     }),
   });

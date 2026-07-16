@@ -10,9 +10,11 @@ const ContactComponent = ({ props }) => {
           name: message.fields.name || "Contato",
           source: "Contato",
           interest: message.fields.interest || "Mensagem geral",
+          email: message.fields.email || "",
+          phone: message.fields.phone || "",
           stage: "novo",
         });
-        status = "Mensagem salva como lead.";
+        status = "Mensagem enviada imediatamente!";
       }
 
       if (message.type === "toggleAnnounce") {
@@ -67,19 +69,23 @@ const ContactComponent = ({ props }) => {
                           <h3>Formulario</h3>
                           <div>
                             <div class="mini-field">
-                              <label>Nome</label>
-                              <input name="name" required>
+                              <label>Nome *</label>
+                              <input name="name" required placeholder="Seu nome">
                             </div>
                             <div class="mini-field">
-                              <label>Telefone</label>
-                              <input name="phone" required>
+                              <label>Telefone *</label>
+                              <input name="phone" required placeholder="(71) 99999-0000">
                             </div>
                             <div class="mini-field">
-                              <label>Interesse</label>
-                              <input name="interest">
+                              <label>E-mail *</label>
+                              <input name="email" type="email" required placeholder="seu@email.com">
                             </div>
-                            <button class="gold-btn" type="submit">Enviar</button>
-                            ${status ? `<p class="login-error">${status}</p>` : ""}
+                            <div class="mini-field">
+                              <label>Mensagem / Interesse</label>
+                              <input name="interest" placeholder="Quero saber mais sobre...">
+                            </div>
+                            <button class="gold-btn" type="submit" style="width: 100%; margin-top: 10px;">Enviar Imediato</button>
+                            ${status ? `<p class="login-error" style="color: var(--gold); margin-top: 8px;">${status}</p>` : ""}
                           </div>
                         </form>
                         <article class="phone-card">

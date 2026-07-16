@@ -6,11 +6,14 @@ const bootApp = (rootSelector = "#app") => {
       Object.assign(document.createElement("div"), { id: "app" }),
     );
   root.classList.add("app-shell");
+  const nativeDashboardOnly = Boolean(window.SuaImobiliariaCmsConfig?.nativeDashboardOnly || window.Capacitor);
+  const dashboardAuditMode = Boolean(window.SuaImobiliariaCmsConfig?.dashboardAuditMode);
+  root.classList.toggle("native-dashboard-app", nativeDashboardOnly);
 
   const initialRoute = parseRoute();
   const routeState = {
     state: {
-      route: initialRoute.route,
+      route: nativeDashboardOnly ? "dashboard" : initialRoute.route,
       selectedPropertyId: initialRoute.propertyId || properties[0]?.id || null,
       selectedBrokerId: initialRoute.brokerId || null,
       dashboardTab: initialRoute.dashboardTab || "overview",
@@ -22,7 +25,8 @@ const bootApp = (rootSelector = "#app") => {
     },
     apply(message = {}) {
       if (message.type !== "route") return this.state;
-      const nextRoute = ROUTES.includes(message.route) ? message.route : "home";
+      const requestedRoute = ROUTES.includes(message.route) ? message.route : "home";
+      const nextRoute = nativeDashboardOnly && requestedRoute !== "login" ? "dashboard" : requestedRoute;
       this.state = {
         ...this.state,
         route:
@@ -68,7 +72,7 @@ const bootApp = (rootSelector = "#app") => {
         JSON.parse(localStorage.getItem("suaimobiliaria:favorites") || "[]"),
       ),
       compare: new Set(),
-      authenticated: false,
+      authenticated: nativeDashboardOnly && dashboardAuditMode,
     },
     current() {
       return this.state;
@@ -160,7 +164,7 @@ const bootApp = (rootSelector = "#app") => {
     nextDashboard = dashboardContent,
     nextBrokers = brokers,
   ) => {
-    return saveCmsDataToGitHub(CMS_GITHUB_TOKEN, {
+    return saveCmsDataToGitHub({
       properties: nextProperties,
       brokers: nextBrokers,
       dashboard: nextDashboard,
@@ -170,9 +174,9 @@ const bootApp = (rootSelector = "#app") => {
     const normalizedDashboard = normalizeDashboardContent(nextDashboard);
     dashboardContent = normalizedDashboard;
     dashboardState.state = normalizedDashboard;
-    await persistCmsSnapshot(properties, normalizedDashboard);
+    const result = await persistCmsSnapshot(properties, normalizedDashboard);
     propsSync();
-    return { message: "Dashboard salvo no CMS." };
+    return { message: result?.message || "Alterações do CRM salvas." };
   };
   const saveProperty = async (draft, originalId = null) => {
     const normalized = normalizeDashboardItem("properties", draft);
@@ -182,19 +186,19 @@ const bootApp = (rootSelector = "#app") => {
       : -1;
     if (index >= 0) nextProperties.splice(index, 1, normalized);
     else nextProperties.unshift(normalized);
-    await persistCmsSnapshot(nextProperties, dashboardContent);
+    const result = await persistCmsSnapshot(nextProperties, dashboardContent);
     properties = nextProperties;
     propsSync();
-    return { property: normalized, message: "Produto salvo no GitHub." };
+    return { property: normalized, message: result?.message || "Imóvel salvo e publicado." };
   };
   const deleteProperty = async (propertyId) => {
     const nextProperties = properties.filter((item) => item.id !== propertyId);
     if (nextProperties.length === properties.length)
       throw new Error("Produto nao encontrado.");
-    await persistCmsSnapshot(nextProperties, dashboardContent);
+    const result = await persistCmsSnapshot(nextProperties, dashboardContent);
     properties = nextProperties;
     propsSync();
-    return { message: "Produto removido do GitHub." };
+    return { message: result?.message || "Imóvel removido." };
   };
   const saveBroker = async (draft, originalId = null) => {
     const normalized = {
@@ -221,10 +225,10 @@ const bootApp = (rootSelector = "#app") => {
       : -1;
     if (index >= 0) nextBrokers.splice(index, 1, normalized);
     else nextBrokers.unshift(normalized);
-    await persistCmsSnapshot(properties, dashboardContent, nextBrokers);
+    const result = await persistCmsSnapshot(properties, dashboardContent, nextBrokers);
     brokers = nextBrokers;
     propsSync();
-    return { broker: normalized, message: "Vendedor salvo no GitHub." };
+    return { broker: normalized, message: result?.message || "Vendedor salvo." };
   };
   const deleteBroker = async (brokerId) => {
     const nextBrokers = brokers.filter(
@@ -233,10 +237,10 @@ const bootApp = (rootSelector = "#app") => {
     );
     if (nextBrokers.length === brokers.length)
       throw new Error("Vendedor nao encontrado.");
-    await persistCmsSnapshot(properties, dashboardContent, nextBrokers);
+    const result = await persistCmsSnapshot(properties, dashboardContent, nextBrokers);
     brokers = nextBrokers;
     propsSync();
-    return { message: "Vendedor removido do GitHub." };
+    return { message: result?.message || "Vendedor removido." };
   };
   const propsSync = () => requestRender();
   const propertyTools = {
@@ -274,8 +278,6 @@ const bootApp = (rootSelector = "#app") => {
   add("announce", AnnounceComponent, { addLead });
   add("listing", ListingComponent, propertyTools);
   add("detail", DetailComponent, propertyTools);
-  add("favorites", FavoritesComponent, propertyTools);
-  add("quiz", QuizComponent, { addLead });
   add("editor", ProductEditorComponent, {
     getRoute,
     getSelectedProperty: () =>
@@ -307,20 +309,21 @@ const bootApp = (rootSelector = "#app") => {
     renderEditions: () => renderComponent("dashboard-editions"),
   });
   add("login", LoginComponent, {
-    login: (email, password) => {
-      const ok =
-        email === "admin@suaimobiliaria.com.br" &&
-        password === CMS_LOGIN_PASSWORD;
-      if (ok) {
+    login: async (email, password) => {
+      try {
+        await authenticateCmsSession(email, password);
         sessionState.apply({ type: "login" });
         const currentTab = routeState.current().dashboardTab;
         setRoute("dashboard", {
           dashboardTab:
             currentTab && currentTab !== "overview" ? currentTab : undefined,
         });
+        return true;
+      } catch {
+        return false;
       }
-      return ok;
     },
+    requestRender: () => requestRender(),
   });
   add("contact", ContactComponent, { addLead });
   add("about", AboutComponent, { ...routeTools });
@@ -374,6 +377,11 @@ const bootApp = (rootSelector = "#app") => {
       route === "imovel-novo" || route === "imovel-editar",
     );
     root.classList.toggle("route-home", route === "home");
+    if (nativeDashboardOnly && route === "login") {
+      root.innerHTML = renderComponent("login");
+      syncTopbarState();
+      return;
+    }
     if (
       route === "dashboard" ||
       route === "imovel-novo" ||
@@ -386,29 +394,26 @@ const bootApp = (rootSelector = "#app") => {
     root.innerHTML = /*html*/ `
         ${renderComponent("topbar")}
         <main>
-          ${panel("home", route === "home" ? `${renderComponent("hero")}${renderComponent("stats")}${renderComponent("featured")}${renderComponent("quiz")}${renderComponent("brokers")}` : "")}
-          ${panel("destaques", route === "destaques" ? renderComponent("featured") : "")}
+          ${panel("home", route === "home" ? `${renderComponent("hero")}${renderComponent("featured")}${renderComponent("brokers")}` : "")}
           ${panel("comprar", route === "comprar" ? renderComponent("listing") : "")}
           ${panel("imovel", route === "imovel" ? `${renderComponent("detail")}${renderComponent("brokers")}` : "")}
           ${panel("vendedores", route === "vendedores" || route === "brokers" ? renderComponent("brokers") : "")}
-          ${panel("favoritos", route === "favoritos" ? renderComponent("favorites") : "")}
-          ${panel("quiz", route === "quiz" ? renderComponent("quiz") : "")}
-          ${panel("anuncie", route === "anuncie" ? renderComponent("quiz") : "")}
+          ${panel("anuncie", route === "anuncie" ? renderComponent("announce") : "")}
           ${panel("login", route === "login" ? renderComponent("login") : "")}
           ${panel("contato", route === "contato" ? renderComponent("contact") : "")}
           ${panel("sobre", route === "sobre" ? renderComponent("about") : "")}
           ${panel("financiamento", route === "financiamento" ? renderComponent("financing") : "")}
         </main>
         ${renderComponent("footer")}
-        ${renderComponent("floating-whats")}
-      `;
+    `;
     syncTopbarState();
   };
   requestRender = render;
   window.addEventListener("scroll", syncTopbarState, { passive: true });
   window.addEventListener("resize", syncTopbarState, { passive: true });
   const setRoute = (route, options = {}) => {
-    const nextRoute = ROUTES.includes(route) ? route : "home";
+    const requestedRoute = ROUTES.includes(route) ? route : "home";
+    const nextRoute = nativeDashboardOnly && requestedRoute !== "login" ? "dashboard" : requestedRoute;
     const current = routeState.current();
     const propertyId =
       options.propertyId ||
@@ -509,6 +514,7 @@ const bootApp = (rootSelector = "#app") => {
       console.error(`Action ${message.type} failed`, error);
     }
     if (message.type === "logout") {
+      await closeCmsSession();
       sessionState.apply({ type: "logout" });
       setRoute("login");
       return;
@@ -647,6 +653,62 @@ const bootApp = (rootSelector = "#app") => {
     if (!grid || grid.contains(event.relatedTarget)) return;
     featuredForceClose();
   });
+  let sidebarSwipeStart = null;
+  root.addEventListener("touchstart", (event) => {
+    if (getRoute() !== "dashboard") return;
+    const touch = event.touches?.[0];
+    if (!touch) return;
+    const shell = root.querySelector(".dashboard-shell");
+    const sidebar = shell?.querySelector(".dashboard-nav");
+    if (!shell || !sidebar) return;
+    const isCollapsed = shell.classList.contains("is-sidebar-collapsed");
+    const drawerRect = sidebar.getBoundingClientRect();
+    const drawerWidth = drawerRect.width;
+    const canOpenFromOffset = isCollapsed && touch.clientX >= 28 && touch.clientX <= 96;
+    const canCloseFromDrawer = !isCollapsed && touch.clientX >= drawerRect.left && touch.clientX <= drawerRect.right;
+    if (!canOpenFromOffset && !canCloseFromDrawer) return;
+    sidebarSwipeStart = {
+      x: touch.clientX,
+      y: touch.clientY,
+      sidebar,
+      shell,
+      drawerWidth,
+      initialProgress: isCollapsed ? 0 : 1,
+      isCollapsed,
+      progress: isCollapsed ? 0 : 1,
+    };
+  }, { passive: true });
+  root.addEventListener("touchmove", (event) => {
+    if (!sidebarSwipeStart) return;
+    const touch = event.touches?.[0];
+    if (!touch) return;
+    const horizontalDistance = touch.clientX - sidebarSwipeStart.x;
+    const verticalDistance = touch.clientY - sidebarSwipeStart.y;
+    if (Math.abs(horizontalDistance) <= Math.abs(verticalDistance)) return;
+    event.preventDefault();
+    const progress = Math.max(0, Math.min(1, sidebarSwipeStart.initialProgress + horizontalDistance / sidebarSwipeStart.drawerWidth));
+    sidebarSwipeStart.progress = progress;
+    sidebarSwipeStart.shell.classList.add("is-sidebar-dragging");
+    sidebarSwipeStart.sidebar.style.transform = `translateX(${(progress - 1) * sidebarSwipeStart.drawerWidth}px)`;
+  }, { passive: false });
+  root.addEventListener("touchend", (event) => {
+    if (!sidebarSwipeStart) return;
+    const gesture = sidebarSwipeStart;
+    sidebarSwipeStart = null;
+    const touch = event.changedTouches?.[0];
+    if (!touch) return;
+    const horizontalDistance = touch.clientX - gesture.x;
+    const verticalDistance = touch.clientY - gesture.y;
+    const finalProgress = Math.max(0, Math.min(1, gesture.initialProgress + horizontalDistance / gesture.drawerWidth));
+    const shouldOpen = finalProgress >= 0.5;
+    gesture.sidebar.style.transform = "";
+    gesture.shell.classList.remove("is-sidebar-dragging");
+    if (Math.abs(horizontalDistance) < 18 || Math.abs(horizontalDistance) <= Math.abs(verticalDistance)) return;
+    if ((gesture.isCollapsed && shouldOpen) || (!gesture.isCollapsed && !shouldOpen)) {
+      const toggle = gesture.sidebar.querySelector("[data-message='toggleSidebar']");
+      if (toggle) void dispatch(toggle, event);
+    }
+  });
   root.addEventListener("click", (event) => {
     const routeTarget = event.target.closest("[data-route]");
     if (routeTarget) {
@@ -670,11 +732,15 @@ const bootApp = (rootSelector = "#app") => {
       void dispatch(actionTarget, event);
   });
   root.addEventListener("input", (event) => {
-    const actionTarget = event.target.closest("[data-cid][data-message]");
+    const actionTarget = event.target.matches?.("[data-cid][data-message]")
+      ? event.target
+      : null;
     if (actionTarget) void dispatch(actionTarget, event);
   });
   root.addEventListener("change", (event) => {
-    const actionTarget = event.target.closest("[data-cid][data-message]");
+    const actionTarget = event.target.matches?.("[data-cid][data-message]")
+      ? event.target
+      : null;
     if (actionTarget) void dispatch(actionTarget, event);
   });
   root.addEventListener("submit", (event) => {

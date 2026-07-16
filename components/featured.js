@@ -25,7 +25,6 @@ const FeaturedComponent = ({ props }) => ({
                 <h3><a class="property-title-link" href="#imovel#${encodeURIComponent(property.id)}" data-route="imovel" data-property-id="${property.id}">${property.title}</a></h3>
                 <div class="location">${property.city}</div>
               </div>
-              <button class="heart ${favorite ? "active" : ""}" type="button" data-cid="featured" data-message="toggleFavorite" data-property-id="${property.id}" aria-label="Favoritar">${favoriteMark(favorite)}</button>
             </div>
             <div class="featured-mini-bottom">
               <strong class="featured-mini-price">${property.price}</strong>
@@ -71,7 +70,6 @@ const FeaturedComponent = ({ props }) => ({
                 <h3><a class="property-title-link" href="#imovel#${encodeURIComponent(property.id)}" data-route="imovel" data-property-id="${property.id}">${property.title}</a></h3>
                 <div class="location">${property.city}</div>
               </div>
-              <button class="heart ${favorite ? "active" : ""}" type="button" data-cid="featured" data-message="toggleFavorite" data-property-id="${property.id}" aria-label="Favoritar">${favoriteMark(favorite)}</button>
             </div>
             <div class="featured-showcase-price">${property.price}</div>
             <div class="featured-showcase-specs">

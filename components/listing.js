@@ -3,20 +3,20 @@ const ListingComponent = ({ props }) => {
   let page = 1;
   let sortBy = "recentes";
   const pageSize = 4;
+  const routeInfo = props.getRouteInfo?.() || {};
+  const operation = routeInfo.operation || "comprar";
+  const defaultMaxPrice = operation === "alugar" ? 10000 : 2500000;
   const filters = {
     kinds: new Set(),
     city: "Todos",
     neighborhood: "Todos",
-    maxPrice: 2500000,
+    maxPrice: defaultMaxPrice,
     bedrooms: "Qualquer",
     suites: "Qualquer",
     parking: "Qualquer",
     minArea: "Qualquer",
     features: new Set(),
   };
-
-  const routeInfo = props.getRouteInfo?.() || {};
-  const operation = routeInfo.operation || "comprar";
 
   const compareFields = [
     {
@@ -79,7 +79,9 @@ const ListingComponent = ({ props }) => {
           [...filters.features].every((feature) =>
             features.has(feature.toLowerCase()),
           )) &&
-        (operation === "comprar" || !property.operation || property.operation === operation || String(property.type || "").toLowerCase().includes(operation === "alugar" ? "alug" : "vend"))
+        (operation === "alugar"
+          ? property.purpose === "locacao" || /alug|locacao/i.test(String(property.type || ""))
+          : property.purpose === "venda" || /vend/i.test(String(property.type || "")))
       );
     });
     return [...filtered].sort((a, b) => {
@@ -95,7 +97,7 @@ const ListingComponent = ({ props }) => {
     filters.features.clear();
     filters.city = "Todos";
     filters.neighborhood = "Todos";
-    filters.maxPrice = 2500000;
+    filters.maxPrice = defaultMaxPrice;
     filters.bedrooms = "Qualquer";
     filters.suites = "Qualquer";
     filters.parking = "Qualquer";
@@ -110,7 +112,7 @@ const ListingComponent = ({ props }) => {
     if (filters.city !== "Todos") params.set("cidade", filters.city);
     if (filters.neighborhood !== "Todos")
       params.set("bairro", filters.neighborhood);
-    if (Number(filters.maxPrice) < 2500000)
+    if (Number(filters.maxPrice) < defaultMaxPrice)
       params.set("preco", filters.maxPrice);
     if (filters.bedrooms !== "Qualquer")
       params.set("quartos", filters.bedrooms);
@@ -264,7 +266,7 @@ const ListingComponent = ({ props }) => {
             <div class="container">
               <div class="breadcrumb-row"><span>Home</span><span>Comprar</span></div>
               <div class="section-title">
-                <div><span class="eyebrow">${operation === "alugar" ? "Alugar / Buscar" : "Comprar / Alugar / Buscar"}</span><h2>${operation === "alugar" ? "Imoveis para aluguel" : "Imoveis a venda"}</h2><p>Encontramos ${filtered.length} imoveis. ${operation === "alugar" ? "A tela entrou no modo aluguel. Use os filtros para refinar a busca." : "Clique no card para selecionar comparacao e no titulo para abrir o detalhe."}</p></div>
+                <div><span class="eyebrow">Vitoria da Conquista / BA</span><h2>${operation === "alugar" ? "Comparaveis de locacao" : "Comparaveis de venda"}</h2><p>${filtered.length} referencias observadas. Precos pedidos, imagens ilustrativas e disponibilidade a confirmar na fonte.</p></div>
               </div>
               <div class="listing-layout">
                 <aside class="filter-box" aria-label="Filtros">
@@ -273,7 +275,7 @@ const ListingComponent = ({ props }) => {
                     <div class="mini-field"><label id="tipo-filter-title">Tipo</label><div class="check-list">${["Casa", "Apartamento", "Terreno", "Cobertura", "Sala comercial"].map((kind) => /*html*/ `<label>${kind}<input type="checkbox" data-cid="listing" data-message="filter" data-name="kind" value="${kind}" ${filters.kinds.has(kind) ? "checked" : ""}></label>`).join("")}</div></div>
                     <div class="mini-field"><label>Cidade</label><select data-cid="listing" data-message="filter" data-name="city">${["Todos", ...new Set(properties.map((property) => property.cityName))].map((city) => option(city, filters.city)).join("")}</select></div>
                     <div class="mini-field"><label>Bairro</label><select data-cid="listing" data-message="filter" data-name="neighborhood">${neighborhoods.map((item) => option(item, filters.neighborhood)).join("")}</select></div>
-                    <div class="mini-field"><label>Preco maximo: R$ ${money(filters.maxPrice)}</label><input type="range" min="290000" max="2500000" step="50000" value="${filters.maxPrice}" data-cid="listing" data-message="filter" data-name="maxPrice"></div>
+                    <div class="mini-field"><label>Preco maximo: R$ ${money(filters.maxPrice)}</label><input type="range" min="${operation === "alugar" ? 500 : 100000}" max="${defaultMaxPrice}" step="${operation === "alugar" ? 100 : 25000}" value="${filters.maxPrice}" data-cid="listing" data-message="filter" data-name="maxPrice"></div>
                     <div class="mini-field"><label>Quartos</label><select data-cid="listing" data-message="filter" data-name="bedrooms">${["Qualquer", "1+", "2+", "3+", "4+"].map((value) => option(value, filters.bedrooms)).join("")}</select></div>
                     <div class="mini-field"><label>Suites</label><select data-cid="listing" data-message="filter" data-name="suites">${["Qualquer", "1+", "2+"].map((value) => option(value, filters.suites)).join("")}</select></div>
                     <div class="mini-field"><label>Vagas</label><select data-cid="listing" data-message="filter" data-name="parking">${["Qualquer", "1+", "2+", "3+"].map((value) => option(value, filters.parking)).join("")}</select></div>
@@ -302,7 +304,7 @@ const ListingComponent = ({ props }) => {
                     <span>${compareSelection.length} em comparacao</span>
                   </div>
                   <div class="${viewMode === "grid" ? "property-grid listing-grid" : "list-stack"}">
-                    ${visibleProperties.length ? visibleProperties.map((property) => (viewMode === "grid" ? renderPropertyCard(property) : renderListCard(property))).join("") : `<article class="list-card empty-list-card"><div class="list-info"><h3>Nenhum imovel encontrado</h3><div class="location">Tente limpar filtros.</div></div></article>`}
+                    ${visibleProperties.length ? visibleProperties.map((property) => (viewMode === "grid" ? renderPropertyCard(property) : renderListCard(property))).join("") : `<article class="list-card empty-list-card"><div class="list-info"><h3>Nenhuma referencia encontrada</h3><div class="location">Tente limpar filtros.</div></div></article>`}
                   </div>
                   <div class="pager"><button type="button" data-cid="listing" data-message="setPage" data-value="${page - 1}" ${page === 1 ? "disabled" : ""}>&#8249;</button>${pager}<button type="button" data-cid="listing" data-message="setPage" data-value="${page + 1}" ${page === totalPages ? "disabled" : ""}>&#8250;</button></div>
                   ${compareSelection.length >= 2 ? renderCompareDock(compareSelection) : `<p class="route-note compare-note">Clique nos cards para comparar. O titulo abre o detalhe.</p>`}
