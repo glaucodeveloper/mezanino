@@ -50,16 +50,11 @@ const TopbarComponent = ({ props }) => {
       const pageTitle = pageTitleMap[route] || "Página";
       const pageSubtitle = pageSubtitleMap[route] || "";
       const navLinks = [
-        { route: "home", label: "Início" },
-        { route: "comprar", label: "Comprar" },
-        {
-          route: "comprar",
-          label: "Alugar",
-          operation: "alugar",
-          active: route === "comprar" && operation === "alugar",
-        },
-        { route: "anuncie", label: "Anuncie" },
+        { route: "sobre", label: "Sobre nós" },
+        { route: "comprar", label: "Buscar imóvel" },
+        { route: "anuncie", label: "Anunciar imóvel" },
         { route: "contato", label: "Contato" },
+        { route: "financiamento", label: "Financiamentos" },
       ];
       const renderSearchPanel = () => /*html*/ `
         <div class="search-panel topbar-search-panel" role="search" aria-label="Pesquisa principal">
@@ -80,50 +75,49 @@ const TopbarComponent = ({ props }) => {
         done: false,
         value: /*html*/ `
           <header class="topbar ${mobileMenuOpen ? "topbar--mobile-open" : ""}">
-            <div class="topbar-title-slot container">
-              <a class="${active(route, "home")} topbar-brand" href="#home" data-route="home">${window.LOGO_SVG}</a>
+            <!-- 1. Eyebrow strip -->
+            <div class="topbar-eyebrow">
+              <div class="container topbar-eyebrow-container">
+                <div class="topbar-eyebrow-left">
+                  <span>📞 (77) 3028-0606</span>
+                </div>
+                <div class="topbar-eyebrow-right">
+                  <button class="eyebrow-buscar-btn" type="button" data-route="comprar">Buscar</button>
+                </div>
+              </div>
             </div>
-            <div class="topbar-brand-slot container">
-              <button class="topbar-burger" type="button" data-cid="topbar" data-message="toggleMobileMenu" aria-label="${mobileMenuOpen ? "Fechar menu" : "Abrir menu"}" aria-expanded="${mobileMenuOpen ? "true" : "false"}" aria-controls="topbar-navigation">
-                <span class="topbar-burger-logo" aria-hidden="true">${window.LOGO_SVG}</span>
-              </button>
-              <nav id="topbar-navigation" class="topbar-nav" aria-label="Navegação principal">
-                ${navLinks
-                  .map((item) => {
-                    const isActive = item.active ?? active(route, item.route);
-                    const href = item.operation
-                      ? `#${item.route}?operation=${encodeURIComponent(item.operation)}`
-                      : `#${item.route}`;
-                    const operationAttr = item.operation
-                      ? ` data-operation="${item.operation}"`
-                      : item.route === "comprar"
-                        ? ` data-operation="${operation}"`
-                        : "";
-                    return `<a class="${isActive}" href="${href}" data-route="${item.route}"${operationAttr}>${item.label}</a>`;
-                  })
-                  .join("")}
-              </nav>
+
+            <!-- 2. Main white bar -->
+            <div class="topbar-main">
+              <div class="container topbar-main-container">
+                <a class="${active(route, "home")} topbar-brand" href="#home" data-route="home">
+                  ${window.LOGO_SVG}
+                </a>
+                
+                <nav class="topbar-nav">
+                  ${navLinks
+                    .map((item) => {
+                      const isActive = item.active ?? active(route, item.route);
+                      const href = item.operation
+                        ? `#${item.route}?operation=${encodeURIComponent(item.operation)}`
+                        : `#${item.route}`;
+                      const operationAttr = item.operation
+                        ? ` data-operation="${item.operation}"`
+                        : item.route === "comprar"
+                          ? ` data-operation="${operation}"`
+                          : "";
+                      return `<a class="${isActive}" href="${href}" data-route="${item.route}"${operationAttr}>${item.label}</a>`;
+                    })
+                    .join("")}
+                </nav>
+              </div>
             </div>
-            <div class="topbar-tools container">
-              <a class="icon-btn" href="#comprar" data-route="comprar" data-operation="${operation}" aria-label="Buscar">
-                <span>&#128269;</span>
-              </a>
-              <a class="icon-btn ${active(route, session.authenticated ? "dashboard" : "login")}" href="#${session.authenticated ? "dashboard" : "login"}" data-route="${session.authenticated ? "dashboard" : "login"}" aria-label="Conta">
-                <span>${session.authenticated ? "&#9786;" : "&#9675;"}</span>
-              </a>
-              <a class="pill-btn" href="#contato" data-route="contato">Fale conosco</a>
-            </div>
-            <div class="topbar-shell container">
+
+            <div class="topbar-shell container" style="display: none;">
               <div class="topbar-search-shell">
                 ${renderSearchPanel()}
               </div>
             </div>
-            <p class="topbar-contact-info">
-              (71) 99999-0000<br>
-              contato@suaimobiliaria.com.br<br>
-              Rua das Acacias, 129<br>
-              Salvador/BA
-            </p>
           </header>
         `,
       };

@@ -8,6 +8,60 @@ const DetailComponent = ({ props }) => {
 
   const escapeText = (value) => String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
+  const getGeminiLocationDesc = (prop) => {
+    if (typeof window === "undefined" || typeof localStorage === "undefined") return "";
+    
+    const cacheKey = `gemini_loc_${prop.id}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return cached;
+
+    if (!window.geminiLocationCache) {
+      window.geminiLocationCache = {};
+    }
+
+    // Trigger async fetch if not already in flight
+    if (!window.geminiLocationCache[prop.id]) {
+      window.geminiLocationCache[prop.id] = "loading";
+      
+      const prompt = `Escreva um parágrafo elegante e persuasivo (máximo 4 linhas, em português do Brasil) sobre a localização, comodidade e infraestrutura de morar no bairro ${prop.neighborhood}, na cidade de ${prop.city}, considerando um imóvel do tipo ${prop.type} denominado "${prop.title}".`;
+      
+      fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyCHkLOEDWYGzEL6Y7EXjqmQ8eGWvq3_0Dg`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{ text: prompt }]
+          }]
+        })
+      })
+      .then(r => r.json())
+      .then(data => {
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+        if (text) {
+          localStorage.setItem(cacheKey, text);
+          window.geminiLocationCache[prop.id] = text;
+          const el = document.getElementById("gemini-location-text");
+          if (el) {
+            el.innerHTML = text.replace(/\n/g, "<br>");
+            el.style.opacity = "1";
+          }
+        }
+      })
+      .catch(err => {
+        console.error("Gemini API error:", err);
+        window.geminiLocationCache[prop.id] = "error";
+        const el = document.getElementById("gemini-location-text");
+        if (el) {
+          el.innerHTML = "Não foi possível carregar as informações do local no momento.";
+        }
+      });
+    }
+
+    return null;
+  };
+
   return {
     next(message = {}) {
       if (message.type === "toggleFavorite") props.toggleFavorite(message.propertyId);
@@ -131,6 +185,16 @@ const DetailComponent = ({ props }) => {
               <li><strong>Bairro:</strong> ${escapeText(property.neighborhood)}</li>
               <li><strong>Operacao:</strong> ${escapeText(property.operation || "Comprar")}</li>
             </ul>
+            
+            <div class="gemini-location-container" style="background: rgba(22, 39, 63, 0.04); border-left: 4px solid #bd8d44; padding: 16px; border-radius: 4px; margin-top: 20px; box-sizing: border-box;">
+              <h4 style="margin: 0 0 8px; font-size: 0.95rem; color: #16273f; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.1rem;">✨</span> <strong>Contexto do Local (IA Gemini)</strong>
+              </h4>
+              <p id="gemini-location-text" style="margin: 0; font-size: 0.92rem; line-height: 1.6; color: #4a5568; transition: opacity 0.3s ease; opacity: ${getGeminiLocationDesc(property) ? '1' : '0.7'};">
+                ${getGeminiLocationDesc(property) || "Gerando descrição inteligente do bairro com Inteligência Artificial..."}
+              </p>
+            </div>
+
             <div class="detail-map" style="margin-top: 20px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); height: 260px;">
               <iframe 
                 width="100%" 

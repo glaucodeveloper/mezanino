@@ -129,14 +129,19 @@ const HeroComponent = ({ id, props }) => {
       return {
         done: false,
         value: /*html*/ `
-          <section id="home" class="hero" style="background-image: url('./medium-shot-woman-holding-keys (1).jpg'); background-size: cover; background-position: center; position: relative;">
-            <div class="hero-overlay" style="position: absolute; inset: 0; background: rgba(0,0,0,0.35); z-index: 1;"></div>
+          <section id="home" class="hero" style="position: relative; height: 70vh !important; min-height: 87vh !important; background-size: cover; background-position: 50% 0%;">
+            <div class="hero-overlay" style="position: absolute; inset: 0; background: transparent; z-index: 1;"></div>
             
-            <div class="container hero-shell" style="position: relative; z-index: 2;">
-              <div class="hero-stack" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 30px;">
+            <div class="container hero-shell" style="position: relative; z-index: 2; height: 100%; display: flex; align-items: flex-end; justify-content: center; padding: 0 !important;">
+              <div class="hero-stack" style="width: 100%; display: flex; flex-direction: column; align-items: center; position: relative;">
                 
+                <!-- Original Phrase -->
+                <h1 class="hero-title" style="color: #16273f; font-family: var(--font-display); font-size: clamp(2.4rem, 5.5vw, 12.8rem) !important; font-weight: 500; letter-spacing: -0.015em; text-align: left; max-width: 1200px; opacity: 0.95; z-index: 5; box-sizing: border-box; padding: 0 16px; margin-left: 0ch; width: 21ch; align-self: baseline; margin-bottom: 0ch;">
+                  Sonhe, conecte e realize
+                </h1>
+
                 <!-- Main Search Bar Card -->
-                <div class="custom-search-panel" style="background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 15px 45px rgba(0,0,0,0.2); width: 100%; max-width: 1140px; margin-top: 40px; box-sizing: border-box;">
+                <div class="custom-search-panel" style="background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 15px 45px rgba(0,0,0,0.15); width: 100%; max-width: 1140px; box-sizing: border-box; transform: translateY(50px); z-index: 10;">
                   <div class="custom-search-row" style="display: grid; grid-template-columns: repeat(4, 1fr) auto; gap: 16px; align-items: center; width: 100%;">
                     
                     <!-- 1. O que deseja? -->
@@ -228,7 +233,7 @@ const HeroComponent = ({ id, props }) => {
                     </div>
 
                     <!-- 5. BUSCAR Button -->
-                    <button class="custom-search-btn" type="button" data-cid="hero" data-message="triggerSearch" style="background: #a8a8a8; color: #fff; text-transform: uppercase; font-weight: bold; border-radius: 6px; padding: 14px 34px; border: 0; cursor: pointer; font-size: 0.98rem; letter-spacing: 0.05em; transition: background 0.2s;">
+                    <button class="custom-search-btn" type="button" data-cid="hero" data-message="triggerSearch" style="background: var(--gold, #bd8d44); color: #fff; text-transform: uppercase; font-weight: bold; border-radius: 6px; padding: 14px 34px; border: 0; cursor: pointer; font-size: 0.98rem; letter-spacing: 0.05em; transition: background 0.2s;">
                       BUSCAR
                     </button>
                     
@@ -239,11 +244,6 @@ const HeroComponent = ({ id, props }) => {
                     <span style="font-size: 0.98rem;">🔍</span>
                     <span style="font-weight: 500;">Buscar por código</span>
                   </div>
-                </div>
-
-                <!-- Featured Capsule -->
-                <div class="destaque-capsule" style="background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); padding: 12px 30px; border-radius: 99px; font-weight: bold; font-size: 1rem; color: #718096; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: 10px; border: 1px solid rgba(0,0,0,0.05);">
-                  Imóveis Em Destaque
                 </div>
 
               </div>

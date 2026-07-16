@@ -6,7 +6,7 @@ const bootApp = (rootSelector = "#app") => {
       Object.assign(document.createElement("div"), { id: "app" }),
     );
   root.classList.add("app-shell");
-  const nativeDashboardOnly = Boolean(window.SuaImobiliariaCmsConfig?.nativeDashboardOnly);
+  const nativeDashboardOnly = Boolean(window.SuaImobiliariaCmsConfig?.nativeDashboardOnly || window.Capacitor);
   const dashboardAuditMode = Boolean(window.SuaImobiliariaCmsConfig?.dashboardAuditMode);
   root.classList.toggle("native-dashboard-app", nativeDashboardOnly);
 
@@ -405,7 +405,6 @@ const bootApp = (rootSelector = "#app") => {
           ${panel("financiamento", route === "financiamento" ? renderComponent("financing") : "")}
         </main>
         ${renderComponent("footer")}
-        ${renderComponent("floating-whats")}
     `;
     syncTopbarState();
   };

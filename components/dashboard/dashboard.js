@@ -1,5 +1,5 @@
 ﻿const DashboardComponentStateful = ({ props }) => {
-  let activeTab = props.getRouteInfo?.().dashboardTab || "overview";
+  let activeTab = props.getRouteInfo?.().dashboardTab || "properties";
   let crudStatus = "";
   let clientAttachmentRows = 2;
   let crudWorkspace = null;
@@ -22,19 +22,7 @@
 
   const nativeDashboardOnly = Boolean(window.SuaImobiliariaCmsConfig?.nativeDashboardOnly);
   const allTabs = [
-    ["overview", "Painel", "&#8962;"],
-    ["metrics", "Metricas", "&#128200;"],
-    ["activities", "Atividades", "&#8635;"],
-    ["appointments", "Agendamentos", "&#128197;"],
-    ["clients", "Clientes", "&#128100;"],
-    ["deals", "Negocios", "&#8644;"],
-    ["marketAnalyses", "Mercado", "&#9678;"],
-    ["brokers", "Vendedores", "&#128101;"],
-    ["reports", "Relatorios", "&#128196;"],
-    ["properties", "Imoveis", "&#127968;"],
-    ["settings", "Configuracoes", "&#9881;"],
-    ["about", "Sobre nos", "&#8505;"],
-    ["editions", "Edicoes", "&#9998;"],
+    ["properties", "Imóveis", "&#127968;"],
   ];
   const tabs = allTabs;
   const adminBroker = brokers[1] || brokers[0] || {
@@ -140,7 +128,7 @@
   return {
     next(message = {}) {
       dashboardContent = { ...dashboardContent, metrics: buildMetrics() };
-      const routeTab = getRouteInfo().dashboardTab || "overview";
+      const routeTab = getRouteInfo().dashboardTab || "properties";
       if (routeTab !== activeTab) activeTab = routeTab;
       if (message.type === "setTab") {
         activeTab = message.value || activeTab;
@@ -325,20 +313,8 @@
       actionNotice = crudStatus;
       const currentLabel = tabs.find(([id]) => id === activeTab)?.[1] || "Painel";
       const mainPanel = () => {
-        if (activeTab === "overview") return renderOverview();
-        if (activeTab === "metrics") return renderCollectionCard("metrics");
-        if (activeTab === "activities") return renderCollectionCard("activities");
-        if (activeTab === "appointments") return renderCollectionCard("appointments");
-        if (activeTab === "clients") return renderCollectionCard("clients");
-        if (activeTab === "deals") return renderCollectionCard("deals");
-        if (activeTab === "marketAnalyses") return renderCollectionCard("marketAnalyses");
-        if (activeTab === "brokers") return renderCollectionCard("brokers");
-        if (activeTab === "reports") return renderCollectionCard("reports");
         if (activeTab === "properties") return renderCollectionCard("properties");
-        if (activeTab === "settings") return renderCollectionCard("settings");
-        if (activeTab === "about") return props.renderAbout?.() || "";
-        if (activeTab === "editions") return props.renderEditions?.() || "";
-        return renderOverview();
+        return renderCollectionCard("properties");
       };
 
       return {
