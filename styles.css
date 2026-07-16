@@ -199,15 +199,21 @@ img {
 .gold-btn {
   color: #fff;
   padding: 14px 22px;
-  background: linear-gradient(135deg, #dca642, #123970);
-  box-shadow: 0 2px 12px rgba(229, 163, 47, 0.3);
+  background: linear-gradient(135deg, #1d2b45, #111b33);
+  box-shadow: 0 2px 12px rgba(17, 27, 51, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 .ghost-btn {
   padding: 13px 20px;
   border: 1px solid var(--line);
   background: #fff;
 }
-.pill-btn:hover,      .gold-btn:hover,      .ghost-btn:hover {
+.pill-btn:hover,      .ghost-btn:hover {
+  transform: translateY(-2px);
+}
+.gold-btn:hover {
+  background: linear-gradient(135deg, #243552, #16243d);
+  box-shadow: 0 4px 16px rgba(17, 27, 51, 0.25);
   transform: translateY(-2px);
 }
 .hero {
