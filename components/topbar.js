@@ -70,19 +70,10 @@ const TopbarComponent = ({ props }) => {
 
       return {
         done: false,
-        value: /*html*/ `
+        value: `
           <header class="topbar ${mobileMenuOpen ? "topbar--mobile-open" : ""}">
             <!-- 1. Eyebrow strip -->
-            <div class="topbar-eyebrow">
-              <div class="container topbar-eyebrow-container">
-                <div class="topbar-eyebrow-left">
-                  <span>📞 (77) 3028-0606</span>
-                </div>
-                <div class="topbar-eyebrow-right">
-                  <button class="eyebrow-buscar-btn" type="button" data-route="imoveis">Buscar</button>
-                </div>
-              </div>
-            </div>
+ 
 
             <!-- 2. Main white bar -->
             <div class="topbar-main">

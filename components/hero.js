@@ -129,14 +129,14 @@ const HeroComponent = ({ id, props }) => {
       return {
         done: false,
         value: /*html*/ `
-          <section id="home" class="hero" style="position: relative; height: 70vh !important; min-height: 87vh !important; background-size: cover; background-position: 50% 0%;">
+          <section id="home" class="hero" style="position: relative; height: 70vh !important; min-height: 92vh !important; background-size: cover; background-position: 50% 0%;">
             <div class="hero-overlay" style="position: absolute; inset: 0; background: transparent; z-index: 1;"></div>
             
             <div class="container hero-shell" style="position: relative; z-index: 2; height: 100%; display: flex; align-items: flex-end; justify-content: center; padding: 0 !important;">
               <div class="hero-stack" style="width: 100%; display: flex; flex-direction: column; align-items: center; position: relative;">
                 
                 <!-- Original Phrase -->
-                <h1 class="hero-title" style="color: #16273f; font-family: var(--font-display); font-size: 5vw; font-weight: 500; letter-spacing: -0.015em; text-align: left; max-width: 1200px; opacity: 0.95; z-index: 5; box-sizing: border-box; padding: 0 16px; margin-left: 0ch; width: 21ch; align-self: baseline; margin-bottom: 0ch;">
+                <h1 class="hero-title" style="color: #16273f; font-family: var(--font-display); font-size: 5vw; font-weight: 500; letter-spacing: -0.015em; text-align: left; max-width: 1200px; opacity: 0.95; z-index: 5; box-sizing: border-box; padding: 0 16px; margin-left: 0ch; width: 21ch; align-self: baseline; margin-bottom: -1ch;">
                   Sonhe, conecte e realize
                 </h1>
 

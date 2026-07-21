@@ -279,7 +279,7 @@ img {
 .hero-title{
   color: #ffffff !important;
   text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.03);
-  word-spacing: 47%;
+
 }
 .hero p {
   max-width: 680px;
@@ -7246,13 +7246,13 @@ img {
 
 /* mezanino-typography:start */
 :root {
-  --font-display: "Inter Tight", "Manrope", "Segoe UI", sans-serif;
-  --font-body: "Manrope", "Segoe UI", sans-serif;
-  --font-ui: "Manrope", "Segoe UI", sans-serif;
+  --font-display: "Bodoni Moda", "Cormorant Garamond", Georgia, serif;
+  --font-body: "Manrope", "Plus Jakarta Sans", "Segoe UI", sans-serif;
+  --font-ui: "Manrope", "Plus Jakarta Sans", "Segoe UI", sans-serif;
 
-  --tracking-display: -0.055em;
-  --tracking-heading: -0.04em;
-  --tracking-ui: -0.018em;
+  --tracking-display: -0.052em;
+  --tracking-heading: -0.038em;
+  --tracking-ui: -0.012em;
 }
 
 html,
@@ -7266,25 +7266,24 @@ textarea {
 
 body {
   font-weight: 450;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.008em;
 }
 
-/* Hero: presença forte, limpa e funcional */
 .hero-title,
 .hero h1 {
-  max-width: 16ch;
+  max-width: 15.5ch;
   font-family: var(--font-display) !important;
-  font-size: clamp(3.35rem, 5.7vw, 7.2rem) !important;
-  font-weight: 600 !important;
-  line-height: 0.9 !important;
+  font-size: clamp(3.6rem, 6.1vw, 7.8rem) !important;
+  font-weight: 500 !important;
+  line-height: 0.86 !important;
   letter-spacing: var(--tracking-display) !important;
   text-wrap: balance;
+  font-optical-sizing: auto;
   text-shadow:
     0 2px 18px rgba(0, 0, 0, 0.16),
     0 1px 2px rgba(0, 0, 0, 0.18);
 }
 
-/* Headings */
 .section-title h2,
 .detail-copy h2,
 .detail-panel h3,
@@ -7294,38 +7293,38 @@ body {
 .list-info h3,
 .broker-hero-top h3 {
   font-family: var(--font-display) !important;
-  font-weight: 600 !important;
+  font-optical-sizing: auto;
+  font-weight: 550 !important;
   letter-spacing: var(--tracking-heading) !important;
 }
 
 .section-title h2,
 .detail-copy h2,
 .dashboard-head h2 {
-  font-size: clamp(2.1rem, 3.8vw, 4.15rem);
-  line-height: 0.98;
+  font-size: clamp(2.25rem, 4vw, 4.5rem);
+  line-height: 0.95;
 }
 
 .property-body h3,
 .list-info h3 {
-  font-size: clamp(1.45rem, 1.9vw, 2rem);
-  line-height: 1.02;
+  font-size: clamp(1.55rem, 2.1vw, 2.15rem);
+  line-height: 1;
 }
 
 .detail-panel h3 {
-  font-size: clamp(2.15rem, 3.1vw, 3.55rem);
-  line-height: 0.96;
+  font-size: clamp(2.35rem, 3.4vw, 3.8rem);
+  line-height: 0.94;
 }
 
-/* Valores e preços */
 .price,
 .featured-card-price,
 .detail-panel .price {
   font-family: var(--font-display) !important;
+  font-optical-sizing: auto;
   font-weight: 700 !important;
   letter-spacing: -0.045em !important;
 }
 
-/* Interface */
 .topbar,
 .nav,
 .nav a,
@@ -7344,7 +7343,7 @@ body {
 
 .nav a {
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 650;
   letter-spacing: var(--tracking-ui);
   text-transform: none;
 }
@@ -7354,7 +7353,7 @@ body {
 .pill-btn,
 .tab {
   font-weight: 700;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.01em;
 }
 
 .search-panel input,
@@ -7363,7 +7362,7 @@ body {
 .custom-search-panel select,
 .property-code-search input {
   font-weight: 500;
-  letter-spacing: -0.018em;
+  letter-spacing: -0.015em;
 }
 
 .field span,
@@ -7373,7 +7372,7 @@ body {
 .mini-field label {
   font-family: var(--font-ui) !important;
   font-weight: 700;
-  letter-spacing: 0.035em;
+  letter-spacing: 0.045em;
 }
 
 .hero p,
@@ -7392,15 +7391,15 @@ body {
 }
 
 .hero h1 {
-  margin-bottom: -0.06em !important;
+  margin-bottom: -0.7em !important;
 }
 
 @media (max-width: 900px) {
   .hero-title,
   .hero h1 {
-    max-width: 13ch;
-    font-size: clamp(3rem, 9vw, 5.4rem) !important;
-    line-height: 0.92 !important;
+    max-width: 12ch;
+    font-size: clamp(3.15rem, 10vw, 5.8rem) !important;
+    line-height: 0.9 !important;
   }
 
   .nav a {
@@ -7411,16 +7410,16 @@ body {
 @media (max-width: 560px) {
   .hero-title,
   .hero h1 {
-    max-width: 11ch;
-    font-size: clamp(2.65rem, 12vw, 4.1rem) !important;
-    line-height: 0.93 !important;
+    max-width: 10.5ch;
+    font-size: clamp(2.85rem, 13vw, 4.35rem) !important;
+    line-height: 0.91 !important;
     letter-spacing: -0.045em !important;
   }
 
   .section-title h2,
   .detail-copy h2,
   .dashboard-head h2 {
-    font-size: clamp(1.9rem, 9vw, 2.95rem);
+    font-size: clamp(2rem, 10vw, 3.15rem);
   }
 }
 /* mezanino-typography:end */
