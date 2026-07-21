@@ -6952,3 +6952,39 @@ img {
   accent-color: #bd8d44 !important;
   margin: 0 !important;
 }
+
+.custom-search-panel {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  width: 100%;
+  max-width: 1140px;
+  padding: 24px;
+  border-radius: 8px;
+  box-sizing: border-box;
+  transform: translateY(47px);
+  z-index: 10;
+
+  background: transparent !important;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
+}
+
+.custom-search-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.62);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.custom-search-panel > * {
+  position: relative;
+  z-index: 1;
+}
