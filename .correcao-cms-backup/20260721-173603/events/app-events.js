@@ -103,19 +103,6 @@ const bootApp = (rootSelector = "#app") => {
 
   const featuredHoverState = {};
 
-  const removeCpfFields = (value) => {
-    if (Array.isArray(value)) return value.map(removeCpfFields);
-    if (!value || typeof value !== "object") return value;
-
-    return Object.fromEntries(
-      Object.entries(value)
-        .filter(([key]) => key.toLowerCase() !== "cpf")
-        .map(([key, item]) => [key, removeCpfFields(item)]),
-    );
-  };
-
-  dashboardContent = removeCpfFields(dashboardContent);
-
   const dashboardState = {
     state: dashboardContent,
     current() {
@@ -183,6 +170,7 @@ const bootApp = (rootSelector = "#app") => {
   const addLead = (lead) => {
     const session = getSession();
     if (session.leadUser) {
+      lead.cpf = session.leadUser.cpf;
       lead.name = session.leadUser.name;
       lead.phone = session.leadUser.phone || lead.phone;
       lead.email = session.leadUser.email || lead.email;
@@ -201,13 +189,11 @@ const bootApp = (rootSelector = "#app") => {
     nextDashboard = dashboardContent,
     nextBrokers = brokers,
   ) => {
-    return saveCmsDataToGitHub(
-      removeCpfFields({
-        properties: nextProperties,
-        brokers: nextBrokers,
-        dashboard: nextDashboard,
-      }),
-    );
+    return saveCmsDataToGitHub({
+      properties: nextProperties,
+      brokers: nextBrokers,
+      dashboard: nextDashboard,
+    });
   };
   const saveDashboard = async (nextDashboard = dashboardContent) => {
     const normalizedDashboard = normalizeDashboardContent(nextDashboard);
@@ -313,108 +299,109 @@ const bootApp = (rootSelector = "#app") => {
   add("listing", ListingComponent, propertyTools);
   add("detail", DetailComponent, propertyTools);
 
-  // Componente virtual de identificação do lead antes do envio.
+  // Componente virtual de autenticação do lead antes do envio (dados de contato simplificados)
   components.set("leadAuth", {
     async next(message = {}) {
       if (message.type === "closeModal") {
         leadAuthModal.open = false;
         leadAuthModal.error = "";
         render();
-        return;
       }
+      else if (message.type === "submitContactDetails" || message.type === "submitCpfRegistration") {
+        const name = message.fields.name;
+        const phone = message.fields.phone;
+        const email = message.fields.email;
+        const cpf = message.fields.cpf;
+        
+        // Cooldown anti-spam
+        if (!FormValidator.antiSpamCheck("leadAuthForm")) {
+          leadAuthModal.error = "Por favor, aguarde alguns segundos antes de enviar novamente.";
+          render();
+          return;
+        }
 
-      if (message.type !== "submitContactDetails") return;
+        if (!name || !phone || !email || !cpf) {
+          leadAuthModal.error = "Por favor, preencha todos os campos obrigatórios (*).";
+          render();
+          return;
+        }
 
-      const name = message.fields.name;
-      const phone = message.fields.phone;
-      const email = message.fields.email;
+        // Validações de tipo, integridade e quantidade
+        if (!FormValidator.validateName(name)) {
+          leadAuthModal.error = "Nome inválido. Por favor, insira seu nome e sobrenome (somente letras).";
+          render();
+          return;
+        }
 
-      if (!FormValidator.antiSpamCheck("leadAuthForm")) {
-        leadAuthModal.error =
-          "Por favor, aguarde alguns segundos antes de enviar novamente.";
-        render();
-        return;
-      }
+        if (!FormValidator.validatePhone(phone)) {
+          leadAuthModal.error = "Telefone inválido. Por favor, insira um número com DDD (mínimo 10 dígitos).";
+          render();
+          return;
+        }
 
-      if (!name || !phone || !email) {
-        leadAuthModal.error =
-          "Por favor, preencha todos os campos obrigatórios (*).";
-        render();
-        return;
-      }
+        if (!FormValidator.validateEmail(email)) {
+          leadAuthModal.error = "E-mail inválido. Por favor, insira um endereço de e-mail correto.";
+          render();
+          return;
+        }
 
-      if (!FormValidator.validateName(name)) {
-        leadAuthModal.error =
-          "Nome inválido. Por favor, insira seu nome e sobrenome (somente letras).";
-        render();
-        return;
-      }
-
-      if (!FormValidator.validatePhone(phone)) {
-        leadAuthModal.error =
-          "Telefone inválido. Por favor, insira um número com DDD (mínimo 10 dígitos).";
-        render();
-        return;
-      }
-
-      if (!FormValidator.validateEmail(email)) {
-        leadAuthModal.error =
-          "E-mail inválido. Por favor, insira um endereço de e-mail correto.";
-        render();
-        return;
-      }
-
-      const cleanPhone = String(phone).replace(/[^\d]/g, "");
-      const newClient = {
-        id: `client-${Date.now()}`,
-        name,
-        phone: cleanPhone,
-        email,
-        profile: "Registrado pelo formulário de contato do imóvel.",
-        focus: "Comprar",
-        created: new Date().toISOString(),
-      };
-
-      dashboardContent.clients = [
-        ...(dashboardContent.clients || []),
-        newClient,
-      ];
-
-      sessionState.state = {
-        ...sessionState.state,
-        leadUser: {
+        if (!FormValidator.validateCPF(cpf)) {
+          leadAuthModal.error = "CPF inválido. Por favor, digite um CPF correto.";
+          render();
+          return;
+        }
+        
+        // Registra o cliente de forma simplificada no banco de dados com seu CPF
+        const cleanPhone = String(phone).replace(/[^\d]/g, "");
+        const cleanCpf = String(cpf).replace(/[^\d]/g, "");
+        const newClient = {
+          id: `client-${Date.now()}`,
           name,
           phone: cleanPhone,
           email,
-        },
-      };
-
-      leadAuthModal.open = false;
-      leadAuthModal.error = "";
-
-      if (leadAuthModal.leadData) {
-        const pending = {
-          ...leadAuthModal.leadData,
-          name,
-          phone: cleanPhone,
-          email,
+          cpf: cleanCpf,
+          profile: "Registrado via formulário de cadastro e autenticação por CPF.",
+          focus: "Comprar",
+          created: new Date().toISOString(),
         };
-        leadAuthModal.leadData = null;
-
-        // Cliente e lead são enviados juntos em uma única gravação do CMS.
-        await submitLeadAndPersist(pending);
-        return;
+        
+        dashboardContent.clients = dashboardContent.clients || [];
+        dashboardContent.clients.push(newClient);
+        
+        try {
+          await persistCmsSnapshot(properties, dashboardContent);
+          console.log("Novo cliente registrado no CMS com sucesso!");
+        } catch (err) {
+          console.error("Erro ao registrar cliente no CMS:", err);
+        }
+        
+        // Salva a sessão do usuário com o CPF
+        sessionState.state = {
+          ...sessionState.state,
+          leadUser: {
+            name,
+            phone: cleanPhone,
+            email,
+            cpf: cleanCpf,
+          }
+        };
+        
+        // Envia o lead pendente
+        leadAuthModal.open = false;
+        leadAuthModal.error = "";
+        if (leadAuthModal.leadData) {
+          const pending = { ...leadAuthModal.leadData };
+          leadAuthModal.leadData = null;
+          pending.name = name;
+          pending.phone = cleanPhone;
+          pending.email = email;
+          pending.cpf = cleanCpf;
+          await submitLeadAndPersist(pending);
+        } else {
+          render();
+        }
       }
-
-      try {
-        await persistCmsSnapshot(properties, dashboardContent);
-        console.log("Novo cliente registrado no CMS com sucesso!");
-      } catch (err) {
-        console.error("Erro ao registrar cliente no CMS:", err);
-      }
-
-      render();
-    },
+    }
   });
   add("editor", ProductEditorComponent, {
     getRoute,
@@ -638,6 +625,10 @@ const bootApp = (rootSelector = "#app") => {
             <div class="mini-field">
               <label>E-mail *</label>
               <input name="email" type="email" required placeholder="seu@email.com" autocomplete="email">
+            </div>
+            <div class="mini-field">
+              <label>CPF *</label>
+              <input name="cpf" type="text" required placeholder="000.000.000-00" autocomplete="off">
             </div>
             
             ${leadAuthModal.error ? `<div class="lead-modal-error">${escapeHtml(leadAuthModal.error)}</div>` : ""}
@@ -990,79 +981,8 @@ const bootApp = (rootSelector = "#app") => {
       if (toggle) void dispatch(toggle, event);
     }
   });
-
-  /* property-code-blur-handler */
-  root.addEventListener(
-    "blur",
-    (event) => {
-      const input = event.target.matches?.('input[name="propertyCode"]')
-        ? event.target
-        : null;
-
-      if (!input) return;
-
-      const rawCode = String(input.value || "").trim();
-      if (!rawCode) return;
-
-      const normalizePropertyCode = (value) =>
-        String(value || "")
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .toUpperCase()
-          .replace(/[^A-Z0-9]/g, "");
-
-      const searchedCode = normalizePropertyCode(rawCode);
-
-      const property = properties.find((item) =>
-        [
-          item.codigo,
-          item.code,
-          item.propertyCode,
-          item.reference,
-          item.ref,
-          item.id,
-        ].some(
-          (value) =>
-            normalizePropertyCode(value) === searchedCode,
-        ),
-      );
-
-      input.setCustomValidity("");
-
-      if (!property) {
-        input.setCustomValidity(
-          `Nenhum imóvel encontrado para o código ${rawCode}.`,
-        );
-        input.reportValidity();
-        return;
-      }
-
-      setRoute("imovel", {
-        propertyId: property.id,
-      });
-    },
-    true,
-  );
-
-  root.addEventListener("keydown", (event) => {
-    const input = event.target.matches?.('input[name="propertyCode"]')
-      ? event.target
-      : null;
-
-    if (!input || event.key !== "Enter") return;
-
-    event.preventDefault();
-    input.blur();
-  });
-
   root.addEventListener("click", (event) => {
-    const propertyCodeInput = event.target.closest(
-      'input[name="propertyCode"]',
-    );
-    const routeTarget = propertyCodeInput
-      ? null
-      : event.target.closest("[data-route]");
-
+    const routeTarget = event.target.closest("[data-route]");
     if (routeTarget) {
       event.preventDefault();
       const route = routeTarget.dataset.route;
@@ -1091,6 +1011,19 @@ const bootApp = (rootSelector = "#app") => {
       void dispatch(actionTarget, event);
   });
   root.addEventListener("input", (event) => {
+    if (event.target.name === "cpf") {
+      let value = event.target.value.replace(/\D/g, "");
+      if (value.length > 11) value = value.slice(0, 11);
+      if (value.length > 9) {
+        event.target.value = `${value.slice(0, 3)}.${value.slice(3, 6)}.${value.slice(6, 9)}-${value.slice(9)}`;
+      } else if (value.length > 6) {
+        event.target.value = `${value.slice(0, 3)}.${value.slice(3, 6)}.${value.slice(6)}`;
+      } else if (value.length > 3) {
+        event.target.value = `${value.slice(0, 3)}.${value.slice(3)}`;
+      } else {
+        event.target.value = value;
+      }
+    }
     const actionTarget = event.target.matches?.("[data-cid][data-message]")
       ? event.target
       : null;

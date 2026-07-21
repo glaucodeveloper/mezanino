@@ -593,34 +593,29 @@ const createCmsPayload = () => ({
   views: { dashboard: dashboardContent },
 });
 
-const cmsApiBaseUrl = () =>
-  String(
-    window.SuaImobiliariaCmsConfig?.apiBaseUrl ||
-      "http://127.0.0.1:8787",
-  ).replace(/\/$/, "");
-
 const saveCmsDataToGitHub = async (payload) => {
-  const response = await fetch(
-    `${cmsApiBaseUrl()}/api/cms/snapshot`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    },
-  );
-
-  const data = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    throw new Error(
-      data.error ||
-        data.message ||
-        `Falha ao salvar no CMS (${response.status}).`,
+  const okfPayload = toOkfCmsPayload(payload || createCmsPayload());
+  if (window.SuaImobiliariaCmsConfig?.dashboardAuditMode) {
+    return saveCmsDataLocally(
+      okfPayload,
+      "Alterações salvas somente neste aparelho de auditoria.",
     );
   }
-
+  const response = await fetch(cmsApiUrl("/api/cms/snapshot"), {
+    method: "PUT",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      snapshot: okfPayload,
+      message: "update cms data from dashboard",
+    }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || `Falha ao salvar no CMS (${response.status}).`);
+  }
+  localStorage.removeItem("suaimobiliaria:cmsSnapshot");
+  window.SuaImobiliariaCmsState = { source: "github-file-service" };
   return data;
 };
 

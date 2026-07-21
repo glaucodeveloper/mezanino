@@ -146,8 +146,13 @@ const HeroComponent = ({ id, props }) => {
                     
                     <!-- 1. O que deseja? -->
                     <div class="custom-select-field" style="position: relative; width: 100%;">
-                      <div class="custom-select-trigger ${activeDropdown === "operation" ? "is-open" : ""}" data-cid="hero" data-message="toggleDropdown" data-value="operation" style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px 16px; background: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.95rem; color: #4a5568; transition: border-color 0.2s;">
-                        <span>${escapeText(triggerOpText)}</span>
+                      <form
+              class="property-code-search"
+              data-property-code-search
+              role="search"
+              aria-label="Buscar imóvel por código"
+            >
+              <span class="property-code-search__icon" aria-hidden="true">${escapeText(triggerOpText)}</span>
                         <span style="color: #a0aec0; font-size: 0.75rem;">▼</span>
                       </div>
                       ${activeDropdown === "operation" ? /*html*/ `
@@ -242,16 +247,29 @@ const HeroComponent = ({ id, props }) => {
                   <!-- Code Search Row -->
                   <div style="z-index:10;display: flex; align-items: center; gap: 5px;    transform: translateY(14px); margin-bottom:5px; margin-top: 20px; color: #4a5568; font-size: 0.92rem; cursor: pointer; width: fit-content;" data-route="comprar">
                     <span style="font-size: 0.98rem;"> <svg style="width:25px; fill:#bd6f31" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M480 272C480 317.9 465.1 360.3 440 394.7L566.6 521.4C579.1 533.9 579.1 554.2 566.6 566.7C554.1 579.2 533.8 579.2 521.3 566.7L394.7 440C360.3 465.1 317.9 480 272 480C157.1 480 64 386.9 64 272C64 157.1 157.1 64 272 64C386.9 64 480 157.1 480 272zM272 416C351.5 416 416 351.5 416 272C416 192.5 351.5 128 272 128C192.5 128 128 192.5 128 272C128 351.5 192.5 416 272 416z"/></svg> </span>
-                    <input
-              type="search"
-              name="propertyCode"
-              placeholder="Buscar por código"
-              aria-label="Código do imóvel"
-              autocomplete="off"
-              spellcheck="false"
-              style="font: inherit; font-weight: 500; color: inherit; background: transparent; border: 0; outline: 0; width: 100%; min-width: 0; padding: 0;"
-            >
-                  </div>
+              <input
+                class="property-code-search__input"
+                name="propertyCode"
+                type="search"
+                inputmode="text"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Buscar por código"
+                aria-label="Código do imóvel"
+              >
+              <button
+                class="property-code-search__button"
+                type="submit"
+                aria-label="Abrir imóvel pelo código"
+              >
+                Buscar
+              </button>
+              <span
+                class="property-code-search__error"
+                data-property-code-error
+                aria-live="polite"
+              ></span>
+            </form>
                 </div>
 
               </div>

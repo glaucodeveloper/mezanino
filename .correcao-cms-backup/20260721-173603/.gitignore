@@ -5,6 +5,3 @@ pdf_preview/
 Thumbs.db
 node_modules/
 www/
-.env.cms
-.cms-api.pid
-.cms-api.log

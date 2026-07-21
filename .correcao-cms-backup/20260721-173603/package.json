@@ -7,10 +7,7 @@
     "sync:cms": "node ../cms-imobiliaria/scripts/build-okf.mjs && node scripts/sync-cms.mjs",
     "build": "npm run sync:cms && node --env-file=.env scripts/build-web.mjs",
     "test": "node --test tests/*.test.mjs",
-    "cap:sync": "npm run build && npx cap sync",
-    "cms:api": "node scripts/cms-api-server.mjs",
-    "cms:start": "bash scripts/start-cms-api.sh",
-    "cms:stop": "bash scripts/stop-cms-api.sh"
+    "cap:sync": "npm run build && npx cap sync"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",

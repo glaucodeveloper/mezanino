@@ -6,7 +6,7 @@ const bootApp = (rootSelector = "#app") => {
       Object.assign(document.createElement("div"), { id: "app" }),
     );
   root.classList.add("app-shell");
-  const nativeDashboardOnly = Boolean(window.SuaImobiliariaCmsConfig?.nativeDashboardOnly || window.Capacitor);
+  const nativeDashboardOnly = Boolean(window.SuaImobiliariaCmsConfig?.nativeDashboardOnly);
   const dashboardAuditMode = Boolean(window.SuaImobiliariaCmsConfig?.dashboardAuditMode);
   root.classList.toggle("native-dashboard-app", nativeDashboardOnly);
 
@@ -71,6 +71,7 @@ const bootApp = (rootSelector = "#app") => {
       favorites: new Set(
         JSON.parse(localStorage.getItem("suaimobiliaria:favorites") || "[]"),
       ),
+      compare: new Set(),
       authenticated: nativeDashboardOnly && dashboardAuditMode,
     },
     current() {
@@ -89,6 +90,13 @@ const bootApp = (rootSelector = "#app") => {
         this.state = { ...this.state, favorites };
         return this.state;
       }
+      if (message.type === "toggleCompare") {
+        const compare = new Set(this.state.compare);
+        if (compare.has(message.propertyId)) compare.delete(message.propertyId);
+        else compare.add(message.propertyId);
+        this.state = { ...this.state, compare };
+        return this.state;
+      }
       if (message.type === "login") {
         this.state = { ...this.state, authenticated: true };
         return this.state;
@@ -102,19 +110,6 @@ const bootApp = (rootSelector = "#app") => {
   };
 
   const featuredHoverState = {};
-
-  const removeCpfFields = (value) => {
-    if (Array.isArray(value)) return value.map(removeCpfFields);
-    if (!value || typeof value !== "object") return value;
-
-    return Object.fromEntries(
-      Object.entries(value)
-        .filter(([key]) => key.toLowerCase() !== "cpf")
-        .map(([key, item]) => [key, removeCpfFields(item)]),
-    );
-  };
-
-  dashboardContent = removeCpfFields(dashboardContent);
 
   const dashboardState = {
     state: dashboardContent,
@@ -162,52 +157,18 @@ const bootApp = (rootSelector = "#app") => {
     ) ||
     brokers[0] ||
     null;
-  let leadAuthModal = {
-    open: false,
-    mode: "login", // "login" or "register"
-    error: "",
-    leadData: null,
-  };
-
-  const submitLeadAndPersist = async (lead) => {
-    dashboardState.addLead(lead);
-    try {
-      await persistCmsSnapshot(properties, dashboardContent);
-      console.log("Lead persistido no CMS com sucesso!");
-    } catch (err) {
-      console.error("Erro ao persistir lead no CMS:", err);
-    }
-    render();
-  };
-
-  const addLead = (lead) => {
-    const session = getSession();
-    if (session.leadUser) {
-      lead.name = session.leadUser.name;
-      lead.phone = session.leadUser.phone || lead.phone;
-      lead.email = session.leadUser.email || lead.email;
-      submitLeadAndPersist(lead);
-    } else {
-      leadAuthModal.open = true;
-      leadAuthModal.leadData = lead;
-      leadAuthModal.mode = "login";
-      leadAuthModal.error = "";
-      render();
-    }
-  };
+  const addLead = (lead) => dashboardState.addLead(lead);
   let requestRender = () => {};
   const persistCmsSnapshot = async (
     nextProperties = properties,
     nextDashboard = dashboardContent,
     nextBrokers = brokers,
   ) => {
-    return saveCmsDataToGitHub(
-      removeCpfFields({
-        properties: nextProperties,
-        brokers: nextBrokers,
-        dashboard: nextDashboard,
-      }),
-    );
+    return saveCmsDataToGitHub({
+      properties: nextProperties,
+      brokers: nextBrokers,
+      dashboard: nextDashboard,
+    });
   };
   const saveDashboard = async (nextDashboard = dashboardContent) => {
     const normalizedDashboard = normalizeDashboardContent(nextDashboard);
@@ -286,8 +247,13 @@ const bootApp = (rootSelector = "#app") => {
     getRouteInfo: () => routeState.current(),
     getFeaturedScrollState: () => featuredScrollState,
     isFavorite: (id) => getSession().favorites.has(id),
+    isCompared: (id) => getSession().compare.has(id),
     toggleFavorite: (id) =>
       sessionState.apply({ type: "toggleFavorite", propertyId: id }),
+    toggleCompare: (id) =>
+      sessionState.apply({ type: "toggleCompare", propertyId: id }),
+    clearCompare: () => sessionState.apply({ type: "clearCompare" }),
+    getCompareSelection: () => [...getSession().compare],
     getSelectedProperty: () =>
       properties.find(
         (property) => property.id === routeState.current().selectedPropertyId,
@@ -312,110 +278,8 @@ const bootApp = (rootSelector = "#app") => {
   add("announce", AnnounceComponent, { addLead });
   add("listing", ListingComponent, propertyTools);
   add("detail", DetailComponent, propertyTools);
-
-  // Componente virtual de identificação do lead antes do envio.
-  components.set("leadAuth", {
-    async next(message = {}) {
-      if (message.type === "closeModal") {
-        leadAuthModal.open = false;
-        leadAuthModal.error = "";
-        render();
-        return;
-      }
-
-      if (message.type !== "submitContactDetails") return;
-
-      const name = message.fields.name;
-      const phone = message.fields.phone;
-      const email = message.fields.email;
-
-      if (!FormValidator.antiSpamCheck("leadAuthForm")) {
-        leadAuthModal.error =
-          "Por favor, aguarde alguns segundos antes de enviar novamente.";
-        render();
-        return;
-      }
-
-      if (!name || !phone || !email) {
-        leadAuthModal.error =
-          "Por favor, preencha todos os campos obrigatórios (*).";
-        render();
-        return;
-      }
-
-      if (!FormValidator.validateName(name)) {
-        leadAuthModal.error =
-          "Nome inválido. Por favor, insira seu nome e sobrenome (somente letras).";
-        render();
-        return;
-      }
-
-      if (!FormValidator.validatePhone(phone)) {
-        leadAuthModal.error =
-          "Telefone inválido. Por favor, insira um número com DDD (mínimo 10 dígitos).";
-        render();
-        return;
-      }
-
-      if (!FormValidator.validateEmail(email)) {
-        leadAuthModal.error =
-          "E-mail inválido. Por favor, insira um endereço de e-mail correto.";
-        render();
-        return;
-      }
-
-      const cleanPhone = String(phone).replace(/[^\d]/g, "");
-      const newClient = {
-        id: `client-${Date.now()}`,
-        name,
-        phone: cleanPhone,
-        email,
-        profile: "Registrado pelo formulário de contato do imóvel.",
-        focus: "Comprar",
-        created: new Date().toISOString(),
-      };
-
-      dashboardContent.clients = [
-        ...(dashboardContent.clients || []),
-        newClient,
-      ];
-
-      sessionState.state = {
-        ...sessionState.state,
-        leadUser: {
-          name,
-          phone: cleanPhone,
-          email,
-        },
-      };
-
-      leadAuthModal.open = false;
-      leadAuthModal.error = "";
-
-      if (leadAuthModal.leadData) {
-        const pending = {
-          ...leadAuthModal.leadData,
-          name,
-          phone: cleanPhone,
-          email,
-        };
-        leadAuthModal.leadData = null;
-
-        // Cliente e lead são enviados juntos em uma única gravação do CMS.
-        await submitLeadAndPersist(pending);
-        return;
-      }
-
-      try {
-        await persistCmsSnapshot(properties, dashboardContent);
-        console.log("Novo cliente registrado no CMS com sucesso!");
-      } catch (err) {
-        console.error("Erro ao registrar cliente no CMS:", err);
-      }
-
-      render();
-    },
-  });
+  add("favorites", FavoritesComponent, propertyTools);
+  add("quiz", QuizComponent, { addLead });
   add("editor", ProductEditorComponent, {
     getRoute,
     getSelectedProperty: () =>
@@ -507,148 +371,6 @@ const bootApp = (rootSelector = "#app") => {
     );
     root.classList.toggle("is-scrolled", window.scrollY >= scrolledThreshold);
   };
-  const renderLeadAuthModal = () => {
-    if (!leadAuthModal.open) return "";
-    
-    return /*html*/`
-      <div class="lead-modal-overlay">
-        <style>
-          .lead-modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(10, 17, 20, 0.7);
-            backdrop-filter: blur(8px);
-            z-index: 11000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-            box-sizing: border-box;
-          }
-          .lead-modal-box {
-            background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 440px;
-            padding: 32px;
-            box-sizing: border-box;
-            position: relative;
-            color: #16273f;
-            font-family: var(--font-body, system-ui, sans-serif);
-            animation: leadModalFadeIn 0.3s ease;
-          }
-          @keyframes leadModalFadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          .lead-modal-close-btn {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #718096;
-            cursor: pointer;
-            transition: color 0.15s;
-            line-height: 1;
-          }
-          .lead-modal-close-btn:hover {
-            color: #16273f;
-          }
-          .lead-modal-box h3 {
-            margin: 0 0 8px;
-            font-size: 1.35rem;
-            color: #16273f;
-            font-weight: 700;
-          }
-          .lead-modal-box p {
-            margin: 0 0 20px;
-            font-size: 0.88rem;
-            color: #718096;
-            line-height: 1.5;
-          }
-          .lead-modal-form {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-          }
-          .lead-modal-error {
-            color: #e53e3e;
-            font-size: 0.82rem;
-            margin-top: 4px;
-            font-weight: 500;
-          }
-          .lead-modal-form .mini-field {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            text-align: left;
-          }
-          .lead-modal-form .mini-field label {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #4a5568;
-            margin-bottom: 2px;
-          }
-          .lead-modal-form .mini-field input {
-            padding: 10px 12px;
-            border: 1px solid #cbd5e0;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            outline: none;
-            box-sizing: border-box;
-            width: 100%;
-            background: #ffffff;
-            color: #2d3748;
-          }
-          .lead-modal-form .mini-field input:focus {
-            border-color: #bd8d44;
-            box-shadow: 0 0 0 2px rgba(189, 141, 68, 0.15);
-          }
-          .lead-modal-form button[type="submit"] {
-            margin-top: 10px;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            border: none;
-          }
-        </style>
-        <div class="lead-modal-box">
-          <button class="lead-modal-close-btn" type="button" data-cid="leadAuth" data-message="closeModal" aria-label="Fechar">&times;</button>
-          
-          <h3>Dados de Contato</h3>
-          <p>Preencha os dados abaixo de forma rápida para confirmar sua solicitação de contato.</p>
-          
-          <form class="lead-modal-form" data-cid="leadAuth" data-message="submitContactDetails">
-            <div class="mini-field">
-              <label>Nome Completo *</label>
-              <input name="name" type="text" required placeholder="Digite seu nome completo">
-            </div>
-            <div class="mini-field">
-              <label>Telefone / WhatsApp *</label>
-              <input name="phone" type="text" required placeholder="(71) 99999-0000" autocomplete="tel">
-            </div>
-            <div class="mini-field">
-              <label>E-mail *</label>
-              <input name="email" type="email" required placeholder="seu@email.com" autocomplete="email">
-            </div>
-            
-            ${leadAuthModal.error ? `<div class="lead-modal-error">${escapeHtml(leadAuthModal.error)}</div>` : ""}
-            
-            <button class="gold-btn" type="submit">Confirmar e Enviar Solicitação</button>
-          </form>
-        </div>
-      </div>
-    `;
-  };
-
   const render = () => {
     const route = getRoute();
     root.classList.toggle("dashboard-mode", route === "dashboard");
@@ -674,32 +396,29 @@ const bootApp = (rootSelector = "#app") => {
     root.innerHTML = /*html*/ `
         ${renderComponent("topbar")}
         <main>
-          ${panel("home", route === "home" ? `${renderComponent("hero")}${renderComponent("featured")}${renderComponent("brokers")}` : "")}
-          ${panel("imoveis", route === "imoveis" ? renderComponent("listing") : "")}
+          ${panel("home", route === "home" ? `${renderComponent("hero")}${renderComponent("stats")}${renderComponent("featured")}${renderComponent("quiz")}${renderComponent("brokers")}` : "")}
+          ${panel("destaques", route === "destaques" ? renderComponent("featured") : "")}
+          ${panel("comprar", route === "comprar" ? renderComponent("listing") : "")}
           ${panel("imovel", route === "imovel" ? `${renderComponent("detail")}${renderComponent("brokers")}` : "")}
           ${panel("vendedores", route === "vendedores" || route === "brokers" ? renderComponent("brokers") : "")}
-          ${panel("anuncie", route === "anuncie" ? renderComponent("announce") : "")}
+          ${panel("favoritos", route === "favoritos" ? renderComponent("favorites") : "")}
+          ${panel("quiz", route === "quiz" ? renderComponent("quiz") : "")}
+          ${panel("anuncie", route === "anuncie" ? renderComponent("quiz") : "")}
           ${panel("login", route === "login" ? renderComponent("login") : "")}
           ${panel("contato", route === "contato" ? renderComponent("contact") : "")}
           ${panel("sobre", route === "sobre" ? renderComponent("about") : "")}
+          ${panel("financiamento", route === "financiamento" ? renderComponent("financing") : "")}
         </main>
         ${renderComponent("footer")}
-        ${renderLeadAuthModal()}
-    `;
+        ${renderComponent("floating-whats")}
+      `;
     syncTopbarState();
   };
   requestRender = render;
   window.addEventListener("scroll", syncTopbarState, { passive: true });
   window.addEventListener("resize", syncTopbarState, { passive: true });
   const setRoute = (route, options = {}) => {
-    let requestedRoute = ROUTES.includes(route) ? route : "home";
-    if (requestedRoute === "financiamento") {
-      requestedRoute = "imovel";
-      setTimeout(() => {
-        const sec = root.querySelector("#financing-section");
-        if (sec) sec.scrollIntoView({ behavior: "smooth" });
-      }, 150);
-    }
+    const requestedRoute = ROUTES.includes(route) ? route : "home";
     const nextRoute = nativeDashboardOnly && requestedRoute !== "login" ? "dashboard" : requestedRoute;
     const current = routeState.current();
     const propertyId =
@@ -767,12 +486,11 @@ const bootApp = (rootSelector = "#app") => {
   const fieldsFrom = (form) => {
     const result = {};
     for (const [key, value] of new FormData(form).entries()) {
-      const sanitized = typeof value === "string" ? FormValidator.sanitizeString(key, value) : value;
       if (key in result) {
-        if (Array.isArray(result[key])) result[key].push(sanitized);
-        else result[key] = [result[key], sanitized];
+        if (Array.isArray(result[key])) result[key].push(value);
+        else result[key] = [result[key], value];
       } else {
-        result[key] = sanitized;
+        result[key] = value;
       }
     }
     return result;
@@ -920,6 +638,13 @@ const bootApp = (rootSelector = "#app") => {
     passive: true,
   });
   root.addEventListener("pointerover", (event) => {
+    const galleryTarget = event.target.closest(
+      ".gallery-main[data-cid='detail'][data-message='openGallery']",
+    );
+    if (galleryTarget) {
+      void dispatch(galleryTarget, event);
+      return;
+    }
     if (getRoute() !== "destaques") return;
     const card = event.target.closest(
       ".featured-showcase-card[data-property-id]",
@@ -990,95 +715,17 @@ const bootApp = (rootSelector = "#app") => {
       if (toggle) void dispatch(toggle, event);
     }
   });
-
-  /* property-code-blur-handler */
-  root.addEventListener(
-    "blur",
-    (event) => {
-      const input = event.target.matches?.('input[name="propertyCode"]')
-        ? event.target
-        : null;
-
-      if (!input) return;
-
-      const rawCode = String(input.value || "").trim();
-      if (!rawCode) return;
-
-      const normalizePropertyCode = (value) =>
-        String(value || "")
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .toUpperCase()
-          .replace(/[^A-Z0-9]/g, "");
-
-      const searchedCode = normalizePropertyCode(rawCode);
-
-      const property = properties.find((item) =>
-        [
-          item.codigo,
-          item.code,
-          item.propertyCode,
-          item.reference,
-          item.ref,
-          item.id,
-        ].some(
-          (value) =>
-            normalizePropertyCode(value) === searchedCode,
-        ),
-      );
-
-      input.setCustomValidity("");
-
-      if (!property) {
-        input.setCustomValidity(
-          `Nenhum imóvel encontrado para o código ${rawCode}.`,
-        );
-        input.reportValidity();
-        return;
-      }
-
-      setRoute("imovel", {
-        propertyId: property.id,
-      });
-    },
-    true,
-  );
-
-  root.addEventListener("keydown", (event) => {
-    const input = event.target.matches?.('input[name="propertyCode"]')
-      ? event.target
-      : null;
-
-    if (!input || event.key !== "Enter") return;
-
-    event.preventDefault();
-    input.blur();
-  });
-
   root.addEventListener("click", (event) => {
-    const propertyCodeInput = event.target.closest(
-      'input[name="propertyCode"]',
-    );
-    const routeTarget = propertyCodeInput
-      ? null
-      : event.target.closest("[data-route]");
-
+    const routeTarget = event.target.closest("[data-route]");
     if (routeTarget) {
       event.preventDefault();
-      const route = routeTarget.dataset.route;
-      setRoute(route, {
+      setRoute(routeTarget.dataset.route, {
         propertyId: routeTarget.dataset.propertyId || undefined,
         brokerId: routeTarget.dataset.brokerId || undefined,
         dashboardTab: routeTarget.dataset.dashboardTab || undefined,
         entityId: routeTarget.dataset.entityId || undefined,
         operation: routeTarget.dataset.operation || undefined,
       });
-      if (route === "imovel" && (routeTarget.textContent.includes("Financiamento") || routeTarget.textContent.includes("Financiamentos"))) {
-        setTimeout(() => {
-          const sec = root.querySelector("#financing-section");
-          if (sec) sec.scrollIntoView({ behavior: "smooth" });
-        }, 150);
-      }
       return;
     }
     const actionTarget = event.target.closest("[data-cid][data-message]");

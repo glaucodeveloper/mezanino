@@ -88,7 +88,10 @@ const TopbarComponent = ({ props }) => {
             <div class="topbar-main">
               <div class="container topbar-main-container">
                 <a class="${active(route, "home")} topbar-brand" href="#home" data-route="home">
-                  ${window.LOGO_SVG}
+                  <img src="./logo_teste.png.png" style="
+                        position: relative;
+                        height: 144%;
+                    ">
                 </a>
                 
                 <nav class="topbar-nav">

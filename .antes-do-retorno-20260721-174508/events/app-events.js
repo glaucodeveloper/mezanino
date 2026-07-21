@@ -990,79 +990,8 @@ const bootApp = (rootSelector = "#app") => {
       if (toggle) void dispatch(toggle, event);
     }
   });
-
-  /* property-code-blur-handler */
-  root.addEventListener(
-    "blur",
-    (event) => {
-      const input = event.target.matches?.('input[name="propertyCode"]')
-        ? event.target
-        : null;
-
-      if (!input) return;
-
-      const rawCode = String(input.value || "").trim();
-      if (!rawCode) return;
-
-      const normalizePropertyCode = (value) =>
-        String(value || "")
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .toUpperCase()
-          .replace(/[^A-Z0-9]/g, "");
-
-      const searchedCode = normalizePropertyCode(rawCode);
-
-      const property = properties.find((item) =>
-        [
-          item.codigo,
-          item.code,
-          item.propertyCode,
-          item.reference,
-          item.ref,
-          item.id,
-        ].some(
-          (value) =>
-            normalizePropertyCode(value) === searchedCode,
-        ),
-      );
-
-      input.setCustomValidity("");
-
-      if (!property) {
-        input.setCustomValidity(
-          `Nenhum imóvel encontrado para o código ${rawCode}.`,
-        );
-        input.reportValidity();
-        return;
-      }
-
-      setRoute("imovel", {
-        propertyId: property.id,
-      });
-    },
-    true,
-  );
-
-  root.addEventListener("keydown", (event) => {
-    const input = event.target.matches?.('input[name="propertyCode"]')
-      ? event.target
-      : null;
-
-    if (!input || event.key !== "Enter") return;
-
-    event.preventDefault();
-    input.blur();
-  });
-
   root.addEventListener("click", (event) => {
-    const propertyCodeInput = event.target.closest(
-      'input[name="propertyCode"]',
-    );
-    const routeTarget = propertyCodeInput
-      ? null
-      : event.target.closest("[data-route]");
-
+    const routeTarget = event.target.closest("[data-route]");
     if (routeTarget) {
       event.preventDefault();
       const route = routeTarget.dataset.route;
@@ -1102,6 +1031,57 @@ const bootApp = (rootSelector = "#app") => {
       : null;
     if (actionTarget) void dispatch(actionTarget, event);
   });
+
+  /* property-code-search-handler */
+  root.addEventListener("submit", (event) => {
+    const form = event.target.closest("[data-property-code-search]");
+    if (!form) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const input = form.querySelector('[name="propertyCode"]');
+    const error = form.querySelector("[data-property-code-error]");
+    const rawCode = String(input?.value || "").trim();
+
+    const normalizePropertyCode = (value) =>
+      String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "");
+
+    if (error) error.textContent = "";
+
+    if (!rawCode) {
+      if (error) error.textContent = "Digite o código do imóvel.";
+      input?.focus();
+      return;
+    }
+
+    const searchedCode = normalizePropertyCode(rawCode);
+    const property = properties.find((item) =>
+      [
+        item.codigo,
+        item.code,
+        item.propertyCode,
+        item.reference,
+        item.ref,
+        item.id,
+      ].some((value) => normalizePropertyCode(value) === searchedCode)
+    );
+
+    if (!property) {
+      if (error) error.textContent = `Imóvel ${rawCode} não encontrado.`;
+      input?.select();
+      return;
+    }
+
+    setRoute("imovel", {
+      propertyId: property.id,
+    });
+  });
+
   root.addEventListener("submit", (event) => {
     const actionTarget = event.target.closest("form[data-cid][data-message]");
     if (!actionTarget) return;
