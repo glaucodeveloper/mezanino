@@ -377,7 +377,7 @@ const DetailComponent = ({ props }) => {
           ? `style="--zoom-x:${galleryZoom?.x ?? 0.5};--zoom-y:${galleryZoom?.y ?? 0.5};--zoom-image:url('${item}')"`
           : "";
         return /*html*/`
-          <button class="gallery-item ${isMain ? "gallery-main" : "gallery-thumb"} ${isActive ? "is-active" : ""}" type="button" data-cid="detail" data-message="openGallery" data-index="${index}" aria-label="${label}" ${zoomStyle}>
+          <button class="gallery-item ${isMain ? "gallery-main" : "gallery-thumb"} ${isActive ? "is-active" : ""}  ${isMain && galleryZoom ? "is-zooming" : ""}" type="button" data-cid="detail" data-message="openGallery" data-index="${index}" aria-label="${label}" ${zoomStyle}>
             <img src="${item}" alt="${property.title} - imagem ${index + 1}" loading="lazy">
             ${isMain ? `<div class="gallery-lens" aria-hidden="true"></div>` : ""}
             ${!isMain && index === 3 ? `<span class="gallery-more">ver todas</span>` : ""}
