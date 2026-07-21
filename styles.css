@@ -221,7 +221,7 @@ img {
   min-height: 87vh !important;
   height: 70vh !important;
   color: #16273f;
-  background: url("./medium-shot-woman-holding-keys (1).jpg") 50% 0% / cover !important;
+  background: url("./medium-shot-woman-holding-keys (1).jpg") 83% 4% / cover !important;
 }
 .hero::before {
   display: none !important;
@@ -6575,7 +6575,7 @@ img {
   border-color: #bd8d44 !important;
 }
 .custom-search-btn {
-  background: #bd8d44 !important;
+  background: #783805d6 !important;
 }
 .custom-search-btn:hover {
   background: #a37633 !important;
@@ -6795,7 +6795,7 @@ img {
 
 /* Beautiful spacing below overflowing search card */
 .featured-section {
-  padding-top: 110px !important;
+  padding-top: 0 !important;
 }
 
 @media (max-width: 980px) {
