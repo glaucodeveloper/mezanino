@@ -8807,57 +8807,6 @@ h1 em {
 }
 /* MEZANINO SEARCH CONTRAST + HERO RELIEF END */
 
-
-
-/* MEZANINO HERO SEARCH WITHOUT CITY START */
-@media (min-width: 981px) {
-  .hero .custom-search-panel .custom-search-row {
-    grid-template-columns:
-      repeat(3, minmax(205px, 1fr))
-      minmax(150px, 180px) !important;
-    gap: 20px !important;
-    align-items: stretch !important;
-    justify-content: center !important;
-    width: min(100%, 1040px) !important;
-    margin-inline: auto !important;
-  }
-
-  .hero .custom-search-panel .custom-select-trigger,
-  .hero .custom-search-panel .custom-search-btn {
-    min-height: 56px !important;
-  }
-
-  .hero .custom-search-panel .custom-select-trigger {
-    padding-inline: 22px !important;
-  }
-
-  .hero .custom-search-panel .custom-search-btn {
-    padding-inline: 42px !important;
-  }
-}
-
-@media (max-width: 980px) {
-  .hero .custom-search-panel .custom-search-row {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr)) !important;
-    gap: 14px !important;
-    width: min(100%, 720px) !important;
-    margin-inline: auto !important;
-  }
-
-  .hero .custom-search-panel .custom-search-btn {
-    width: 100% !important;
-    min-height: 52px !important;
-  }
-}
-
-@media (max-width: 620px) {
-  .hero .custom-search-panel .custom-search-row {
-    grid-template-columns: 1fr !important;
-  }
-}
-/* MEZANINO HERO SEARCH WITHOUT CITY END */
-
 /* MEZANINO EXPANDABLE WHATSAPP IFRAME + TIMESS HERO START */
 @font-face {
   font-family: "TIMESS Hero";
@@ -8872,6 +8821,7 @@ h1 em {
     "TIMESS Hero",
     "Times New Roman",
     serif !important;
+  text-transform: UPPERCASE;
 }
 
 .whatsapp-action-widget {
@@ -9074,60 +9024,51 @@ h1 em {
 }
 /* MEZANINO EXPANDABLE WHATSAPP IFRAME + TIMESS HERO END */
 
-/* MEZANINO WHATSAPP MOUNT + TOPBAR ICON START */
-.topbar-main-container
-.topbar-nav
-.phone-in-bar--whatsapp {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  min-width: max-content;
-  color: #8d5729 !important;
-  text-decoration: none !important;
-  border-bottom: 0 !important;
-  box-shadow: none !important;
-  white-space: nowrap;
-}
-
-.topbar-main-container
-.topbar-nav
-.phone-in-bar--whatsapp:hover {
-  color: #6f3f1b !important;
-  border-bottom-color: transparent !important;
-}
-
-.phone-in-bar-whatsapp-icon {
-  width: 18px;
-  height: 18px;
-  flex: 0 0 auto;
-  fill: #25d366;
-  filter:
-    drop-shadow(
-      0 2px 3px rgba(19, 126, 57, 0.18)
-    );
-}
-
-.phone-in-bar--whatsapp:hover
-.phone-in-bar-whatsapp-icon {
-  fill: #20bd5a;
-}
-
-#mezanino-floating-whats-root {
-  position: relative;
-  z-index: 16000;
-}
-
-@media (max-width: 720px) {
-  .topbar-main-container
-  .topbar-nav
-  .phone-in-bar--whatsapp {
-    justify-content: flex-start !important;
+/* MEZANINO HERO SEARCH WITHOUT CITY START */
+@media (min-width: 981px) {
+  .hero .custom-search-panel .custom-search-row {
+    grid-template-columns:
+      repeat(3, minmax(205px, 1fr))
+      minmax(150px, 180px) !important;
+    gap: 20px !important;
+    align-items: stretch !important;
+    justify-content: center !important;
+    width: min(100%, 1040px) !important;
+    margin-inline: auto !important;
   }
 
-  .phone-in-bar-whatsapp-icon {
-    width: 19px;
-    height: 19px;
+  .hero .custom-search-panel .custom-select-trigger,
+  .hero .custom-search-panel .custom-search-btn {
+    min-height: 56px !important;
+  }
+
+  .hero .custom-search-panel .custom-select-trigger {
+    padding-inline: 22px !important;
+  }
+
+  .hero .custom-search-panel .custom-search-btn {
+    padding-inline: 42px !important;
   }
 }
-/* MEZANINO WHATSAPP MOUNT + TOPBAR ICON END */
+
+@media (max-width: 980px) {
+  .hero .custom-search-panel .custom-search-row {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr)) !important;
+    gap: 14px !important;
+    width: min(100%, 720px) !important;
+    margin-inline: auto !important;
+  }
+
+  .hero .custom-search-panel .custom-search-btn {
+    width: 100% !important;
+    min-height: 52px !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .hero .custom-search-panel .custom-search-row {
+    grid-template-columns: 1fr !important;
+  }
+}
+/* MEZANINO HERO SEARCH WITHOUT CITY END */

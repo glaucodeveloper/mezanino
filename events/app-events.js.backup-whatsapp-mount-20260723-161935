@@ -3244,7 +3244,6 @@ const bootApp = (rootSelector = "#app") => {
           ${panel("sobre", route === "sobre" ? renderComponent("about") : "")}
         </main>
         ${renderComponent("footer")}
-        ${renderComponent("floating-whats")}
         ${renderLeadAuthModal()}
     `;
     syncTopbarState();

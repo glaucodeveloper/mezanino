@@ -5,6 +5,7 @@ const HeroComponent = ({ id, props }) => {
 
   // Selected filters
   let selectedOperation = "comprar"; // "comprar" or "alugar"
+  let selectedCity = "Todos";
   let selectedNeighborhoods = ["(Selecionar tudo)"];
   let selectedTypes = ["Todos"];
 
@@ -28,6 +29,10 @@ const HeroComponent = ({ id, props }) => {
       }
       else if (message.type === "selectOperation") {
         selectedOperation = message.value;
+        activeDropdown = null;
+      }
+      else if (message.type === "selectCity") {
+        selectedCity = message.value;
         activeDropdown = null;
       }
       else if (message.type === "toggleNeighborhood") {
@@ -71,6 +76,7 @@ const HeroComponent = ({ id, props }) => {
         const params = {
           operation: selectedOperation,
         };
+        if (selectedCity !== "Todos") params.city = selectedCity;
         if (!selectedNeighborhoods.includes("(Selecionar tudo)")) {
           params.neighborhood = selectedNeighborhoods.join(",");
         }
@@ -82,7 +88,17 @@ const HeroComponent = ({ id, props }) => {
       }
 
       // Generate dynamic options from global properties
-      const allProperties = window.properties || [];      const neighborhoods = [
+      const allProperties = window.properties || [];
+      const cities = [
+        "Todos",
+        ...new Set(
+          allProperties
+            .map((p) => p.cityName || p.city?.split(",")[0]?.trim())
+            .filter(Boolean)
+        ),
+      ];
+
+      const neighborhoods = [
         "(Selecionar tudo)",
         ...new Set(allProperties.map((p) => p.neighborhood).filter(Boolean)),
       ];
@@ -95,6 +111,9 @@ const HeroComponent = ({ id, props }) => {
 
       // Trigger texts
       const triggerOpText = selectedOperation === "alugar" ? "Alugar" : "Comprar";
+      
+      const triggerCityText = selectedCity;
+      
       const triggerNeighborhoodText = selectedNeighborhoods.includes("(Selecionar tudo)")
         ? "Bairro"
         : selectedNeighborhoods.length > 1
@@ -135,12 +154,12 @@ const HeroComponent = ({ id, props }) => {
                 </h1>
 
                 <!-- Main Search Bar Card -->
-                <div class="custom-search-panel" style="background: #fff; padding: 28px 30px; border-radius: 8px; box-shadow: 0 15px 45px rgba(0,0,0,0.15); width: 100%; max-width: 1140px; box-sizing: border-box; transform: translateY(50px); z-index: 10;">
-                  <div class="custom-search-row" style="display: grid; grid-template-columns: repeat(3, minmax(205px, 1fr)) minmax(150px, 180px); gap: 20px; align-items: stretch; justify-content: center; width: min(100%, 1040px); margin: 0 auto;">
+                <div class="custom-search-panel" style="background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 15px 45px rgba(0,0,0,0.15); width: 100%; max-width: 1140px; box-sizing: border-box; transform: translateY(50px); z-index: 10;">
+                  <div class="custom-search-row" style="display: grid; grid-template-columns: repeat(4, 1fr) auto; gap: 16px; align-items: center; width: 100%;">
                     
                     <!-- 1. O que deseja? -->
                     <div class="custom-select-field" style="position: relative; width: 100%;">
-                      <div class="custom-select-trigger ${activeDropdown === "operation" ? "is-open" : ""}" data-cid="hero" data-message="toggleDropdown" data-value="operation" style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px 22px; background: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.95rem; color: #4a5568; transition: border-color 0.2s;">
+                      <div class="custom-select-trigger ${activeDropdown === "operation" ? "is-open" : ""}" data-cid="hero" data-message="toggleDropdown" data-value="operation" style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px 16px; background: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.95rem; color: #4a5568; transition: border-color 0.2s;">
                         <span>${escapeText(triggerOpText)}</span>
                         <span style="color: #a0aec0; font-size: 0.75rem;">▼</span>
                       </div>
@@ -158,9 +177,27 @@ const HeroComponent = ({ id, props }) => {
                       ` : ""}
                     </div>
 
-                    <!-- 2. Bairro -->
+                    <!-- 2. Cidade -->
                     <div class="custom-select-field" style="position: relative; width: 100%;">
-                      <div class="custom-select-trigger ${activeDropdown === "neighborhood" ? "is-open" : ""}" data-cid="hero" data-message="toggleDropdown" data-value="neighborhood" style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px 22px; background: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.95rem; color: #4a5568;">
+                      <div class="custom-select-trigger ${activeDropdown === "city" ? "is-open" : ""}" data-cid="hero" data-message="toggleDropdown" data-value="city" style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px 16px; background: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.95rem; color: #4a5568;">
+                        <span>${escapeText(triggerCityText)}</span>
+                        <span style="color: #a0aec0; font-size: 0.75rem;">▼</span>
+                      </div>
+                      ${activeDropdown === "city" ? /*html*/ `
+                        <div class="custom-select-dropdown" style="position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 1000; padding: 6px 0; margin-top: 6px; max-height: 240px; overflow-y: auto;">
+                          ${cities.map((city) => `
+                            <div class="dropdown-option-row ${selectedCity === city ? "is-active-row" : ""}" data-cid="hero" data-message="selectCity" data-value="${city}" style="padding: 10px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.92rem; color: #2d3748;">
+                              <span class="option-check-mark ${selectedCity === city ? "checked" : ""}"></span>
+                              <span>${escapeText(city)}</span>
+                            </div>
+                          `).join("")}
+                        </div>
+                      ` : ""}
+                    </div>
+
+                    <!-- 3. Bairro -->
+                    <div class="custom-select-field" style="position: relative; width: 100%;">
+                      <div class="custom-select-trigger ${activeDropdown === "neighborhood" ? "is-open" : ""}" data-cid="hero" data-message="toggleDropdown" data-value="neighborhood" style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px 16px; background: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.95rem; color: #4a5568;">
                         <span>${escapeText(triggerNeighborhoodText)}</span>
                         <span style="color: #a0aec0; font-size: 0.75rem;">▼</span>
                       </div>
@@ -185,9 +222,9 @@ const HeroComponent = ({ id, props }) => {
                       ` : ""}
                     </div>
 
-                    <!-- 3. Tipos de imóvel -->
+                    <!-- 4. Tipos de imóvel -->
                     <div class="custom-select-field" style="position: relative; width: 100%;">
-                      <div class="custom-select-trigger ${activeDropdown === "type" ? "is-open" : ""}" data-cid="hero" data-message="toggleDropdown" data-value="type" style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px 22px; background: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.95rem; color: #4a5568;">
+                      <div class="custom-select-trigger ${activeDropdown === "type" ? "is-open" : ""}" data-cid="hero" data-message="toggleDropdown" data-value="type" style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px 16px; background: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.95rem; color: #4a5568;">
                         <span>${escapeText(triggerTypeText)}</span>
                         <span style="color: #a0aec0; font-size: 0.75rem;">▼</span>
                       </div>
@@ -208,8 +245,8 @@ const HeroComponent = ({ id, props }) => {
                       ` : ""}
                     </div>
 
-                    <!-- 4. BUSCAR Button -->
-                    <button class="custom-search-btn" type="button" data-cid="hero" data-message="triggerSearch" style="background: var(--gold, #bd8d44); color: #fff; text-transform: uppercase; font-weight: bold; border-radius: 6px; padding: 16px 42px; border: 0; cursor: pointer; font-size: 0.98rem; letter-spacing: 0.05em; transition: background 0.2s;">
+                    <!-- 5. BUSCAR Button -->
+                    <button class="custom-search-btn" type="button" data-cid="hero" data-message="triggerSearch" style="background: var(--gold, #bd8d44); color: #fff; text-transform: uppercase; font-weight: bold; border-radius: 6px; padding: 14px 34px; border: 0; cursor: pointer; font-size: 0.98rem; letter-spacing: 0.05em; transition: background 0.2s;">
                       BUSCAR
                     </button>
                     
