@@ -6988,10 +6988,8 @@ img {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-
   border-radius: inherit;
-  background: rgba(255, 255, 255, 0.62);
-
+  background: rgb(255 255 255 / 38%);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -8658,7 +8656,7 @@ body {
 }
 
 .hero .custom-search-panel {
-  background: rgb(255 255 255 / 34%) !important;
+  background: rgb(255 255 255 / 0%) !important;
   border: 1px solid rgba(73, 45, 27, 0.12) !important;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.96) inset,
