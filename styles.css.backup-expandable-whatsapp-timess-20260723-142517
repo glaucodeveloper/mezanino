@@ -8142,7 +8142,8 @@ h1 em {
     display: block !important;
     width: 100% !important;
     max-width: none !important;
-    height: 99px;
+    height: var(--desktop-topbar-height) !important;
+    max-height: var(--desktop-topbar-height) !important;
     margin: 0 !important;
     padding: 0 !important;
     overflow: visible !important;
@@ -8157,7 +8158,7 @@ h1 em {
   .topbar-main {
     display: block !important;
     width: 100% !important;
-    height: 100%;
+    height: var(--desktop-topbar-height) !important;
     margin: 0 !important;
     padding: 0 !important;
     background: #ffffff !important;
@@ -8209,7 +8210,7 @@ h1 em {
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;
-    height: 57px !important;
+    height: 68px !important;
     max-height: 68px !important;
     margin: 0 !important;
     object-fit: contain !important;
@@ -8765,11 +8766,10 @@ h1 em {
   color: #fff !important;
   opacity: 1 !important;
   font-weight: 720 !important;
-  margin: 0 auto;
-  letter-spacing: -0.05em !important;
+  letter-spacing: -0.025em !important;
   -webkit-text-stroke: 0 transparent !important;
   paint-order: normal !important;
-  text-shadow: 0 2px 11px rgb(60 60 60 / 83%) !important;
+  text-shadow: 0 2px 11px rgb(66 66 66 / 55%) !important;
   filter: none !important;
   font-family: "Instrument Serif", Georgia, serif;
 }
@@ -8806,220 +8806,3 @@ h1 em {
   }
 }
 /* MEZANINO SEARCH CONTRAST + HERO RELIEF END */
-
-/* MEZANINO EXPANDABLE WHATSAPP IFRAME + TIMESS HERO START */
-@font-face {
-  font-family: "TIMESS Hero";
-  src: url("./assets/fonts/TIMESS__.ttf") format("truetype");
-  font-style: normal;
-  font-weight: 400 900;
-  font-display: swap;
-}
-
-.hero .hero-title {
-  font-family:
-    "TIMESS Hero",
-    "Times New Roman",
-    serif !important;
-  text-transform: UPPERCASE;
-}
-
-.whatsapp-action-widget {
-  position: fixed;
-  z-index: 16000;
-  right: 22px;
-  bottom: max(22px, env(safe-area-inset-bottom));
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  pointer-events: none;
-}
-
-.whatsapp-action-label,
-.whatsapp-action-button,
-.whatsapp-action-panel {
-  pointer-events: auto;
-}
-
-.whatsapp-action-label {
-  display: grid;
-  gap: 2px;
-  padding: 9px 13px;
-  border: 1px solid rgba(8, 43, 89, .12);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, .94);
-  color: #082b59;
-  box-shadow: 0 10px 28px rgba(8, 31, 55, .16);
-  backdrop-filter: blur(10px);
-  transition:
-    opacity .22s ease,
-    transform .3s ease;
-}
-
-.whatsapp-action-label strong {
-  font-size: .75rem;
-  line-height: 1.1;
-}
-
-.whatsapp-action-label span {
-  color: #697789;
-  font-size: .64rem;
-}
-
-.whatsapp-action-button {
-  width: 62px;
-  height: 62px;
-  flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 2px solid rgba(255, 255, 255, .94);
-  border-radius: 50%;
-  background: #25d366;
-  color: #fff;
-  cursor: pointer;
-  box-shadow:
-    0 15px 34px rgba(17, 126, 57, .3),
-    0 0 0 1px rgba(7, 75, 34, .08);
-  transition:
-    background .2s ease,
-    transform .24s ease,
-    box-shadow .24s ease;
-}
-
-.whatsapp-action-button:hover {
-  background: #20bd5a;
-  transform: translateY(-2px) scale(1.025);
-  box-shadow:
-    0 18px 38px rgba(17, 126, 57, .35),
-    0 0 0 1px rgba(7, 75, 34, .1);
-}
-
-.whatsapp-action-icon {
-  width: 32px;
-  height: 32px;
-  fill: currentColor;
-}
-
-.whatsapp-action-icon--close {
-  display: none;
-  width: 27px;
-  height: 27px;
-}
-
-.whatsapp-action-panel {
-  position: absolute;
-  right: 0;
-  bottom: 78px;
-  width: min(382px, calc(100vw - 28px));
-  height: min(570px, calc(100dvh - 116px));
-  overflow: hidden;
-  border: 1px solid rgba(8, 43, 89, .16);
-  border-radius: 20px;
-  background: #efeae2;
-  box-shadow:
-    0 28px 78px rgba(5, 24, 46, .32),
-    0 0 0 1px rgba(255, 255, 255, .72) inset;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(20px) scale(.94);
-  transform-origin: 100% 100%;
-  pointer-events: none;
-  transition:
-    opacity .24s ease,
-    transform .38s cubic-bezier(.2, .8, .2, 1),
-    visibility 0s linear .38s;
-}
-
-.whatsapp-action-frame {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border: 0;
-  background: #efeae2;
-}
-
-.whatsapp-action-widget.is-open
-.whatsapp-action-panel {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0) scale(1);
-  pointer-events: auto;
-  transition-delay: 0s;
-}
-
-.whatsapp-action-widget.is-open
-.whatsapp-action-label {
-  opacity: 0;
-  transform: translateX(12px);
-  pointer-events: none;
-}
-
-.whatsapp-action-widget.is-open
-.whatsapp-action-button {
-  background: #082b59;
-  box-shadow:
-    0 15px 34px rgba(8, 43, 89, .28);
-}
-
-.whatsapp-action-widget.is-open
-.whatsapp-action-icon--whatsapp {
-  display: none;
-}
-
-.whatsapp-action-widget.is-open
-.whatsapp-action-icon--close {
-  display: block;
-}
-
-@media (max-width: 640px) {
-  .whatsapp-action-widget {
-    right: 12px;
-    bottom:
-      max(
-        12px,
-        env(safe-area-inset-bottom)
-      );
-  }
-
-  .whatsapp-action-label {
-    display: none;
-  }
-
-  .whatsapp-action-button {
-    width: 58px;
-    height: 58px;
-  }
-
-  .whatsapp-action-panel {
-    position: fixed;
-    right: 10px;
-    left: 10px;
-    bottom:
-      calc(
-        80px +
-        env(safe-area-inset-bottom)
-      );
-    width: auto;
-    height:
-      min(
-        600px,
-        calc(
-          100dvh -
-          98px -
-          env(safe-area-inset-bottom)
-        )
-      );
-    border-radius: 18px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .whatsapp-action-label,
-  .whatsapp-action-button,
-  .whatsapp-action-panel {
-    transition: none !important;
-  }
-}
-/* MEZANINO EXPANDABLE WHATSAPP IFRAME + TIMESS HERO END */

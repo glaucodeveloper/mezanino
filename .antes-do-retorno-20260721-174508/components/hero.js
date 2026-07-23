@@ -136,7 +136,20 @@ const HeroComponent = ({ id, props }) => {
               <div class="hero-stack" style="width: 100%; display: flex; flex-direction: column; align-items: center; position: relative;">
                 
                 <!-- Original Phrase -->
-                <h1 class="hero-title" style="color: #16273f; font-family: var(--font-display); font-size: 5vw; font-weight: 500; letter-spacing: -0.015em; text-align: left; max-width: 1200px; opacity: 0.95; z-index: 5; box-sizing: border-box; padding: 0 16px; margin-left: 0ch; width: 21ch; align-self: baseline; margin-bottom: 0ch;">
+                <h1 class="hero-title" style="color: #16273f;
+    font-size: 4.5vw !important;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    text-align: left;
+    max-width: 1200px;
+    opacity: 0.95;
+    z-index: 5;
+    box-sizing: border-box;
+    padding: 0 16px;
+    margin-bottom: -1.5ch !important;
+    margin: 0 auto;
+    width: auto;
+    align-self: baseline;">
                   Sonhe, conecte e realize
                 </h1>
 

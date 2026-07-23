@@ -1,3 +1,193 @@
-  const FloatingWhatsComponent = () => ({
-    next: () => ({ done: false, value: /*html*/`<button class="float-whats" type="button" data-route="contato" aria-label="WhatsApp">☎</button>` }),
+"use strict";
+
+/* mezanino-expandable-whatsapp-iframe-v2 */
+(() => {
+  const getWidget = () =>
+    document.querySelector(
+      ".whatsapp-action-widget",
+    );
+
+  const getPropertyTitle = () => {
+    const selectors = [
+      ".detail-hero h1",
+      ".detail-title",
+      ".property-detail h1",
+      ".detail-section h1",
+      "[data-property-title]",
+    ];
+
+    for (const selector of selectors) {
+      const node = document.querySelector(selector);
+      const value = String(
+        node?.textContent || "",
+      )
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (value)
+        return value;
+    }
+
+    return "";
+  };
+
+  window.MezaninoWhatsWidgetContext = () => ({
+    pageTitle: document.title,
+    pageUrl: window.location.href,
+    propertyTitle: getPropertyTitle(),
   });
+
+  window.MezaninoWhatsWidgetToggle = (
+    force,
+  ) => {
+    const widget = getWidget();
+
+    if (!widget)
+      return;
+
+    const panel = widget.querySelector(
+      ".whatsapp-action-panel",
+    );
+    const button = widget.querySelector(
+      ".whatsapp-action-button",
+    );
+    const frame = widget.querySelector(
+      ".whatsapp-action-frame",
+    );
+    const current = widget.classList.contains(
+      "is-open",
+    );
+    const open =
+      typeof force === "boolean"
+        ? force
+        : !current;
+
+    widget.classList.toggle("is-open", open);
+    panel?.setAttribute(
+      "aria-hidden",
+      String(!open),
+    );
+    button?.setAttribute(
+      "aria-expanded",
+      String(open),
+    );
+    button?.setAttribute(
+      "aria-label",
+      open
+        ? "Fechar conversa pelo WhatsApp"
+        : "Abrir conversa pelo WhatsApp",
+    );
+
+    if (open) {
+      window.setTimeout(() => {
+        frame?.contentWindow?.postMessage(
+          {
+            type: "mezanino-whatsapp-open",
+            context:
+              window.MezaninoWhatsWidgetContext(),
+          },
+          window.location.origin,
+        );
+      }, 80);
+    }
+  };
+
+  window.MezaninoWhatsWidgetClose = () =>
+    window.MezaninoWhatsWidgetToggle(false);
+
+  if (!window.__mezaninoWhatsWidgetEvents) {
+    window.__mezaninoWhatsWidgetEvents = true;
+
+    document.addEventListener(
+      "keydown",
+      (event) => {
+        if (event.key === "Escape")
+          window.MezaninoWhatsWidgetClose();
+      },
+    );
+
+    window.addEventListener(
+      "message",
+      (event) => {
+        if (
+          event.origin !== window.location.origin
+        ) {
+          return;
+        }
+
+        if (
+          event.data?.type ===
+          "mezanino-whatsapp-close"
+        ) {
+          window.MezaninoWhatsWidgetClose();
+        }
+      },
+    );
+  }
+})();
+
+const FloatingWhatsComponent = () => ({
+  next() {
+    const contactConfig =
+      window.MezaninoContactConfig || {};
+    const phoneDisplay =
+      contactConfig.phoneDisplay ||
+      "(77) 98159-0101";
+
+    return {
+      done: false,
+      value: /*html*/ `
+        <aside
+          class="whatsapp-action-widget"
+          aria-label="Atendimento pelo WhatsApp"
+        >
+          <section
+            class="whatsapp-action-panel"
+            aria-hidden="true"
+          >
+            <iframe
+              class="whatsapp-action-frame"
+              title="Conversa com a Mezanino pelo WhatsApp"
+              src="./components/whatsapp-action-frame.html"
+              loading="eager"
+              referrerpolicy="strict-origin-when-cross-origin"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms"
+            ></iframe>
+          </section>
+
+          <div
+            class="whatsapp-action-label"
+            aria-hidden="true"
+          >
+            <strong>Fale conosco</strong>
+            <span>${phoneDisplay}</span>
+          </div>
+
+          <button
+            class="whatsapp-action-button"
+            type="button"
+            aria-label="Abrir conversa pelo WhatsApp"
+            aria-expanded="false"
+            onclick="window.MezaninoWhatsWidgetToggle()"
+          >
+            <svg
+              class="whatsapp-action-icon whatsapp-action-icon--whatsapp"
+              viewBox="0 0 32 32"
+              aria-hidden="true"
+            >
+              <path d="M16.05 4.2a11.54 11.54 0 0 0-9.82 17.6L4.7 27.4l5.73-1.5a11.55 11.55 0 1 0 5.62-21.7Zm0 20.98a9.42 9.42 0 0 1-4.8-1.31l-.34-.2-3.4.9.91-3.31-.22-.35a9.44 9.44 0 1 1 7.85 4.27Zm5.17-7.06c-.28-.14-1.67-.82-1.93-.92-.26-.1-.45-.14-.64.14-.19.28-.73.92-.9 1.11-.16.19-.33.21-.61.07-.28-.14-1.2-.44-2.28-1.4a8.55 8.55 0 0 1-1.58-1.97c-.16-.28-.02-.43.12-.57.13-.13.28-.33.43-.5.14-.16.19-.28.28-.47.1-.19.05-.35-.02-.5-.07-.14-.64-1.55-.88-2.12-.23-.56-.47-.48-.64-.49h-.55c-.19 0-.5.07-.76.35-.26.28-1 1-1 2.44 0 1.44 1.05 2.83 1.2 3.02.14.19 2.06 3.14 4.98 4.4.7.3 1.24.48 1.66.62.7.22 1.34.19 1.84.12.56-.08 1.67-.69 1.91-1.35.24-.66.24-1.23.17-1.35-.07-.12-.26-.19-.54-.33Z"/>
+            </svg>
+
+            <svg
+              class="whatsapp-action-icon whatsapp-action-icon--close"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="M6.4 5 12 10.6 17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4 6.4 5Z"/>
+            </svg>
+          </button>
+        </aside>
+      `,
+    };
+  },
+});
