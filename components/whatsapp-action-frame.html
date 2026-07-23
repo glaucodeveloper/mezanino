@@ -184,6 +184,12 @@
         box-shadow: 0 7px 18px rgba(20, 134, 62, .27);
       }
 
+      .chat-logo{
+        clip-path: circle(41% at 0% 50%);
+        height: 28px;
+        transform: translateX(6px);
+      }
+
       .chat-send svg {
         width: 23px;
         height: 23px;
@@ -202,7 +208,9 @@
 
   <body>
     <header class="chat-head">
-      <div class="chat-avatar" aria-hidden="true">M</div>
+      <div class="chat-avatar" aria-hidden="true">
+        <img class="chat-logo" src="../logo_teste.png.png" alt="Mezanino Imobiliária">
+      </div>
 
       <div class="chat-head-copy">
         <strong>Mezanino Imobiliária</strong>
@@ -408,5 +416,43 @@
         );
       })();
     </script>
-  </body>
+  <!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+</body>
 </html>
