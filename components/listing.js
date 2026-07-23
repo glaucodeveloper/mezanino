@@ -19,6 +19,46 @@ const ListingComponent = ({ props }) => {
     features: new Set(),
   };
 
+
+  const garageSpaces = (property = {}) => {
+    const raw = [
+      property.parking,
+      property.garage,
+      property.garages,
+      property.garagem,
+      property.vagas,
+      property.garageSpaces,
+      property.parkingSpaces,
+    ].find((value) => value !== undefined && value !== null && value !== "");
+
+    if (typeof raw === "number" && Number.isFinite(raw)) {
+      return Math.max(0, raw);
+    }
+
+    const normalized = String(raw ?? "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim()
+      .toLowerCase();
+
+    if (/^(sim|yes|true)$/.test(normalized)) return 1;
+    if (/^(nao|no|false)$/.test(normalized)) return 0;
+
+    const match = normalized.match(/\d+/);
+    return match ? Number(match[0]) : 0;
+  };
+
+  const matchesGarageFilter = (property, value) => {
+    const spaces = garageSpaces(property);
+
+    if (value === "Qualquer") return true;
+    if (value === "com") return spaces > 0;
+    if (value === "sem") return spaces === 0;
+
+    const minimum = Number(String(value).replace("+", ""));
+    return !Number.isFinite(minimum) || spaces >= minimum;
+  };
+
   const filterProperties = () => {
     const filtered = properties.filter((property) => {
       const minBedrooms =
@@ -29,10 +69,6 @@ const ListingComponent = ({ props }) => {
         filters.suites === "Qualquer"
           ? 0
           : Number(filters.suites.replace("+", ""));
-      const minParking =
-        filters.parking === "Qualquer"
-          ? 0
-          : Number(filters.parking.replace("+", ""));
       const minArea =
         filters.minArea === "Qualquer" ? 0 : Number(filters.minArea);
       const features = propertyFeatures(property);
@@ -44,7 +80,7 @@ const ListingComponent = ({ props }) => {
         property.priceNumber <= Number(filters.maxPrice) &&
         (minBedrooms === 0 || property.bedrooms >= minBedrooms) &&
         (minSuites === 0 || property.suites >= minSuites) &&
-        (minParking === 0 || property.parking >= minParking) &&
+        matchesGarageFilter(property, filters.parking) &&
         (minArea === 0 || property.area >= minArea) &&
         (filters.features.size === 0 ||
           [...filters.features].every((feature) =>
@@ -88,7 +124,7 @@ const ListingComponent = ({ props }) => {
     if (filters.bedrooms !== "Qualquer")
       params.set("quartos", filters.bedrooms);
     if (filters.suites !== "Qualquer") params.set("suites", filters.suites);
-    if (filters.parking !== "Qualquer") params.set("vagas", filters.parking);
+    if (filters.parking !== "Qualquer") params.set("garagem", filters.parking);
     if (filters.minArea !== "Qualquer") params.set("area", filters.minArea);
     if (filters.features.size)
       params.set("caracteristicas", [...filters.features].join(","));
@@ -148,11 +184,13 @@ const ListingComponent = ({ props }) => {
           filters.bedrooms = "Qualquer";
         }
         
-        if (params.has("vagas")) {
-          filters.parking = params.get("vagas");
-        } else {
-          filters.parking = "Qualquer";
-        }
+        const garageParam =
+          params.get("garagem") ||
+          params.get("vagas") ||
+          params.get("garage") ||
+          params.get("parking");
+
+        filters.parking = garageParam || "Qualquer";
         
         if (params.has("area")) {
           filters.minArea = params.get("area");
@@ -245,10 +283,34 @@ const ListingComponent = ({ props }) => {
                     <div class="mini-field"><label id="tipo-filter-title">Tipo</label><div class="check-list">${["Casa", "Apartamento", "Terreno", "Cobertura", "Sala comercial"].map((kind) => /*html*/ `<label>${kind}<input type="checkbox" data-cid="listing" data-message="filter" data-name="kind" value="${kind}" ${filters.kinds.has(kind) ? "checked" : ""}></label>`).join("")}</div></div>
                     <div class="mini-field"><label>Cidade</label><select data-cid="listing" data-message="filter" data-name="city">${["Todos", ...new Set(properties.map((property) => property.cityName))].map((city) => option(city, filters.city)).join("")}</select></div>
                     <div class="mini-field"><label>Bairro</label><select data-cid="listing" data-message="filter" data-name="neighborhood">${neighborhoods.map((item) => option(item, filters.neighborhood)).join("")}</select></div>
-                    <div class="mini-field"><label>Preco maximo: R$ ${money(filters.maxPrice)}</label><input type="range" min="${operation === "alugar" ? 500 : 100000}" max="${defaultMaxPrice}" step="${operation === "alugar" ? 100 : 25000}" value="${filters.maxPrice}" data-cid="listing" data-message="filter" data-name="maxPrice"></div>
+                    <div class="mini-field">
+                      <label>
+                        Preco maximo: R$
+                        <span data-price-preview>${money(filters.maxPrice)}</span>
+                      </label>
+                      <input
+                        type="range"
+                        min="${operation === "alugar" ? 500 : 100000}"
+                        max="${defaultMaxPrice}"
+                        step="${operation === "alugar" ? 100 : 25000}"
+                        value="${filters.maxPrice}"
+                        data-cid="listing"
+                        data-name="maxPrice"
+                        oninput="this.previousElementSibling.querySelector('[data-price-preview]').textContent = Number(this.value).toLocaleString('pt-BR')"
+                        onchange="this.dataset.message = 'filter'"
+                      >
+                    </div>
                     <div class="mini-field"><label>Quartos</label><select data-cid="listing" data-message="filter" data-name="bedrooms">${["Qualquer", "1+", "2+", "3+", "4+"].map((value) => option(value, filters.bedrooms)).join("")}</select></div>
                     <div class="mini-field"><label>Suites</label><select data-cid="listing" data-message="filter" data-name="suites">${["Qualquer", "1+", "2+"].map((value) => option(value, filters.suites)).join("")}</select></div>
-                    <div class="mini-field"><label>Vagas</label><select data-cid="listing" data-message="filter" data-name="parking">${["Qualquer", "1+", "2+", "3+"].map((value) => option(value, filters.parking)).join("")}</select></div>
+                    <div class="mini-field"><label>Garagem</label><select data-cid="listing" data-message="filter" data-name="parking">${[
+                      ["Qualquer", "Qualquer"],
+                      ["com", "Com garagem"],
+                      ["sem", "Sem garagem"],
+                      ["1+", "1 ou mais vaga"],
+                      ["2+", "2 ou mais vagas"],
+                      ["3+", "3 ou mais vagas"],
+                      ["4+", "4 ou mais vagas"],
+                    ].map(([value, label]) => option(value, filters.parking, label)).join("")}</select></div>
                     <div class="mini-field"><label>Area minima</label><select data-cid="listing" data-message="filter" data-name="minArea">${["Qualquer", "50", "100", "200", "400"].map((value) => option(value, filters.minArea, value === "Qualquer" ? value : `${value}m2`)).join("")}</select></div>
                     <div class="mini-field"><label>Caracteristicas</label><div class="check-list">${["vista mar", "praia", "condominio", "comercial"].map((feature) => /*html*/ `<label>${feature}<input type="checkbox" data-cid="listing" data-message="filter" data-name="feature" value="${feature}" ${filters.features.has(feature) ? "checked" : ""}></label>`).join("")}</div></div>
                   </div>

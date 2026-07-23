@@ -245,7 +245,7 @@ const FinancingComponent = ({ props }) => {
                     <p>Preencha o formul\u00e1rio e nossa equipe de financiamento entra em contato para orientar seu processo do in\u00edcio ao fim.</p>
                     <form class="financing-lead-form" data-cid="financing" data-message="submitFinancingLead">
                       <div class="mini-field"><label>Nome</label><input name="name" required placeholder="Seu nome"></div>
-                      <div class="mini-field"><label>Telefone</label><input name="phone" required placeholder="(71) 99999-0000"></div>
+                      <div class="mini-field"><label>Telefone</label><input name="phone" required placeholder="(77) 981590101"></div>
                       <div class="mini-field"><label>Renda mensal</label><input name="income" placeholder="R$"></div>
                       <button class="gold-btn" type="submit">Solicitar contato</button>
                       ${leadStatus ? `<p class="route_note">${leadStatus}</p>` : ""}

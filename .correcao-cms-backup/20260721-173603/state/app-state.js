@@ -882,7 +882,7 @@ const DASHBOARD_COLLECTION_SCHEMAS = {
         name: "phone",
         label: "Telefone",
         type: "text",
-        placeholder: "(71) 99999-0000",
+        placeholder: "(77) 981590101",
       },
       {
         name: "email",

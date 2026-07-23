@@ -101,7 +101,7 @@
                   <form class="broker-card" data-cid="detail" data-message="proposal">
                     <strong>Formulario de proposta</strong>
                     <div class="mini-field"><label>Nome</label><input name="name" required placeholder="Seu nome"></div>
-                    <div class="mini-field"><label>Telefone</label><input name="phone" required placeholder="(71) 99999-0000"></div>
+                    <div class="mini-field"><label>Telefone</label><input name="phone" required placeholder="(77) 981590101"></div>
                     <button class="gold-btn" type="submit">Enviar proposta</button>
                     ${status ? `<p class="login-error">${status}</p>` : ""}
                   </form>

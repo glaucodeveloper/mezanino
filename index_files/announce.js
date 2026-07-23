@@ -22,13 +22,13 @@
                     <p>Preencha os dados principais e a equipe comercial recebe o lead de captacao.</p>
                     <button class="gold-btn" type="button" data-route="contato">Falar com especialista</button>
                   </div>
-                  <img src="https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&w=1100&q=82" alt="Sala elegante" loading="lazy">
+                  <img <img src="./ChatGPT Image 22 de jul. de 2026, 16_55_05.png"://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&w=1100&q=82" alt="Sala elegante" loading="lazy">
                 </div>
                 <form class="phone-strip announce-form-grid" data-cid="announce" data-message="announce" aria-label="Fluxo de anuncio">
                   <article class="phone-card">
                     <h3>1. Proprietario</h3>
                     <div class="mini-field"><label>Nome</label><input name="ownerName" required placeholder="Digite seu nome"></div>
-                    <div class="mini-field"><label>Telefone</label><input name="phone" required placeholder="(71) 99999-0000"></div>
+                    <div class="mini-field"><label>Telefone</label><input name="phone" required placeholder="(77) 981590101"></div>
                     <div class="mini-field"><label>E-mail</label><input name="email" type="email" placeholder="seuemail@email.com"></div>
                   </article>
                   <article class="phone-card">

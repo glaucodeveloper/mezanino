@@ -177,7 +177,7 @@
         <input type="hidden" name="id" value="${escapeText(draft.id || crudDraftId || "")}">
         <div class="client-cv-grid dashboard-crud-grid">
           <label class="mini-field"><span>Nome</span><input name="name" type="text" placeholder="Nome completo" value="${escapeText(draft.name || "")}"></label>
-          <label class="mini-field"><span>Telefone</span><input name="phone" type="text" placeholder="(71) 99999-0000" value="${escapeText(draft.phone || "")}"></label>
+          <label class="mini-field"><span>Telefone</span><input name="phone" type="text" placeholder="(77) 981590101" value="${escapeText(draft.phone || "")}"></label>
           <label class="mini-field"><span>E-mail</span><input name="email" type="email" placeholder="cliente@dominio.com" value="${escapeText(draft.email || "")}"></label>
           <label class="mini-field"><span>Perfil</span><input name="profile" type="text" placeholder="Comprador, investidor, etc." value="${escapeText(draft.profile || "")}"></label>
           <label class="mini-field"><span>Intencao</span><input name="transaction" type="text" placeholder="compra, locacao ou captacao-venda" value="${escapeText(draft.transaction || "")}"></label>
@@ -280,7 +280,7 @@
       <form class="client-cv-form dashboard-crud-form" data-cid="dashboard" data-message="saveItem" data-collection="brokers">
         <div class="client-cv-grid dashboard-crud-grid">
           <label class="mini-field"><span>Nome</span><input name="name" type="text" placeholder="Nome completo" value="${escapeText(draft.name || "")}"></label>
-          <label class="mini-field"><span>Telefone</span><input name="phone" type="text" placeholder="(71) 99999-0000" value="${escapeText(draft.phone || "")}"></label>
+          <label class="mini-field"><span>Telefone</span><input name="phone" type="text" placeholder="(77) 981590101" value="${escapeText(draft.phone || "")}"></label>
           <label class="mini-field"><span>Foto</span><input name="photo" type="text" placeholder="https://..." value="${escapeText(draft.photo || "")}"></label>
           <label class="mini-field"><span>CRECI</span><input name="creci" type="text" placeholder="CRECI 12345" value="${escapeText(draft.creci || "")}"></label>
           <label class="mini-field"><span>Cidade</span><input name="city" type="text" placeholder="Salvador/BA" value="${escapeText(draft.city || "")}"></label>

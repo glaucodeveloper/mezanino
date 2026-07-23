@@ -22,7 +22,7 @@
                     <p>Preencha os dados principais e a equipe comercial recebe o lead de captacao.</p>
                     <button class="gold-btn" type="button" data-route="contato">Falar com especialista</button>
                   </div>
-                  <img src="https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&w=1100&q=82" alt="Sala elegante" loading="lazy">
+                  <img <img src="./ChatGPT Image 22 de jul. de 2026, 16_55_05.png" alt="Sala elegante" loading="lazy">
                 </div>
                 <form class="phone-strip announce-form-grid" data-cid="announce" data-message="announce" aria-label="Fluxo de anuncio" style="grid-template-columns: 1fr 1fr; gap: 20px;">
                   <article class="phone-card">

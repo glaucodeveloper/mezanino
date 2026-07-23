@@ -15,10 +15,23 @@ const DetailComponent = ({ props }) => {
   let leadStatus = "";
   let shareFeedback = "";
 
+  const registeredWhatsAppPhone = () =>
+    String(
+      window.MezaninoContactConfig?.phoneDigits || "5577981590101",
+    ).replace(/[^\d]/g, "");
+
   const getWhatsAppLink = (phone, text) => {
-    const cleaned = String(phone || "71999990000").replace(/[^\d]/g, "");
+    const cleaned = String(phone || registeredWhatsAppPhone()).replace(
+      /[^\d]/g,
+      "",
+    );
     const phoneWithCountry = cleaned.startsWith("55") || cleaned.length > 11 ? cleaned : `55${cleaned}`;
     return `https://api.whatsapp.com/send?phone=${phoneWithCountry}&text=${encodeURIComponent(text)}`;
+  };
+
+  const formatVisitDate = (value) => {
+    const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    return match ? `${match[3]}/${match[2]}/${match[1]}` : String(value || "");
   };
 
   const loadGoogleMapsScript = (address, callback) => {
@@ -330,19 +343,47 @@ const DetailComponent = ({ props }) => {
       if (message.type === "prevGallery") galleryIndex -= 1;
       if (message.type === "proposal") {
         const selected = props.getSelectedProperty();
+        const name = String(message.fields.name || "").trim();
+        const phone = String(message.fields.phone || "").trim();
+        const email = String(message.fields.email || "").trim();
+        const date = String(message.fields.date || "").trim();
+        const time = String(message.fields.time || "").trim();
+        const propertyUrl = `${window.location.origin}${window.location.pathname}#imovel?propertyId=${selected.id}`;
+        const dateLabel = formatVisitDate(date) || "data a confirmar";
+        const whatsappMessage = [
+          "Olá! Gostaria de confirmar um agendamento de visita.",
+          "",
+          `Imóvel: ${selected.title}`,
+          `Data: ${dateLabel}${time ? ` às ${time}` : ""}`,
+          `Nome: ${name}`,
+          `Telefone: ${phone}`,
+          `E-mail: ${email}`,
+          `Link: ${propertyUrl}`,
+        ].join("\n");
+
         props.addLead({
-          name: message.fields.name || "Contato de agendamento",
+          kind: "appointment",
+          name: name || "Contato de agendamento",
           source: "Agendamento de visita",
-          interest: `Visita agendada para ${message.fields.date || "data não informada"}: ${selected.title}`,
+          interest: `Visita solicitada para ${dateLabel}${time ? ` às ${time}` : ""}: ${selected.title}`,
           propertyId: selected.id,
           transaction: selected.purpose || "analise",
-          email: message.fields.email || "",
-          phone: message.fields.phone || "",
-          narrative: `Solicitou agendamento de visita para o dia ${message.fields.date || "não especificado"}.`,
-          nextAction: "Confirmar agendamento de visita.",
+          brokerId: brokers[0]?.id || "",
+          email,
+          phone,
+          appointmentDate: date,
+          appointmentTime: time,
+          narrative: `Solicitou visita ao imóvel ${selected.title} para ${dateLabel}${time ? ` às ${time}` : ""}.`,
+          nextAction: "Confirmar o agendamento pelo WhatsApp.",
           stage: "novo",
         });
-        status = "Agendamento enviado imediatamente!";
+
+        window.open(
+          getWhatsAppLink(registeredWhatsAppPhone(), whatsappMessage),
+          "_blank",
+          "noopener,noreferrer",
+        );
+        status = "Agendamento registrado. Confirme o envio no WhatsApp aberto.";
       }
 
       const property = props.getSelectedProperty();
@@ -528,7 +569,7 @@ const DetailComponent = ({ props }) => {
                 <strong class="price">${escapeText(property.price)}</strong>
                 <div class="action-stack" style="display: flex; flex-direction: column; gap: 10px;">
                   <button class="gold-btn" type="button" data-route="contato">Solicitar confirmacao</button>
-                  <a class="ghost-btn whatsapp" href="${getWhatsAppLink(broker?.phone || '71999990000', `Olá! Gostaria de obter mais informações sobre o imóvel "${property.title}" que vi no site: ${window.location.origin}${window.location.pathname}#imovel?propertyId=${property.id}`)}" target="_blank" rel="noreferrer" style="text-decoration: none; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                  <a class="ghost-btn whatsapp" href="${getWhatsAppLink(registeredWhatsAppPhone(), `Olá! Gostaria de obter mais informações sobre o imóvel "${property.title}" que vi no site: ${window.location.origin}${window.location.pathname}#imovel?propertyId=${property.id}`)}" target="_blank" rel="noreferrer" style="text-decoration: none; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
                     💬 WhatsApp
                   </a>
                   <button class="ghost-btn share-btn" type="button" data-cid="detail" data-message="shareProperty" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
@@ -538,7 +579,11 @@ const DetailComponent = ({ props }) => {
                 </div>
                 <form class="broker-card" data-cid="detail" data-message="proposal">
                   <strong>Agendar Visita ao Imóvel</strong>
+                  <div class="mini-field"><label>Nome *</label><input name="name" type="text" autocomplete="name" required placeholder="Seu nome completo"></div>
+                  <div class="mini-field"><label>Telefone / WhatsApp *</label><input name="phone" type="tel" autocomplete="tel" required placeholder="(77) 98159-0101"></div>
+                  <div class="mini-field"><label>E-mail *</label><input name="email" type="email" autocomplete="email" required placeholder="seu@email.com"></div>
                   <div class="mini-field"><label>Data Desejada *</label><input name="date" type="date" required></div>
+                  <div class="mini-field"><label>Horário desejado</label><input name="time" type="time"></div>
                   <button class="gold-btn" type="submit" style="width: 100%; margin-top: 10px;">Agendar agora</button>
                   ${status ? `<p class="login-error" style="color: var(--gold); margin-top: 8px;">${escapeText(status)}</p>` : ""}
                 </form>
@@ -651,7 +696,7 @@ const DetailComponent = ({ props }) => {
                     <p>Preencha o formulário e nossa equipe financeira entrará em contato para guiar seu financiamento.</p>
                     <form class="financing-lead-form" data-cid="detail" data-message="submitFinancingLead">
                       <div class="mini-field"><label>Nome</label><input name="name" required placeholder="Seu nome"></div>
-                      <div class="mini-field"><label>Telefone</label><input name="phone" required placeholder="(71) 99999-0000"></div>
+                      <div class="mini-field"><label>Telefone</label><input name="phone" required placeholder="(77) 981590101"></div>
                       <div class="mini-field"><label>Renda mensal</label><input name="income" placeholder="R$"></div>
                       <button class="gold-btn" type="submit">Solicitar contato</button>
                       ${leadStatus ? `<p class="route-note" style="color: var(--gold); margin-top: 8px;">${escapeText(leadStatus)}</p>` : ""}

@@ -49,7 +49,7 @@ const BrokersComponent = ({ props }) => {
           <input type="hidden" name="id" value="${escapeText(draft.id)}">
           <div class="client-cv-grid">
             <label class="mini-field"><span>Nome</span><input name="name" type="text" value="${escapeText(draft.name)}" placeholder="Nome completo"></label>
-            <label class="mini-field"><span>Telefone</span><input name="phone" type="text" value="${escapeText(draft.phone)}" placeholder="(71) 99999-0000"></label>
+            <label class="mini-field"><span>Telefone</span><input name="phone" type="text" value="${escapeText(draft.phone)}" placeholder="(77) 981590101"></label>
             <label class="mini-field"><span>Foto</span><input name="photo" type="text" value="${escapeText(draft.photo)}" placeholder="https://..."></label>
             <label class="mini-field"><span>CRECI</span><input name="creci" type="text" value="${escapeText(draft.creci)}" placeholder="CRECI 12345"></label>
             <label class="mini-field"><span>Cidade</span><input name="city" type="text" value="${escapeText(draft.city)}" placeholder="Salvador/BA"></label>

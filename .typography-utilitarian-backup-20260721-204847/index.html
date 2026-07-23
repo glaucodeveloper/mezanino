@@ -1,6 +1,41 @@
 <!doctype html>
 <html lang="pt-BR">
   <head>
+<!-- MEZANINO GOOGLE MAPS CONFIG START -->
+<meta name="mezanino-google-maps-config" content="inline">
+<script>
+(() => {
+  const googleMapsApiKey = 'AIzaSyCDT81e1gtN8ZQy6EY56eSr0gUHg9ky09I';
+  let configState = {
+    ...(window.SuaImobiliariaCmsConfig || {}),
+    googleMapsApiKey,
+  };
+
+  try {
+    Object.defineProperty(window, 'SuaImobiliariaCmsConfig', {
+      configurable: true,
+      enumerable: true,
+      get() {
+        return configState;
+      },
+      set(value) {
+        configState = {
+          ...configState,
+          ...(value && typeof value === 'object' ? value : {}),
+          googleMapsApiKey,
+        };
+      },
+    });
+  } catch {
+    window.SuaImobiliariaCmsConfig = configState;
+  }
+
+  window.MEZANINO_GOOGLE_MAPS_API_KEY = googleMapsApiKey;
+  document.documentElement.dataset.googleMapsConfig = 'ready';
+})();
+</script>
+<!-- MEZANINO GOOGLE MAPS CONFIG END -->
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />

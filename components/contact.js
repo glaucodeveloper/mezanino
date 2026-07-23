@@ -1,111 +1,136 @@
-const ContactComponent = ({ props }) => {
-  let status = "";
-  let announceStatus = "";
-  let announceOpen = false;
+const ContactComponent = () => ({
+  next() {
+    const contactConfig = window.MezaninoContactConfig || {};
+    const phoneDisplay = contactConfig.phoneDisplay || "(77) 98159-0101";
+    const phoneDigits = contactConfig.phoneDigits || "5577981590101";
+    const message = encodeURIComponent(
+      "Olá! Gostaria de falar com um corretor da Mezanino Imobiliária.",
+    );
 
-  return {
-    next(message = {}) {
-      if (message.type === "contact") {
-        props.addLead({
-          name: message.fields.name || "Contato",
-          source: "Contato",
-          interest: message.fields.interest || "Mensagem geral",
-          email: message.fields.email || "",
-          phone: message.fields.phone || "",
-          stage: "novo",
-        });
-        status = "Mensagem enviada imediatamente!";
-      }
+    return {
+      done: false,
+      value: /*html*/ `
+        <section class="section detail-section contact-section">
+          <style>
+            .contact-section .contact-whatsapp-only {
+              display: grid;
+              grid-template-columns: minmax(0, 1.08fr) minmax(360px, .92fr);
+              min-height: 540px;
+              overflow: hidden;
+              border-radius: 28px;
+              background: #082b59;
+              box-shadow: 0 28px 70px rgba(12, 34, 61, .16);
+            }
+            .contact-section .contact-whatsapp-copy {
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              padding: clamp(36px, 6vw, 82px);
+              color: #fff;
+            }
+            .contact-section .contact-whatsapp-copy .eyebrow {
+              color: #d8ad61;
+            }
+            .contact-section .contact-whatsapp-copy h2 {
+              max-width: 10ch;
+              margin: 10px 0 18px;
+              color: #fff;
+              font-size: clamp(2.5rem, 5vw, 5.4rem);
+              line-height: .94;
+              letter-spacing: -.055em;
+            }
+            .contact-section .contact-whatsapp-copy p {
+              max-width: 560px;
+              margin: 0 0 30px;
+              color: rgba(255,255,255,.78);
+              font-size: 1rem;
+              line-height: 1.75;
+            }
+            .contact-section .contact-whatsapp-actions {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 14px;
+              align-items: center;
+            }
+            .contact-section .contact-whatsapp-button {
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              gap: 10px;
+              min-height: 52px;
+              padding: 0 24px;
+              border-radius: 8px;
+              background: #d3a251;
+              color: #fff;
+              text-decoration: none;
+              font-weight: 750;
+              box-shadow: 0 12px 30px rgba(0,0,0,.18);
+            }
+            .contact-section .contact-whatsapp-number {
+              color: rgba(255,255,255,.84);
+              font-weight: 650;
+            }
+            .contact-section .contact-whatsapp-media {
+              position: relative;
+              min-height: 540px;
+            }
+            .contact-section .contact-whatsapp-media::after {
+              content: "";
+              position: absolute;
+              inset: 0;
+              background: linear-gradient(90deg, rgba(8,43,89,.2), transparent 42%);
+              pointer-events: none;
+            }
+            .contact-section .contact-whatsapp-media img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+            @media (max-width: 860px) {
+              .contact-section .contact-whatsapp-only {
+                grid-template-columns: 1fr;
+              }
+              .contact-section .contact-whatsapp-media {
+                min-height: 320px;
+                order: -1;
+              }
+            }
+          </style>
 
-      if (message.type === "toggleAnnounce") {
-        announceOpen = !announceOpen;
-        announceStatus = "";
-      }
+          <div class="container">
+            <div class="breadcrumb-row"><span>Home</span><span>Contato</span></div>
 
-      if (message.type === "announce") {
-        props.addLead({
-          name: message.fields.ownerName || "Lead de captacao",
-          source: "Anuncie seu imovel",
-          interest: message.fields.propertyType || "Imovel para avaliacao",
-          stage: "novo",
-        });
-        announceOpen = true;
-        announceStatus = "Lead de captacao salvo no dashboard.";
-      }
+            <div class="contact-whatsapp-only">
+              <div class="contact-whatsapp-copy">
+                <span class="eyebrow">Contato direto</span>
+                <h2>Fale pelo WhatsApp</h2>
+                <p>Atendimento consultivo para imóveis, visitas, propostas e dúvidas em um único canal.</p>
 
-      const announcePanelClass = announceOpen ? "is-active" : "is-inactive";
-      const contactPanelClass = announceOpen ? "is-inactive" : "is-active";
-
-      return {
-        done: false,
-        value: /*html*/ `
-            <section class="section detail-section contact-section">
-              <div class="container">
-                <div class="breadcrumb-row"><span>Home</span><span>Contato</span></div>
-
-                <div class="ad-banner contact-banner">
-                  <div class="ad-copy contact-banner-copy">
-                    <div class="section-title">
-										<div>
-											<span class="eyebrow">Contato</span>
-											<h2>Fale com a imobiliaria</h2>
-											<p>Atendimento consultivo, envio de favoritos, visitas e captacao em um unico ponto de contato.</p>
-										</div>
-                </div>
-                    <div class="contact-banner-actions">
-                      <button class="gold-btn" type="button" data-cid="contact" data-message="toggleAnnounce">${announceOpen ? "Voltar ao contato" : "Anuncie"}</button>
-                    </div>
-                  </div>
-                  <img src="https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&w=1100&q=82" alt="Sala elegante" loading="lazy">
-                  <div class="contact-banner-slot">
-                    <div class="contact-panel ${contactPanelClass}">
-                      <div class="phone-strip contact-strip">
-                        <article class="phone-card">
-                          <h3>WhatsApp</h3>
-                          <p class="location">(71) 99999-0000</p>
-                          <a class="gold-btn" href="https://api.whatsapp.com/send?phone=5571999990000&text=${encodeURIComponent('Olá! Gostaria de falar com um corretor da Mezanino Imobiliária.')}" target="_blank" rel="noreferrer" style="text-decoration: none; text-align: center; display: inline-flex; align-items: center; justify-content: center;">Iniciar conversa</a>
-                        </article>
-                        <form class="phone-card" data-cid="contact" data-message="contact">
-                          <h3>Formulario</h3>
-                          <div>
-                            <div class="mini-field">
-                              <label>Mensagem / Interesse *</label>
-                              <textarea name="interest" required placeholder="Quero saber mais sobre..." style="width: 100%; height: 110px; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e0; background: #ffffff; color: #2d3748; outline: none; box-sizing: border-box; font-family: var(--font-body); font-size: 0.9rem;"></textarea>
-                            </div>
-                            <button class="gold-btn" type="submit" style="width: 100%; margin-top: 15px;">Enviar Imediato</button>
-                            ${status ? `<p class="login-error" style="color: var(--gold); margin-top: 8px;">${status}</p>` : ""}
-                          </div>
-                        </form>
-                        <article class="phone-card">
-                          <h3>Endereco</h3>
-                          <p class="location">Rua das Acacias, 129<br>Caminho das Arvores, Salvador/BA</p>
-                          <a class="ghost-btn" href="https://www.google.com/maps?q=${encodeURIComponent('Rua das Acacias, 129, Caminho das Arvores, Salvador, BA')}" target="_blank" rel="noreferrer" style="text-decoration: none; text-align: center; display: inline-flex; align-items: center; justify-content: center;">Ver mapa</a>
-                        </article>
-                      </div>
-                    </div>
-                    <div class="contact-panel ${announcePanelClass}">
-                      <form class="phone-strip announce-form-grid" data-cid="contact" data-message="announce" aria-label="Fluxo de anuncio" style="grid-template-columns: 1fr 1fr; gap: 20px;">
-                        <article class="phone-card">
-                          <h3>1. Imovel</h3>
-                          <div class="mini-field"><label>Tipo</label><select name="propertyType"><option>Casa</option><option>Apartamento</option><option>Terreno</option></select></div>
-                          <div class="mini-field"><label>Bairro</label><input name="neighborhood" placeholder="Informe o bairro"></div>
-                          <div class="mini-field"><label>Valor estimado</label><input name="value" placeholder="R$"></div>
-                        </article>
-                        <article class="phone-card">
-                          <h3>2. Envio</h3>
-                          <div class="mini-field"><label>Descricao</label><input name="description" placeholder="Resumo do imovel"></div>
-                          <label class="check-list"><span><input name="privacy" type="checkbox" required> Aceito a politica de privacidade</span></label>
-                          ${announceStatus ? `<p class="login-error">${announceStatus}</p>` : `<p class="location">Notificacao simulada para a equipe comercial.</p>`}
-                          <button class="gold-btn" style="width:100%; margin-top: 15px;" type="submit">Continuar</button>
-                        </article>
-                      </form>
-                    </div>
-                  </div>
+                <div class="contact-whatsapp-actions">
+                  <a
+                    class="contact-whatsapp-button"
+                    href="https://api.whatsapp.com/send?phone=${phoneDigits}&text=${message}"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span aria-hidden="true">◉</span>
+                    Iniciar conversa
+                  </a>
+                  <span class="contact-whatsapp-number">${phoneDisplay}</span>
                 </div>
               </div>
-            </section>
-          `,
-      };
-    },
-  };
-};
+
+              <div class="contact-whatsapp-media">
+                <img
+                  src="./ChatGPT Image 22 de jul. de 2026, 16_55_05.png"
+                  alt="Sala contemporânea"
+                  loading="lazy"
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+      `,
+    };
+  },
+});

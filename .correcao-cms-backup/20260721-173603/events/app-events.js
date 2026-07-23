@@ -620,7 +620,7 @@ const bootApp = (rootSelector = "#app") => {
             </div>
             <div class="mini-field">
               <label>Telefone / WhatsApp *</label>
-              <input name="phone" type="text" required placeholder="(71) 99999-0000" autocomplete="tel">
+              <input name="phone" type="text" required placeholder="(77) 981590101" autocomplete="tel">
             </div>
             <div class="mini-field">
               <label>E-mail *</label>

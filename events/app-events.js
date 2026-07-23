@@ -1,4 +1,2372 @@
 "use strict";
+
+/* BEGIN MEZANINO MAP NAVIGATION */
+/* transicao-nativa-marker-v2 */
+const MapNavigationComponent = ({ props }) => {
+  let selectedPropertyId = null;
+  let selectedNeighborhood = "Todos";
+  let mapInstance = null;
+  let mountSequence = 0;
+
+  /*
+   * Transição pendente iniciada no clique de um marker.
+   * O mapa novo começa exatamente no viewport anterior e usa
+   * flyTo nativo para deslocar centro e zoom até o imóvel.
+   */
+  let pendingMarkerFlight = null;
+  const markerFocusZoom = 17.5;
+  let streetViewOpen = false;
+  let streetViewSequence = 0;
+  let streetViewPanorama = null;
+  let activeBaseLayer =
+    localStorage.getItem("mezanino:map:base-layer") === "satellite"
+      ? "satellite"
+      : "map";
+
+  const escapeText = (value) =>
+    String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+
+  const allProperties = () => {
+    if (typeof properties !== "undefined" && Array.isArray(properties))
+      return properties;
+    return Array.isArray(window.properties) ? window.properties : [];
+  };
+
+  const cleanLocationPart = (value) =>
+    String(value ?? "")
+      .replace(/\s+/g, " ")
+      .replace(/^\s*[-–—|·,]+|[-–—|·,]+\s*$/g, "")
+      .trim();
+
+  const normalizedCity = (property) => {
+    const explicit = cleanLocationPart(
+      property.cityName ||
+      property.municipality ||
+      property.address?.city ||
+      property.address?.municipality,
+    );
+    if (explicit) return explicit;
+
+    const raw = cleanLocationPart(property.city);
+    if (!raw) return "Sem cidade";
+
+    const parts = raw
+      .split(/[·|,]/)
+      .map(cleanLocationPart)
+      .filter(Boolean)
+      .filter((part) => !/^[A-Z]{2}$/i.test(part));
+
+    return parts.at(-1) || raw;
+  };
+
+  const propertyTypeValues = (property) => [
+    property.kind,
+    property.propertyType,
+    property.category,
+    property.type,
+  ]
+    .map(cleanLocationPart)
+    .filter(Boolean)
+    .filter((value, index, values) => values.indexOf(value) === index);
+
+  const primaryPropertyType = (property) =>
+    propertyTypeValues(property)[0] || "Imóvel";
+
+  const locationQueries = (property) => {
+    const address = property.address && typeof property.address === "object"
+      ? property.address
+      : {};
+    const city = normalizedCity(property);
+    const state = cleanLocationPart(
+      property.state || property.uf || address.state || address.uf || "Bahia",
+    );
+    const neighborhood = cleanLocationPart(
+      property.neighborhood || property.district || address.neighborhood || address.district,
+    );
+    const street = cleanLocationPart(
+      property.street || property.streetName || address.street || address.road,
+    );
+    const number = cleanLocationPart(
+      property.number || property.streetNumber || address.number || address.houseNumber,
+    );
+    const postalCode = cleanLocationPart(
+      property.postalCode || property.zipCode || property.cep || address.postalCode || address.cep,
+    );
+    const descriptive = cleanLocationPart(
+      property.fullAddress ||
+      property.addressText ||
+      property.locationText ||
+      (typeof property.address === "string" ? property.address : "") ||
+      (typeof property.location === "string" ? property.location : ""),
+    );
+
+    const join = (...parts) =>
+      parts.map(cleanLocationPart).filter(Boolean).join(", ");
+
+    return [
+      join(descriptive, city, state, postalCode, "Brasil"),
+      join(street, number, neighborhood, city, state, postalCode, "Brasil"),
+      join(neighborhood, city, state, "Brasil"),
+      join(city, state, "Brasil"),
+    ]
+      .filter((query) => query && query !== "Brasil")
+      .filter((query, index, values) => values.indexOf(query) === index);
+  };
+
+  const locationQuery = (property) =>
+    locationQueries(property)[0] || "Vitória da Conquista, Bahia, Brasil";
+
+  const isBrazilPoint = (lat, lng) =>
+    Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    lat >= -34 && lat <= 6 &&
+    lng >= -74 && lng <= -32;
+
+  const embeddedCoordinates = (property) => {
+    const candidates = [
+      [property.latitude, property.longitude],
+      [property.lat, property.lng],
+      [property.location?.latitude, property.location?.longitude],
+      [property.location?.lat, property.location?.lng],
+      [property.coordinates?.lat, property.coordinates?.lng],
+      [property.coordinates?.latitude, property.coordinates?.longitude],
+      Array.isArray(property.coordinates)
+        ? [property.coordinates[0], property.coordinates[1]]
+        : [null, null],
+    ];
+
+    for (const [rawLat, rawLng] of candidates) {
+      if (rawLat === null || rawLat === undefined || rawLat === "") continue;
+      if (rawLng === null || rawLng === undefined || rawLng === "") continue;
+      const lat = Number(rawLat);
+      const lng = Number(rawLng);
+      if (isBrazilPoint(lat, lng)) return [lat, lng];
+    }
+
+    return null;
+  };
+
+  const geocodeMemory = new Map();
+  let lastGeocodeRequestAt = 0;
+
+  const cacheKeyFor = (query) =>
+    `mezanino:geocode:v2:${query.toLocaleLowerCase("pt-BR")}`;
+
+  const readGeocodeCache = (query) => {
+    if (geocodeMemory.has(query)) return geocodeMemory.get(query);
+
+    try {
+      const raw = localStorage.getItem(cacheKeyFor(query));
+      if (!raw) return undefined;
+      const parsed = JSON.parse(raw);
+      const point = Array.isArray(parsed?.point) ? parsed.point.map(Number) : null;
+      const normalized = point && isBrazilPoint(point[0], point[1]) ? point : null;
+      geocodeMemory.set(query, normalized);
+      return normalized;
+    } catch {
+      return undefined;
+    }
+  };
+
+  const writeGeocodeCache = (query, point) => {
+    geocodeMemory.set(query, point);
+    try {
+      localStorage.setItem(
+        cacheKeyFor(query),
+        JSON.stringify({ point, savedAt: new Date().toISOString() }),
+      );
+    } catch {}
+  };
+
+  const wait = (milliseconds) =>
+    new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+  const searchCoordinates = async (query) => {
+    const cached = readGeocodeCache(query);
+    if (cached !== undefined) return cached;
+
+    const elapsed = Date.now() - lastGeocodeRequestAt;
+    if (elapsed < 1100) await wait(1100 - elapsed);
+    lastGeocodeRequestAt = Date.now();
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
+
+    try {
+      const url = new URL("https://nominatim.openstreetmap.org/search");
+      url.searchParams.set("format", "jsonv2");
+      url.searchParams.set("limit", "1");
+      url.searchParams.set("countrycodes", "br");
+      url.searchParams.set("addressdetails", "1");
+      url.searchParams.set("accept-language", "pt-BR");
+      url.searchParams.set("q", query);
+
+      const response = await fetch(url.toString(), {
+        headers: { Accept: "application/json" },
+        signal: controller.signal,
+      });
+      if (!response.ok) throw new Error(`Geocodificação HTTP ${response.status}`);
+
+      const results = await response.json();
+      const lat = Number(results?.[0]?.lat);
+      const lng = Number(results?.[0]?.lon);
+      const point = isBrazilPoint(lat, lng) ? [lat, lng] : null;
+      writeGeocodeCache(query, point);
+      return point;
+    } catch (error) {
+      if (error?.name !== "AbortError")
+        console.warn("Falha ao buscar localização:", query, error);
+      return null;
+    } finally {
+      clearTimeout(timeout);
+    }
+  };
+
+  const coordinatesOf = async (property) => {
+    const embedded = embeddedCoordinates(property);
+    if (embedded) return embedded;
+
+    for (const query of locationQueries(property)) {
+      const point = await searchCoordinates(query);
+      if (point) return point;
+    }
+
+    return null;
+  };
+
+  const ensureLeaflet = () =>
+    new Promise((resolve, reject) => {
+      if (window.L) {
+        resolve(window.L);
+        return;
+      }
+
+      if (!document.querySelector('link[data-mezanino-leaflet="true"]')) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+        link.dataset.mezaninoLeaflet = "true";
+        document.head.appendChild(link);
+      }
+
+      let script = document.querySelector('script[data-mezanino-leaflet="true"]');
+      if (!script) {
+        script = document.createElement("script");
+        script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+        script.dataset.mezaninoLeaflet = "true";
+        script.async = true;
+        document.head.appendChild(script);
+      }
+
+      script.addEventListener("load", () => resolve(window.L), { once: true });
+      script.addEventListener("error", reject, { once: true });
+    });
+
+
+  const googleMapsApiKey = () =>
+    String(
+      window.SuaImobiliariaCmsConfig?.googleMapsApiKey ||
+      window.MEZANINO_GOOGLE_MAPS_API_KEY ||
+      "",
+    ).trim();
+
+  /* mezanino-streetview-legacy-loader-v1 */
+  /* mezanino-streetview-direct-loader-v2 */
+  const ensureGoogleMaps = () => {
+    const streetViewReady = () =>
+      typeof window.google?.maps?.StreetViewService === "function" &&
+      typeof window.google?.maps?.StreetViewPanorama === "function";
+
+    if (streetViewReady())
+      return Promise.resolve(window.google.maps);
+
+    if (window.__mezaninoGoogleMapsPromise)
+      return window.__mezaninoGoogleMapsPromise;
+
+    const key = googleMapsApiKey();
+
+    if (!key) {
+      return Promise.reject(
+        new Error(
+          "Chave do Google Maps ausente na configuração.",
+        ),
+      );
+    }
+
+    window.__mezaninoGoogleMapsPromise = new Promise(
+      (resolve, reject) => {
+        const callbackName =
+          `__mezaninoGoogleMapsReady_${Date.now()}`;
+        const startedAt = performance.now();
+        let settled = false;
+
+        const cleanup = () => {
+          try {
+            delete window[callbackName];
+          } catch {
+            window[callbackName] = undefined;
+          }
+        };
+
+        const fail = (message) => {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          reject(new Error(message));
+        };
+
+        const waitForStreetView = () => {
+          if (settled) return;
+
+          if (streetViewReady()) {
+            settled = true;
+            cleanup();
+            resolve(window.google.maps);
+            return;
+          }
+
+          if (performance.now() - startedAt >= 12000) {
+            fail(
+              "A Maps JavaScript API carregou, porém o Street View " +
+              "não ficou disponível. Verifique a ativação da " +
+              "Maps JavaScript API, faturamento e restrições da chave.",
+            );
+            return;
+          }
+
+          window.setTimeout(waitForStreetView, 50);
+        };
+
+        window[callbackName] = waitForStreetView;
+
+        document
+          .querySelectorAll(
+            'script[data-mezanino-google-maps="true"]',
+          )
+          .forEach((element) => element.remove());
+
+        const script = document.createElement("script");
+        script.dataset.mezaninoGoogleMaps = "true";
+        script.async = true;
+        script.defer = true;
+        script.src =
+          "https://maps.googleapis.com/maps/api/js" +
+          `?key=${encodeURIComponent(key)}` +
+          `&callback=${encodeURIComponent(callbackName)}` +
+          "&v=weekly" +
+          "&language=pt-BR" +
+          "&region=BR";
+
+        script.addEventListener(
+          "error",
+          () => {
+            fail(
+              "Falha ao carregar a Maps JavaScript API. " +
+              "Confira a chave, o referenciador HTTP e o faturamento.",
+            );
+          },
+          { once: true },
+        );
+
+        document.head.appendChild(script);
+      },
+    ).catch((error) => {
+      window.__mezaninoGoogleMapsPromise = null;
+      throw error;
+    });
+
+    return window.__mezaninoGoogleMapsPromise;
+  };
+
+  const bearingBetween = (fromLat, fromLng, toLat, toLng) => {
+    const toRadians = (degrees) => degrees * Math.PI / 180;
+    const toDegrees = (radians) => radians * 180 / Math.PI;
+    const phi1 = toRadians(fromLat);
+    const phi2 = toRadians(toLat);
+    const deltaLambda = toRadians(toLng - fromLng);
+    const y = Math.sin(deltaLambda) * Math.cos(phi2);
+    const x =
+      Math.cos(phi1) * Math.sin(phi2) -
+      Math.sin(phi1) * Math.cos(phi2) * Math.cos(deltaLambda);
+    return (toDegrees(Math.atan2(y, x)) + 360) % 360;
+  };
+
+  const requestStreetViewPanorama = async (
+    service,
+    location,
+    radius,
+    outdoorOnly = true,
+  ) => {
+    const request = {
+      location,
+      radius,
+      preference: google.maps.StreetViewPreference.NEAREST,
+    };
+
+    if (outdoorOnly) {
+      request.sources = [google.maps.StreetViewSource.OUTDOOR];
+    }
+
+    if (typeof service.getPanorama !== "function")
+      throw new Error("Serviço Street View indisponível.");
+
+    try {
+      const result = service.getPanorama(request);
+      if (result?.then) return await result;
+    } catch {}
+
+    return await new Promise((resolve, reject) => {
+      service.getPanorama(request, (data, status) => {
+        if (status === google.maps.StreetViewStatus.OK && data) {
+          resolve(data);
+          return;
+        }
+        reject(new Error(String(status || "ZERO_RESULTS")));
+      });
+    });
+  };
+
+  const mountStreetView = async (property) => {
+    const sequence = ++streetViewSequence;
+    const node = document.getElementById("mezanino-streetview");
+    const statusNode = document.getElementById(
+      "mezanino-streetview-status",
+    );
+
+    if (!property || !node) return;
+
+    const setStatus = (text) => {
+      if (statusNode) statusNode.textContent = text;
+    };
+
+    setStatus("Buscando uma vista da rua próxima ao imóvel");
+
+    try {
+      await ensureGoogleMaps();
+
+      if (
+        typeof google?.maps?.StreetViewService !== "function" ||
+        typeof google?.maps?.StreetViewPanorama !== "function"
+      ) {
+        throw new Error(
+          "Street View não foi disponibilizado pela Maps JavaScript API.",
+        );
+      }
+
+      if (
+        sequence !== streetViewSequence ||
+        !node.isConnected
+      ) return;
+
+      const point = await coordinatesOf(property);
+      if (!point)
+        throw new Error("Não foi possível localizar este imóvel.");
+
+      const target = { lat: point[0], lng: point[1] };
+      const service = new google.maps.StreetViewService();
+
+      let response;
+      try {
+        response = await requestStreetViewPanorama(
+          service,
+          target,
+          180,
+          true,
+        );
+      } catch {
+        response = await requestStreetViewPanorama(
+          service,
+          target,
+          1000,
+          false,
+        );
+      }
+
+      if (
+        sequence !== streetViewSequence ||
+        !node.isConnected
+      ) return;
+
+      const panoramaLocation = response?.data?.location || response?.location;
+      const panoId = panoramaLocation?.pano;
+      const latLng = panoramaLocation?.latLng;
+
+      if (!panoId || !latLng)
+        throw new Error("Street View não disponível nesta localização.");
+
+      const panoramaLat =
+        typeof latLng.lat === "function" ? latLng.lat() : Number(latLng.lat);
+      const panoramaLng =
+        typeof latLng.lng === "function" ? latLng.lng() : Number(latLng.lng);
+      const heading = bearingBetween(
+        panoramaLat,
+        panoramaLng,
+        target.lat,
+        target.lng,
+      );
+
+      streetViewPanorama = new google.maps.StreetViewPanorama(node, {
+        disableDefaultUI: !streetViewOpen,
+        clickToGo: false,
+        linksControl: false,
+        pano: panoId,
+        pov: {
+          heading,
+          pitch: 0,
+        },
+        zoom: 1,
+        addressControl: false,
+        closeButton: false,
+        fullscreenControl: false,
+        motionTracking: false,
+        motionTrackingControl: false,
+        panControl: false,
+        zoomControl: false,
+      });
+
+      setStatus("Vista da rua mais próxima, orientada para o imóvel");
+    } catch (error) {
+      node.innerHTML = `
+        <div class="streetview-load-error">
+          Street View indisponível para este imóvel.<br>
+          <small>${escapeText(error?.message || "Nenhum panorama encontrado")}</small>
+        </div>
+      `;
+      setStatus("Street View indisponível");
+    }
+  };
+
+  const mountMap = async (items, activeId) => {
+    const sequence = ++mountSequence;
+    const markerFlight = pendingMarkerFlight;
+    pendingMarkerFlight = null;
+
+    if (mapInstance) {
+      try {
+        mapInstance.remove();
+      } catch {}
+      mapInstance = null;
+    }
+
+    const node = document.getElementById("mezanino-property-map");
+    const statusNode = document.getElementById("mezanino-map-status");
+    if (!node) return;
+
+    const setStatus = (text) => {
+      if (statusNode) statusNode.textContent = text;
+    };
+
+    try {
+      const L = await ensureLeaflet();
+      if (sequence !== mountSequence || !node.isConnected) return;
+
+      mapInstance = L.map(node, {
+        zoomControl: false,
+        scrollWheelZoom: true,
+        wheelDebounceTime: 30,
+        wheelPxPerZoomLevel: 70,
+        zoomDelta: 0.5,
+        zoomSnap: 0.5,
+        attributionControl: true,
+      }).setView(
+        markerFlight?.fromCenter || [-14.8619, -40.8446],
+        markerFlight?.fromZoom ?? 7,
+        { animate: false },
+      );
+
+      const streetLayer = L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          maxZoom: 19,
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          className: "mezanino-street-layer",
+        },
+      );
+
+      const satelliteLayer = L.tileLayer(
+        "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        {
+          maxZoom: 19,
+          attribution:
+            "Tiles &copy; Esri, Maxar, Earthstar Geographics and contributors",
+          className: "mezanino-satellite-layer",
+        },
+      );
+
+      const initialLayer =
+        activeBaseLayer === "satellite" ? satelliteLayer : streetLayer;
+      initialLayer.addTo(mapInstance);
+      node.classList.toggle(
+        "map-is-satellite",
+        activeBaseLayer === "satellite",
+      );
+
+      L.control.layers(
+        {
+          Mapa: streetLayer,
+          "Satélite": satelliteLayer,
+        },
+        null,
+        {
+          position: "topright",
+          collapsed: false,
+        },
+      ).addTo(mapInstance);
+
+      mapInstance.on("baselayerchange", (event) => {
+        activeBaseLayer =
+          event.layer === satelliteLayer ? "satellite" : "map";
+        localStorage.setItem(
+          "mezanino:map:base-layer",
+          activeBaseLayer,
+        );
+        node.classList.toggle(
+          "map-is-satellite",
+          activeBaseLayer === "satellite",
+        );
+      });
+
+      mapInstance.scrollWheelZoom.enable();
+
+      if (!items.length) {
+        setStatus("Nenhum imóvel corresponde aos filtros");
+        requestAnimationFrame(() => mapInstance?.invalidateSize());
+        return;
+      }
+
+      const bounds = [];
+      const occupied = new Map();
+      let activePoint = null;
+      let locatedCount = 0;
+
+      const spreadDuplicatePoint = (point) => {
+        const key = `${point[0].toFixed(5)},${point[1].toFixed(5)}`;
+        const duplicateIndex = occupied.get(key) || 0;
+        occupied.set(key, duplicateIndex + 1);
+        if (!duplicateIndex) return point;
+
+        const angle = duplicateIndex * 2.399963229728653;
+        const radius = 0.00055 * Math.ceil(duplicateIndex / 5);
+        return [
+          point[0] + Math.sin(angle) * radius,
+          point[1] + Math.cos(angle) * radius,
+        ];
+      };
+
+      const addMarker = (property, point) => {
+        const active = property.id === activeId;
+        const icon = L.divIcon({
+          className: `mezanino-map-pin${active ? " is-active" : ""}`,
+          html: `
+            <span class="mezanino-map-pin-shape" aria-hidden="true">
+              <svg viewBox="0 0 48 62" role="img">
+                <path d="M24 1C11.3 1 1 11.3 1 24c0 17.4 23 37 23 37s23-19.6 23-37C47 11.3 36.7 1 24 1Z"></path>
+                <circle cx="24" cy="24" r="9"></circle>
+              </svg>
+            </span>
+          `,
+          iconSize: [42, 54],
+          iconAnchor: [21, 52],
+        });
+
+        const marker = L.marker(point, {
+          icon,
+          title: property.title || "Imóvel",
+        })
+          .addTo(mapInstance)
+          .bindTooltip(escapeText(property.title || "Imóvel"), {
+            direction: "top",
+            offset: [0, -48],
+          });
+
+        marker.on("click", () => {
+          const currentCenter = mapInstance?.getCenter?.();
+          const currentZoom = Number(mapInstance?.getZoom?.());
+          const safeZoom = Number.isFinite(currentZoom)
+            ? currentZoom
+            : 13;
+
+          pendingMarkerFlight = {
+            fromCenter: currentCenter
+              ? [currentCenter.lat, currentCenter.lng]
+              : point,
+            fromZoom: safeZoom,
+            targetPoint: point,
+            targetZoom: Math.min(
+              19,
+              Math.max(markerFocusZoom, safeZoom),
+            ),
+          };
+
+          selectedPropertyId = property.id;
+          props.requestRender?.();
+        });
+
+        bounds.push(point);
+        if (active) activePoint = point;
+      };
+
+      for (let index = 0; index < items.length; index += 1) {
+        if (sequence !== mountSequence || !node.isConnected) return;
+
+        const property = items[index];
+        setStatus(`Buscando localizações · ${index + 1}/${items.length}`);
+        const rawPoint = await coordinatesOf(property);
+        if (!rawPoint) continue;
+
+        const point = spreadDuplicatePoint(rawPoint);
+        addMarker(property, point);
+        locatedCount += 1;
+
+        if (!markerFlight) {
+          if (locatedCount === 1)
+            mapInstance.setView(point, 13, { animate: false });
+
+          if (bounds.length > 1)
+            mapInstance.fitBounds(bounds, {
+              padding: [48, 48],
+              maxZoom: 14,
+            });
+        }
+      }
+
+      if (sequence !== mountSequence || !node.isConnected) return;
+
+      const selectedPoint =
+        activePoint ||
+        markerFlight?.targetPoint ||
+        null;
+
+      setStatus(
+        locatedCount
+          ? `${locatedCount} de ${items.length} imóveis localizados por busca`
+          : "Nenhuma localização encontrada nas descrições cadastradas",
+      );
+
+      requestAnimationFrame(() => {
+        if (
+          sequence !== mountSequence ||
+          !mapInstance ||
+          !node.isConnected
+        ) return;
+
+        mapInstance.invalidateSize({
+          animate: false,
+          pan: false,
+        });
+
+        requestAnimationFrame(() => {
+          if (
+            sequence !== mountSequence ||
+            !mapInstance ||
+            !node.isConnected ||
+            !selectedPoint
+          ) return;
+
+          if (!markerFlight) {
+            mapInstance.panTo(selectedPoint, {
+              animate: false,
+            });
+            return;
+          }
+
+          /*
+           * Reafirma o viewport anterior após o layout e então realiza
+           * uma única transição nativa de centro e zoom até o imóvel.
+           */
+          mapInstance.stop?.();
+          mapInstance.setView(
+            markerFlight.fromCenter,
+            markerFlight.fromZoom,
+            { animate: false },
+          );
+
+          mapInstance.flyTo(
+            selectedPoint,
+            markerFlight.targetZoom,
+            {
+              animate: true,
+              duration: 0.9,
+              easeLinearity: 0.18,
+              noMoveStart: false,
+            },
+          );
+        });
+      });
+    } catch (error) {
+      node.innerHTML = `
+        <div class="map-load-error">
+          Não foi possível carregar o mapa agora.<br>
+          <small>${escapeText(error?.message || "Falha de rede")}</small>
+        </div>
+      `;
+      setStatus("Falha ao carregar o mapa");
+    }
+  };
+
+
+  const toggleStreetViewOverMap = (button) => {
+    const dock = button?.closest?.(".map-streetview-over-map");
+    const shell = button?.closest?.(".map-canvas-shell");
+
+    if (!dock || !shell) return;
+
+    const expand = !dock.classList.contains("is-expanded");
+
+    dock.classList.toggle("is-expanded", expand);
+    shell.classList.toggle("is-streetview-expanded", expand);
+
+    button.setAttribute("aria-expanded", String(expand));
+    button.setAttribute(
+      "aria-label",
+      expand
+        ? "Voltar ao mapa"
+        : "Expandir vista da rua",
+    );
+
+    const title = button.querySelector(
+      ".map-streetview-toggle-copy strong",
+    );
+    const icon = button.querySelector(
+      ".map-streetview-toggle-icon",
+    );
+
+    if (title)
+      title.textContent = expand
+        ? "Voltar ao mapa"
+        : "Ver fachada";
+
+    if (icon)
+      icon.textContent = expand ? "↙" : "↗";
+
+    streetViewPanorama?.setOptions?.({
+      disableDefaultUI: !expand,
+      addressControl: expand,
+      clickToGo: expand,
+      fullscreenControl: expand,
+      linksControl: expand,
+      motionTracking: false,
+      motionTrackingControl: false,
+      panControl: expand,
+      zoomControl: expand,
+    });
+
+    const refresh = () => {
+      if (
+        streetViewPanorama &&
+        window.google?.maps?.event
+      ) {
+        window.google.maps.event.trigger(
+          streetViewPanorama,
+          "resize",
+        );
+
+        const position =
+          streetViewPanorama.getPosition?.();
+
+        if (position)
+          streetViewPanorama.setPosition(position);
+      }
+
+      mapInstance?.invalidateSize?.({
+        animate: false,
+        pan: false,
+      });
+    };
+
+    requestAnimationFrame(refresh);
+    window.setTimeout(refresh, 620);
+  };
+
+  window.MezaninoToggleStreetViewOverMap =
+    toggleStreetViewOverMap;
+
+  return {
+    next(message = {}) {
+      if (
+        message.type === "mapFilter" &&
+        message.name === "neighborhood"
+      ) {
+        selectedNeighborhood = message.value || "Todos";
+        pendingMarkerFlight = null;
+        streetViewOpen = false;
+        streetViewSequence += 1;
+      }
+
+      if (message.type === "mapReset") {
+        selectedNeighborhood = "Todos";
+        pendingMarkerFlight = null;
+        streetViewOpen = false;
+        streetViewSequence += 1;
+      }
+
+      if (message.type === "mapSelect") {
+        selectedPropertyId = message.propertyId;
+        streetViewOpen = false;
+        streetViewSequence += 1;
+      }
+
+      if (message.type === "mapStreetView") {
+        if (message.propertyId)
+          selectedPropertyId = message.propertyId;
+
+        streetViewOpen = !streetViewOpen;
+        streetViewSequence += 1;
+        streetViewPanorama = null;
+      }
+
+      if (message.type === "mapCloseStreetView") {
+        streetViewOpen = false;
+        streetViewSequence += 1;
+        streetViewPanorama = null;
+      }
+
+      if (message.type === "mapOpenProperty" && message.propertyId) {
+        props.goToRoute?.("imovel", { propertyId: message.propertyId });
+      }
+
+      const source = allProperties();
+      const neighborhoods = [
+        "Todos",
+        ...new Set(
+          source
+            .map((property) => property.neighborhood)
+            .filter(Boolean),
+        ),
+      ];
+
+      const filtered = source.filter(
+        (property) =>
+          selectedNeighborhood === "Todos" ||
+          property.neighborhood === selectedNeighborhood,
+      );
+
+      if (!filtered.some((property) => property.id === selectedPropertyId)) {
+        selectedPropertyId = filtered[0]?.id || null;
+      }
+
+      const selected =
+        filtered.find((property) => property.id === selectedPropertyId) || null;
+      setTimeout(
+        () => mountMap(filtered, selectedPropertyId),
+        0,
+      );
+
+      if (selected) {
+        setTimeout(
+          () => mountStreetView(selected),
+          0,
+        );
+      }
+
+      const renderOption = (value, current, label = value) =>
+        `<option value="${escapeText(value)}" ${value === current ? "selected" : ""}>${escapeText(label)}</option>`;
+
+      const selectedMeta = Array.isArray(selected?.meta)
+        ? selected.meta
+        : [
+            selected?.bedrooms ? `${selected.bedrooms} quartos` : "",
+            selected?.parking ? `${selected.parking} vagas` : "",
+            selected?.area ? `${selected.area} m²` : "",
+          ].filter(Boolean);
+
+      const googleMapsUrl = selected
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationQuery(selected))}`
+        : "https://www.google.com/maps";
+
+      return {
+        done: false,
+        value: /*html*/ `
+          <section id="mapa-imoveis" class="section map-navigation-section">
+            <style>
+              .map-navigation-section {
+                --map-blue: #082b59;
+                --map-blue-2: #0c467f;
+                --map-gold: #c8923e;
+                --map-ink: #16273f;
+                --map-border: rgba(22,39,63,.12);
+                background: #f7f6f2;
+              }
+              .map-navigation-section .map-section-title {
+                display: flex;
+                justify-content: space-between;
+                align-items: end;
+                gap: 22px;
+                margin-bottom: 24px;
+              }
+              .map-navigation-section .map-section-title h2 {
+                margin: 8px 0 0;
+                color: var(--map-ink);
+                font-size: clamp(2rem, 4vw, 4.2rem);
+                line-height: .95;
+                letter-spacing: -.05em;
+              }
+              .map-navigation-section .map-section-title p {
+                max-width: 540px;
+                margin: 0;
+                color: #687486;
+                line-height: 1.65;
+              }
+              .map-navigation-section .property-map-layout {
+                display: grid;
+                grid-template-columns: 260px minmax(420px, 1fr) 330px;
+                min-height: 610px;
+                border: 1px solid var(--map-border);
+                border-radius: 24px;
+                overflow: hidden;
+                background: #fff;
+                box-shadow: 0 24px 70px rgba(18,39,66,.12);
+              }
+              .map-navigation-section .map-filter-panel,
+              .map-navigation-section .map-detail-panel {
+                padding: 26px;
+                background: #fff;
+              }
+              .map-navigation-section .map-filter-panel {
+                border-right: 1px solid var(--map-border);
+              }
+              .map-navigation-section .map-detail-panel {
+                border-left: 1px solid var(--map-border);
+              }
+              .map-navigation-section .map-panel-heading {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 22px;
+              }
+              .map-navigation-section .map-panel-heading strong {
+                color: var(--map-ink);
+                font-size: 1.05rem;
+              }
+              .map-navigation-section .map-reset-button {
+                border: 0;
+                padding: 0;
+                background: transparent;
+                color: var(--map-gold);
+                cursor: pointer;
+                font: inherit;
+                font-size: .78rem;
+                font-weight: 750;
+              }
+              .map-navigation-section .map-filter-stack {
+                display: grid;
+                gap: 18px;
+              }
+              .map-navigation-section .map-filter-field {
+                display: grid;
+                gap: 8px;
+              }
+              .map-navigation-section .map-filter-field label {
+                color: #667386;
+                font-size: .68rem;
+                font-weight: 800;
+                letter-spacing: .09em;
+                text-transform: uppercase;
+              }
+              .map-navigation-section .map-filter-field select {
+                width: 100%;
+                min-height: 46px;
+                padding: 0 12px;
+                border: 1px solid rgba(22,39,63,.16);
+                border-radius: 7px;
+                outline: 0;
+                background: #fff;
+                color: var(--map-ink);
+                font: inherit;
+              }
+              .map-navigation-section .map-filter-field select:focus {
+                border-color: var(--map-gold);
+                box-shadow: 0 0 0 3px rgba(200,146,62,.12);
+              }
+              .map-navigation-section .map-result-count {
+                margin-top: 24px;
+                padding: 15px;
+                border-radius: 10px;
+                background: #f2f5f8;
+                color: #667386;
+                font-size: .82rem;
+                line-height: 1.45;
+              }
+              .map-navigation-section .map-result-count strong {
+                display: block;
+                color: var(--map-blue);
+                font-size: 1.45rem;
+              }
+              .map-navigation-section .map-canvas-shell {
+                position: relative;
+                min-width: 0;
+                background: #dde6ec;
+              }
+              .map-navigation-section #mezanino-property-map {
+                width: 100%;
+                height: 100%;
+                min-height: 610px;
+                background: #dfe7eb;
+              }
+              .map-navigation-section #mezanino-property-map .leaflet-tile-pane {
+                filter: grayscale(.24) sepia(.22) hue-rotate(164deg) saturate(.72) brightness(1.03) contrast(.92);
+              }
+              .map-navigation-section #mezanino-property-map::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 400;
+                pointer-events: none;
+                background: linear-gradient(135deg, rgba(8,43,89,.05), rgba(200,146,62,.035));
+                mix-blend-mode: multiply;
+              }
+              .map-navigation-section #mezanino-property-map.map-is-satellite .leaflet-tile-pane {
+                filter: none !important;
+              }
+              .map-navigation-section #mezanino-property-map.map-is-satellite::after {
+                display: none;
+              }
+              .map-navigation-section .leaflet-control-layers {
+                border: 1px solid rgba(22,39,63,.14);
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(22,39,63,.14);
+                color: var(--map-ink);
+                font-family: var(--font-body, system-ui, sans-serif);
+              }
+              .map-navigation-section .leaflet-control-layers-expanded {
+                padding: 9px 12px;
+              }
+              .map-navigation-section .leaflet-control-layers-base label {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                margin: 3px 0;
+                font-size: 12px;
+                font-weight: 700;
+              }
+              .map-navigation-section .map-floating-label {
+                position: absolute;
+                top: 18px;
+                left: 50%;
+                z-index: 600;
+                transform: translateX(-50%);
+                padding: 10px 16px;
+                border: 1px solid rgba(255,255,255,.72);
+                border-radius: 999px;
+                background: rgba(255,255,255,.91);
+                box-shadow: 0 10px 30px rgba(16,42,70,.15);
+                color: var(--map-ink);
+                font-size: .76rem;
+                font-weight: 750;
+                backdrop-filter: blur(10px);
+              }
+              .map-navigation-section .mezanino-map-pin {
+                border: 0;
+                background: transparent;
+              }
+              .map-navigation-section .mezanino-map-pin-shape {
+                display: block;
+                width: 42px;
+                height: 54px;
+                filter: drop-shadow(0 8px 9px rgba(8,43,89,.28));
+                transform-origin: 50% 100%;
+                transition: transform .18s ease;
+              }
+              .map-navigation-section .mezanino-map-pin:hover .mezanino-map-pin-shape,
+              .map-navigation-section .mezanino-map-pin.is-active .mezanino-map-pin-shape {
+                transform: translateY(-4px) scale(1.12);
+              }
+              .map-navigation-section .mezanino-map-pin svg {
+                width: 100%;
+                height: 100%;
+                overflow: visible;
+              }
+              .map-navigation-section .mezanino-map-pin path {
+                fill: var(--map-blue-2);
+                stroke: #fff;
+                stroke-width: 2;
+              }
+              .map-navigation-section .mezanino-map-pin circle {
+                fill: var(--map-gold);
+                stroke: #fff;
+                stroke-width: 2;
+              }
+              .map-navigation-section .mezanino-map-pin.is-active path {
+                fill: var(--map-gold);
+              }
+              .map-navigation-section .mezanino-map-pin.is-active circle {
+                fill: var(--map-blue);
+              }
+              .map-navigation-section .leaflet-control-zoom a {
+                color: var(--map-blue);
+              }
+              .map-navigation-section .map-detail-panel {
+                display: flex;
+                flex-direction: column;
+                min-width: 0;
+              }
+              .map-navigation-section .map-detail-image {
+                width: 100%;
+                aspect-ratio: 4 / 3;
+                object-fit: cover;
+                border-radius: 14px;
+                background: #edf0f3;
+              }
+              .map-navigation-section .map-detail-type {
+                display: block;
+                margin-top: 22px;
+                color: #7a837f;
+                font-size: .68rem;
+                font-weight: 800;
+                letter-spacing: .09em;
+                text-transform: uppercase;
+              }
+              .map-navigation-section .map-detail-panel h3 {
+                margin: 8px 0 10px;
+                color: var(--map-ink);
+                font-size: 1.7rem;
+                line-height: 1.05;
+                letter-spacing: -.035em;
+              }
+              .map-navigation-section .map-detail-location {
+                margin: 0;
+                color: #6c7887;
+                font-size: .86rem;
+                line-height: 1.5;
+              }
+              .map-navigation-section .map-detail-meta {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin: 18px 0;
+              }
+              .map-navigation-section .map-detail-meta span {
+                padding: 7px 9px;
+                border-radius: 6px;
+                background: #f2f4f6;
+                color: #506074;
+                font-size: .72rem;
+              }
+              .map-navigation-section .map-detail-price {
+                margin-top: auto;
+                padding-top: 20px;
+                color: var(--map-blue);
+                font-size: 1.45rem;
+              }
+              .map-navigation-section .map-detail-actions {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 10px;
+                margin-top: 18px;
+              }
+              .map-navigation-section .map-detail-actions a,
+              .map-navigation-section .map-detail-actions button {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 46px;
+                padding: 0 13px;
+                border: 1px solid rgba(22,39,63,.14);
+                border-radius: 7px;
+                background: #fff;
+                color: var(--map-ink);
+                text-decoration: none;
+                cursor: pointer;
+                font: inherit;
+                font-size: .78rem;
+                font-weight: 750;
+              }
+              .map-navigation-section .map-detail-actions button {
+                border-color: var(--map-blue);
+                background: var(--map-blue);
+                color: #fff;
+              }
+              .map-navigation-section .map-detail-actions .map-streetview-button {
+                border-color: var(--map-gold);
+                background: var(--map-gold);
+                color: #fff;
+              }
+              .map-navigation-section .streetview-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 12000;
+                display: grid;
+                place-items: center;
+                padding: 22px;
+                box-sizing: border-box;
+                background: rgba(8, 25, 48, .76);
+                backdrop-filter: blur(8px);
+              }
+              .map-navigation-section .streetview-dialog {
+                width: min(1120px, 96vw);
+                height: min(760px, 88vh);
+                display: grid;
+                grid-template-rows: auto minmax(0, 1fr) auto;
+                overflow: hidden;
+                border: 1px solid rgba(255,255,255,.18);
+                border-radius: 20px;
+                background: #fff;
+                box-shadow: 0 28px 90px rgba(0,0,0,.38);
+              }
+              .map-navigation-section .streetview-dialog-head,
+              .map-navigation-section .streetview-dialog-foot {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 18px;
+                padding: 16px 20px;
+                background: #fff;
+                color: var(--map-ink);
+              }
+              .map-navigation-section .streetview-dialog-head {
+                border-bottom: 1px solid var(--map-border);
+              }
+              .map-navigation-section .streetview-dialog-head div {
+                display: grid;
+                gap: 3px;
+              }
+              .map-navigation-section .streetview-dialog-head span {
+                color: var(--map-gold);
+                font-size: .68rem;
+                font-weight: 800;
+                letter-spacing: .09em;
+                text-transform: uppercase;
+              }
+              .map-navigation-section .streetview-dialog-head strong {
+                font-size: 1rem;
+              }
+              .map-navigation-section .streetview-close {
+                width: 38px;
+                height: 38px;
+                display: grid;
+                place-items: center;
+                border: 0;
+                border-radius: 50%;
+                background: #eef2f5;
+                color: var(--map-ink);
+                cursor: pointer;
+                font-size: 1.5rem;
+                line-height: 1;
+              }
+              .map-navigation-section .streetview-canvas {
+                position: relative;
+                width: 100%;
+                height: 100%;
+                min-height: 440px;
+                background: #dce4ea;
+              }
+              .map-navigation-section .streetview-loading,
+              .map-navigation-section .streetview-load-error {
+                position: absolute;
+                inset: 0;
+                display: grid;
+                place-items: center;
+                padding: 24px;
+                color: #647184;
+                text-align: center;
+                line-height: 1.6;
+              }
+              .map-navigation-section .streetview-dialog-foot {
+                border-top: 1px solid var(--map-border);
+                color: #647184;
+                font-size: .76rem;
+              }
+              .map-navigation-section .streetview-dialog-foot a {
+                color: var(--map-blue);
+                font-weight: 750;
+                text-decoration: none;
+              }
+              .map-navigation-section .map-empty-detail,
+              .map-navigation-section .map-load-error {
+                display: grid;
+                place-items: center;
+                min-height: 100%;
+                padding: 28px;
+                color: #647184;
+                text-align: center;
+                line-height: 1.6;
+              }
+              @media (max-width: 1120px) {
+                .map-navigation-section .property-map-layout {
+                  grid-template-columns: 230px minmax(0, 1fr);
+                }
+                .map-navigation-section .map-detail-panel {
+                  grid-column: 1 / -1;
+                  display: grid;
+                  grid-template-columns: 250px minmax(0, 1fr);
+                  gap: 24px;
+                  border-top: 1px solid var(--map-border);
+                  border-left: 0;
+                }
+                .map-navigation-section .map-detail-price {
+                  margin-top: 18px;
+                }
+              }
+              @media (max-width: 760px) {
+                .map-navigation-section .map-section-title,
+                .map-navigation-section .property-map-layout,
+                .map-navigation-section .map-detail-panel {
+                  display: grid;
+                  grid-template-columns: 1fr;
+                }
+                .map-navigation-section .map-filter-panel {
+                  border-right: 0;
+                  border-bottom: 1px solid var(--map-border);
+                }
+                .map-navigation-section #mezanino-property-map {
+                  min-height: 480px;
+                }
+                .map-navigation-section .map-detail-actions {
+                  grid-template-columns: 1fr;
+                }
+                .map-navigation-section .streetview-overlay {
+                  padding: 10px;
+                }
+                .map-navigation-section .streetview-dialog {
+                  width: 100%;
+                  height: 92vh;
+                  border-radius: 14px;
+                }
+                .map-navigation-section .streetview-canvas {
+                  min-height: 360px;
+                }
+                .map-navigation-section .streetview-dialog-foot {
+                  align-items: flex-start;
+                  flex-direction: column;
+                }
+              }
+            
+              /* mezanino-streetview-dock-preview-v1 */
+              .map-navigation-section .map-detail-panel {
+                position: relative;
+                overflow: hidden;
+                transition:
+                  min-height .5s cubic-bezier(.2,.75,.25,1),
+                  background-color .35s ease;
+              }
+
+              .map-navigation-section .map-property-detail-card {
+                display: grid;
+                gap: 16px;
+                padding-bottom: 152px;
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                transform-origin: 50% 0;
+                transition:
+                  opacity .28s ease,
+                  transform .48s cubic-bezier(.2,.75,.25,1),
+                  filter .32s ease;
+              }
+
+              .map-navigation-section
+              .map-detail-panel.is-streetview-expanded {
+                min-height: 520px;
+              }
+
+              .map-navigation-section
+              .map-detail-panel.is-streetview-expanded
+              .map-property-detail-card {
+                opacity: 0;
+                transform: translateY(-18px) scale(.965);
+                filter: blur(3px);
+                pointer-events: none;
+              }
+
+              .map-navigation-section .map-streetview-dock {
+                position: absolute;
+                z-index: 8;
+                right: 18px;
+                bottom: 18px;
+                width: min(210px, calc(100% - 36px));
+                height: 126px;
+                overflow: hidden;
+                border: 1px solid rgba(255,255,255,.82);
+                border-radius: 14px;
+                background:
+                  linear-gradient(145deg, #dfe7ec, #c8d4dd);
+                box-shadow:
+                  0 15px 36px rgba(8,25,48,.22),
+                  0 0 0 1px rgba(8,25,48,.08);
+                isolation: isolate;
+                transition:
+                  inset .56s cubic-bezier(.2,.78,.2,1),
+                  width .56s cubic-bezier(.2,.78,.2,1),
+                  height .56s cubic-bezier(.2,.78,.2,1),
+                  border-radius .46s ease,
+                  box-shadow .46s ease;
+              }
+
+              .map-navigation-section
+              .map-streetview-dock.is-expanded {
+                inset: 18px;
+                width: auto;
+                height: auto;
+                border-radius: 18px;
+                box-shadow:
+                  0 24px 58px rgba(8,25,48,.24),
+                  0 0 0 1px rgba(8,25,48,.09);
+              }
+
+              .map-navigation-section
+              .map-streetview-dock .streetview-canvas {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                min-height: 0;
+                background: #d9e3ea;
+                transition:
+                  filter .35s ease,
+                  transform .5s cubic-bezier(.2,.78,.2,1);
+              }
+
+              .map-navigation-section
+              .map-streetview-dock:not(.is-expanded)
+              .streetview-canvas {
+                pointer-events: none;
+                filter: saturate(.85) contrast(.94) brightness(.9);
+                transform: scale(1.035);
+              }
+
+              .map-navigation-section
+              .map-streetview-dock.is-expanded
+              .streetview-canvas {
+                pointer-events: auto;
+                filter: none;
+                transform: scale(1);
+              }
+
+              .map-navigation-section .map-streetview-preview-hit {
+                position: absolute;
+                z-index: 12;
+                inset: 0;
+                width: 100%;
+                border: 0;
+                border-radius: inherit;
+                display: flex;
+                align-items: flex-end;
+                justify-content: space-between;
+                gap: 12px;
+                padding: 14px;
+                background:
+                  linear-gradient(
+                    180deg,
+                    rgba(8,25,48,.04) 22%,
+                    rgba(8,25,48,.78) 100%
+                  );
+                color: #fff;
+                cursor: pointer;
+                text-align: left;
+                font: inherit;
+              }
+
+              .map-navigation-section
+              .map-streetview-preview-hit span {
+                display: grid;
+                gap: 2px;
+                font-size: .68rem;
+                font-weight: 800;
+                letter-spacing: .08em;
+                text-transform: uppercase;
+              }
+
+              .map-navigation-section
+              .map-streetview-preview-hit strong {
+                font-size: .8rem;
+                line-height: 1.15;
+              }
+
+              .map-navigation-section
+              .map-streetview-preview-hit::after {
+                content: "↗";
+                width: 30px;
+                height: 30px;
+                flex: 0 0 auto;
+                display: grid;
+                place-items: center;
+                border-radius: 50%;
+                background: rgba(255,255,255,.92);
+                color: var(--map-blue);
+                font-size: 1rem;
+                box-shadow: 0 5px 16px rgba(0,0,0,.18);
+              }
+
+              .map-navigation-section
+              .map-streetview-dock.is-expanded
+              .map-streetview-preview-hit {
+                inset: 12px 12px auto auto;
+                width: auto;
+                min-width: 116px;
+                height: 38px;
+                align-items: center;
+                padding: 0 12px;
+                border-radius: 999px;
+                background: rgba(255,255,255,.94);
+                color: var(--map-ink);
+                box-shadow: 0 8px 22px rgba(8,25,48,.2);
+                backdrop-filter: blur(10px);
+              }
+
+              .map-navigation-section
+              .map-streetview-dock.is-expanded
+              .map-streetview-preview-hit span {
+                display: none;
+              }
+
+              .map-navigation-section
+              .map-streetview-dock.is-expanded
+              .map-streetview-preview-hit strong {
+                font-size: .72rem;
+              }
+
+              .map-navigation-section
+              .map-streetview-dock.is-expanded
+              .map-streetview-preview-hit::after {
+                content: "↙";
+                width: 24px;
+                height: 24px;
+                background: var(--map-blue);
+                color: #fff;
+                box-shadow: none;
+              }
+
+              .map-navigation-section .map-streetview-status-row {
+                position: absolute;
+                z-index: 11;
+                left: 14px;
+                right: 14px;
+                bottom: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 14px;
+                padding: 9px 11px;
+                border-radius: 10px;
+                background: rgba(255,255,255,.92);
+                color: var(--map-ink);
+                box-shadow: 0 7px 22px rgba(8,25,48,.18);
+                opacity: 0;
+                transform: translateY(14px);
+                pointer-events: none;
+                transition:
+                  opacity .3s ease .18s,
+                  transform .38s cubic-bezier(.2,.75,.25,1) .14s;
+                backdrop-filter: blur(10px);
+              }
+
+              .map-navigation-section
+              .map-streetview-dock.is-expanded
+              .map-streetview-status-row {
+                opacity: 1;
+                transform: translateY(0);
+                pointer-events: auto;
+              }
+
+              .map-navigation-section
+              .map-streetview-status-row span {
+                overflow: hidden;
+                color: #506076;
+                font-size: .7rem;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              }
+
+              .map-navigation-section
+              .map-streetview-status-row a {
+                flex: 0 0 auto;
+                color: var(--map-blue);
+                font-size: .7rem;
+                font-weight: 800;
+                text-decoration: none;
+              }
+
+              .map-navigation-section
+              .map-detail-actions {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+              }
+
+              @media (max-width: 760px) {
+                .map-navigation-section
+                .map-detail-panel.is-streetview-expanded {
+                  min-height: 460px;
+                }
+
+                .map-navigation-section .map-streetview-dock {
+                  right: 14px;
+                  bottom: 14px;
+                  width: min(190px, calc(100% - 28px));
+                  height: 116px;
+                }
+
+                .map-navigation-section
+                .map-streetview-dock.is-expanded {
+                  inset: 12px;
+                }
+              }
+
+              @media (prefers-reduced-motion: reduce) {
+                .map-navigation-section .map-property-detail-card,
+                .map-navigation-section .map-streetview-dock,
+                .map-navigation-section .map-streetview-status-row,
+                .map-navigation-section
+                .map-streetview-dock .streetview-canvas {
+                  transition: none !important;
+                }
+              }
+
+
+              /* mezanino-streetview-over-map-v1 */
+              .map-navigation-section .map-canvas-shell {
+                position: relative;
+                overflow: hidden;
+                isolation: isolate;
+              }
+
+              .map-navigation-section #mezanino-property-map {
+                transition:
+                  opacity .34s ease,
+                  transform .56s cubic-bezier(.2,.78,.2,1),
+                  filter .4s ease;
+                transform-origin: 50% 50%;
+              }
+
+              .map-navigation-section
+              .map-canvas-shell.is-streetview-expanded
+              #mezanino-property-map {
+                opacity: 0;
+                transform: scale(.965);
+                filter: saturate(.72) brightness(.78);
+                pointer-events: none;
+              }
+
+              .map-navigation-section .map-streetview-over-map {
+                position: absolute;
+                z-index: 700;
+                right: 18px;
+                bottom: 18px;
+                width: 230px;
+                height: 138px;
+                overflow: hidden;
+                border: 1px solid rgba(255,255,255,.9);
+                border-radius: 15px;
+                background:
+                  linear-gradient(145deg, #dce5eb, #c7d4dd);
+                box-shadow:
+                  0 18px 42px rgba(7,27,52,.28),
+                  0 0 0 1px rgba(7,27,52,.12);
+                isolation: isolate;
+                transform: translateZ(0);
+                transition:
+                  inset .58s cubic-bezier(.2,.78,.2,1),
+                  width .58s cubic-bezier(.2,.78,.2,1),
+                  height .58s cubic-bezier(.2,.78,.2,1),
+                  border-radius .46s ease,
+                  box-shadow .46s ease;
+              }
+
+              .map-navigation-section
+              .map-streetview-over-map.is-expanded {
+                inset: 0;
+                width: auto;
+                height: auto;
+                border: 0;
+                border-radius: 0;
+                box-shadow: none;
+              }
+
+              .map-navigation-section
+              .map-streetview-over-map .streetview-canvas {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                min-height: 0;
+                background: #dce5eb;
+              }
+
+              .map-navigation-section
+              .map-streetview-over-map:not(.is-expanded)
+              .streetview-canvas {
+                pointer-events: none;
+                filter: saturate(.9) contrast(.96) brightness(.9);
+              }
+
+              .map-navigation-section
+              .map-streetview-over-map.is-expanded
+              .streetview-canvas {
+                pointer-events: auto;
+                filter: none;
+              }
+
+              .map-navigation-section .map-streetview-toggle {
+                position: absolute;
+                z-index: 20;
+                inset: 0;
+                width: 100%;
+                border: 0;
+                display: flex;
+                align-items: flex-end;
+                justify-content: space-between;
+                gap: 12px;
+                padding: 13px;
+                background:
+                  linear-gradient(
+                    180deg,
+                    rgba(7,27,52,.02) 22%,
+                    rgba(7,27,52,.8) 100%
+                  );
+                color: #fff;
+                cursor: pointer;
+                text-align: left;
+                font: inherit;
+              }
+
+              .map-navigation-section
+              .map-streetview-toggle-copy {
+                display: grid;
+                gap: 2px;
+              }
+
+              .map-navigation-section
+              .map-streetview-toggle-copy span {
+                font-size: .62rem;
+                font-weight: 800;
+                letter-spacing: .1em;
+                text-transform: uppercase;
+              }
+
+              .map-navigation-section
+              .map-streetview-toggle-copy strong {
+                font-size: .78rem;
+                line-height: 1.15;
+              }
+
+              .map-navigation-section
+              .map-streetview-toggle-icon {
+                width: 30px;
+                height: 30px;
+                flex: 0 0 auto;
+                display: grid;
+                place-items: center;
+                border-radius: 50%;
+                background: rgba(255,255,255,.94);
+                color: var(--map-blue);
+                font-size: 1rem;
+                box-shadow: 0 6px 18px rgba(0,0,0,.18);
+              }
+
+              .map-navigation-section
+              .map-streetview-over-map.is-expanded
+              .map-streetview-toggle {
+                inset: 14px 14px auto auto;
+                width: auto;
+                min-width: 132px;
+                height: 40px;
+                align-items: center;
+                padding: 0 12px;
+                border-radius: 999px;
+                background: rgba(255,255,255,.94);
+                color: var(--map-ink);
+                box-shadow: 0 8px 24px rgba(7,27,52,.22);
+                backdrop-filter: blur(10px);
+              }
+
+              .map-navigation-section
+              .map-streetview-over-map.is-expanded
+              .map-streetview-toggle-copy span {
+                display: none;
+              }
+
+              .map-navigation-section
+              .map-streetview-over-map.is-expanded
+              .map-streetview-toggle-copy strong {
+                font-size: .72rem;
+              }
+
+              .map-navigation-section
+              .map-streetview-over-map.is-expanded
+              .map-streetview-toggle-icon {
+                width: 25px;
+                height: 25px;
+                background: var(--map-blue);
+                color: #fff;
+                box-shadow: none;
+                transform: rotate(180deg);
+              }
+
+              .map-navigation-section .map-streetview-over-map-status {
+                position: absolute;
+                z-index: 18;
+                left: 14px;
+                right: 14px;
+                bottom: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 14px;
+                padding: 9px 11px;
+                border-radius: 10px;
+                background: rgba(255,255,255,.92);
+                color: var(--map-ink);
+                box-shadow: 0 8px 24px rgba(7,27,52,.2);
+                opacity: 0;
+                transform: translateY(14px);
+                pointer-events: none;
+                transition:
+                  opacity .28s ease .2s,
+                  transform .38s cubic-bezier(.2,.75,.25,1) .16s;
+                backdrop-filter: blur(10px);
+              }
+
+              .map-navigation-section
+              .map-streetview-over-map.is-expanded
+              .map-streetview-over-map-status {
+                opacity: 1;
+                transform: translateY(0);
+                pointer-events: auto;
+              }
+
+              .map-navigation-section
+              .map-streetview-over-map-status span {
+                overflow: hidden;
+                color: #536176;
+                font-size: .69rem;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              }
+
+              .map-navigation-section
+              .map-streetview-over-map-status a {
+                flex: 0 0 auto;
+                color: var(--map-blue);
+                font-size: .69rem;
+                font-weight: 800;
+                text-decoration: none;
+              }
+
+              .map-navigation-section
+              .map-streetview-over-map:not(.is-expanded)
+              .gm-style .gmnoprint,
+              .map-navigation-section
+              .map-streetview-over-map:not(.is-expanded)
+              .gm-style button {
+                opacity: 0 !important;
+                pointer-events: none !important;
+              }
+
+              @media (max-width: 760px) {
+                .map-navigation-section .map-streetview-over-map {
+                  right: 12px;
+                  bottom: 12px;
+                  width: 190px;
+                  height: 116px;
+                }
+              }
+
+              @media (prefers-reduced-motion: reduce) {
+                .map-navigation-section #mezanino-property-map,
+                .map-navigation-section .map-streetview-over-map,
+                .map-navigation-section
+                .map-streetview-over-map-status {
+                  transition: none !important;
+                }
+              }
+
+
+/* MEZANINO MAP MOBILE START */
+              .map-navigation-section,
+              .map-navigation-section * {
+                box-sizing: border-box;
+              }
+
+              .map-navigation-section {
+                width: 100%;
+                max-width: 100vw;
+                overflow-x: clip;
+                scroll-margin-top: 84px;
+              }
+
+              .map-navigation-section .container,
+              .map-navigation-section .map-section-title,
+              .map-navigation-section .property-map-layout,
+              .map-navigation-section .map-filter-panel,
+              .map-navigation-section .map-canvas-shell,
+              .map-navigation-section .map-detail-panel {
+                min-width: 0;
+                max-width: 100%;
+              }
+
+              @media (max-width: 760px) {
+                .map-navigation-section {
+                  padding-top: 42px !important;
+                  padding-bottom: 48px !important;
+                }
+
+                .map-navigation-section > .container {
+                  display: block !important;
+                  width: 100% !important;
+                  max-width: 100% !important;
+                  margin: 0 auto !important;
+                  padding-inline: 10px !important;
+                }
+
+                .map-navigation-section .map-section-title {
+                  display: grid !important;
+                  grid-template-columns: minmax(0, 1fr) !important;
+                  align-items: start !important;
+                  gap: 12px !important;
+                  width: 100%;
+                  margin: 0 0 16px !important;
+                  padding: 0 4px;
+                  overflow: visible;
+                }
+
+                .map-navigation-section .map-section-title > div {
+                  min-width: 0;
+                  max-width: 100%;
+                }
+
+                .map-navigation-section .map-section-title .eyebrow {
+                  display: block;
+                  max-width: 100%;
+                  white-space: normal;
+                }
+
+                .map-navigation-section .map-section-title h2 {
+                  display: block !important;
+                  width: 100%;
+                  max-width: 100%;
+                  margin: 6px 0 0 !important;
+                  font-size: clamp(2.15rem, 10.8vw, 3.35rem) !important;
+                  line-height: .96 !important;
+                  letter-spacing: -.045em !important;
+                  white-space: normal !important;
+                  word-break: normal !important;
+                  overflow-wrap: normal !important;
+                  text-wrap: balance;
+                  overflow: visible !important;
+                }
+
+                .map-navigation-section .map-section-title p {
+                  width: 100%;
+                  max-width: 100% !important;
+                  margin: 0 !important;
+                  font-size: .9rem;
+                  line-height: 1.5;
+                }
+
+                .map-navigation-section .property-map-layout {
+                  display: grid !important;
+                  grid-template-columns: minmax(0, 1fr) !important;
+                  grid-template-rows: auto auto auto;
+                  width: 100%;
+                  min-height: 0 !important;
+                  border-radius: 18px !important;
+                  overflow: hidden !important;
+                }
+
+                .map-navigation-section .map-filter-panel {
+                  order: 1;
+                  display: block !important;
+                  visibility: visible !important;
+                  position: relative !important;
+                  inset: auto !important;
+                  width: 100% !important;
+                  min-height: auto !important;
+                  padding: 14px !important;
+                  border-right: 0 !important;
+                  border-bottom: 1px solid var(--map-border) !important;
+                  opacity: 1 !important;
+                  transform: none !important;
+                }
+
+                .map-navigation-section .map-panel-heading {
+                  display: flex !important;
+                  align-items: center;
+                  justify-content: space-between;
+                  gap: 12px;
+                  margin-bottom: 10px !important;
+                }
+
+                .map-navigation-section .map-filter-stack {
+                  display: grid !important;
+                  grid-template-columns: minmax(0, 1fr) !important;
+                  gap: 10px !important;
+                }
+
+                .map-navigation-section .map-filter-field {
+                  display: grid !important;
+                  gap: 6px !important;
+                  width: 100%;
+                }
+
+                .map-navigation-section .map-filter-field select {
+                  display: block !important;
+                  width: 100% !important;
+                  min-height: 46px !important;
+                  font-size: 16px !important;
+                }
+
+                .map-navigation-section .map-result-count {
+                  display: flex !important;
+                  align-items: center;
+                  justify-content: space-between;
+                  gap: 12px;
+                  margin-top: 10px !important;
+                  padding: 10px 12px !important;
+                }
+
+                .map-navigation-section .map-result-count strong {
+                  display: inline-block !important;
+                  flex: 0 0 auto;
+                  font-size: 1.15rem !important;
+                }
+
+                .map-navigation-section .map-canvas-shell {
+                  order: 2;
+                  position: relative;
+                  width: 100%;
+                  min-width: 0;
+                  min-height: 0;
+                  overflow: hidden;
+                }
+
+                .map-navigation-section #mezanino-property-map {
+                  display: block !important;
+                  width: 100% !important;
+                  height: 58svh !important;
+                  min-height: 430px !important;
+                  max-height: 600px;
+                }
+
+                .map-navigation-section .map-floating-label {
+                  left: 10px !important;
+                  right: 10px !important;
+                  width: auto !important;
+                  max-width: calc(100% - 20px);
+                  font-size: .68rem !important;
+                  white-space: normal !important;
+                }
+
+                .map-navigation-section .map-detail-panel {
+                  order: 3;
+                  grid-column: auto !important;
+                  display: grid !important;
+                  grid-template-columns: 112px minmax(0, 1fr) !important;
+                  gap: 14px !important;
+                  width: 100%;
+                  min-height: 0 !important;
+                  padding: 14px !important;
+                  border-top: 1px solid var(--map-border) !important;
+                  border-left: 0 !important;
+                }
+
+                .map-navigation-section .map-detail-image {
+                  width: 112px !important;
+                  height: 112px !important;
+                  min-height: 0 !important;
+                  aspect-ratio: 1;
+                  border-radius: 11px;
+                  object-fit: cover;
+                }
+
+                .map-navigation-section .map-detail-type {
+                  margin-top: 0 !important;
+                  font-size: .61rem !important;
+                }
+
+                .map-navigation-section .map-detail-panel h3 {
+                  margin: 5px 0 6px !important;
+                  font-size: 1.18rem !important;
+                  line-height: 1.04 !important;
+                }
+
+                .map-navigation-section .map-detail-location {
+                  font-size: .75rem !important;
+                }
+
+                .map-navigation-section .map-detail-meta {
+                  gap: 5px !important;
+                  margin: 9px 0 8px !important;
+                }
+
+                .map-navigation-section .map-detail-meta span {
+                  padding: 5px 7px !important;
+                  font-size: .63rem !important;
+                }
+
+                .map-navigation-section .map-detail-price {
+                  display: block;
+                  margin-top: 7px !important;
+                  padding-top: 0 !important;
+                  font-size: 1.16rem !important;
+                }
+
+                .map-navigation-section .map-detail-actions {
+                  display: grid !important;
+                  grid-template-columns:
+                    repeat(auto-fit, minmax(104px, 1fr)) !important;
+                  gap: 7px !important;
+                  margin-top: 10px !important;
+                }
+
+                .map-navigation-section .map-detail-actions a,
+                .map-navigation-section .map-detail-actions button {
+                  min-height: 40px;
+                  padding: 8px 9px !important;
+                  font-size: .68rem !important;
+                }
+
+                .map-navigation-section .map-streetview-over-map {
+                  right: 10px !important;
+                  bottom: 10px !important;
+                  width: min(178px, calc(100% - 20px)) !important;
+                  height: 108px !important;
+                  border-radius: 12px !important;
+                }
+
+                .map-navigation-section
+                .map-streetview-over-map.is-expanded {
+                  inset: 0 !important;
+                  width: auto !important;
+                  height: auto !important;
+                  border-radius: 0 !important;
+                }
+
+                .map-navigation-section .map-streetview-toggle {
+                  padding: 10px !important;
+                }
+
+                .map-navigation-section
+                .map-streetview-toggle-copy strong {
+                  font-size: .7rem !important;
+                }
+
+                .map-navigation-section .leaflet-control-layers {
+                  max-width: calc(100vw - 52px);
+                }
+              }
+
+              @media (max-width: 430px) {
+                .map-navigation-section .map-detail-panel {
+                  grid-template-columns: 92px minmax(0, 1fr) !important;
+                  gap: 11px !important;
+                }
+
+                .map-navigation-section .map-detail-image {
+                  width: 92px !important;
+                  height: 92px !important;
+                }
+
+                .map-navigation-section .map-detail-panel h3 {
+                  font-size: 1.05rem !important;
+                }
+
+                .map-navigation-section .map-detail-meta {
+                  display: none !important;
+                }
+              }
+              /* MEZANINO MAP MOBILE END */
+</style>
+
+            <div class="container">
+              <div class="map-section-title">
+                <div>
+                  <span class="eyebrow">Localização dos imóveis</span>
+                  <h2>Explore pelo mapa</h2>
+                </div>
+                <p>Filtre os imóveis, selecione um marcador e consulte os detalhes sem sair da página inicial.</p>
+              </div>
+
+              <div class="property-map-layout">
+                <aside class="map-filter-panel" aria-label="Filtros do mapa">
+                  <div class="map-panel-heading">
+                    <strong>Filtros</strong>
+                    <button class="map-reset-button" type="button" data-cid="map-navigation" data-message="mapReset">Limpar</button>
+                  </div>
+
+                  <div class="map-filter-stack">
+                    <div class="map-filter-field">
+                      <label>Bairro</label>
+                      <select data-cid="map-navigation" data-message="mapFilter" data-name="neighborhood">
+                        ${neighborhoods.map((value) => renderOption(value, selectedNeighborhood)).join("")}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="map-result-count">
+                    <strong>${filtered.length}</strong>
+                    ${filtered.length === 1 ? "imóvel localizado" : "imóveis localizados"}
+                  </div>
+                </aside>
+
+                <div class="map-canvas-shell">
+                  <div id="mezanino-map-status" class="map-floating-label">Buscando localizações cadastradas</div>
+                  <div id="mezanino-property-map" aria-label="Mapa dos imóveis"></div>
+
+                  ${selected ? /*html*/ `
+                    <section
+                      class="map-streetview-over-map"
+                      aria-label="Pré-visualização da fachada"
+                    >
+                      <div id="mezanino-streetview" class="streetview-canvas">
+                        <div class="streetview-loading">Carregando vista da rua...</div>
+                      </div>
+
+                      <button
+                        class="map-streetview-toggle"
+                        type="button"
+                        onclick="window.MezaninoToggleStreetViewOverMap?.(this)"
+                        aria-expanded="false"
+                        aria-label="Expandir vista da rua"
+                      >
+                        <span class="map-streetview-toggle-copy">
+                          <span>Vista da rua</span>
+                          <strong>Ver fachada</strong>
+                        </span>
+                        <span class="map-streetview-toggle-icon" aria-hidden="true">↗</span>
+                      </button>
+
+                      <div class="map-streetview-over-map-status">
+                        <span id="mezanino-streetview-status">Buscando vista da rua</span>
+                        <a href="${googleMapsUrl}" target="_blank" rel="noreferrer">Google Maps</a>
+                      </div>
+                    </section>
+                  ` : ""}
+                </div>
+
+                <aside class="map-detail-panel" aria-live="polite">
+                  ${selected ? /*html*/ `
+                    <img class="map-detail-image" src="${escapeText(selected.image || selected.images?.[0] || "")}" alt="${escapeText(selected.title || "Imóvel selecionado")}" loading="lazy">
+                    <div>
+                      <span class="map-detail-type">${escapeText(primaryPropertyType(selected))}</span>
+                      <h3>${escapeText(selected.title || "Imóvel selecionado")}</h3>
+                      <p class="map-detail-location">${escapeText([selected.neighborhood, normalizedCity(selected)].filter(Boolean).join(" · "))}</p>
+                      <div class="map-detail-meta">
+                        ${selectedMeta.map((item) => `<span>${escapeText(item)}</span>`).join("")}
+                      </div>
+                      <strong class="map-detail-price">${escapeText(selected.price || "Valor sob consulta")}</strong>
+                      <div class="map-detail-actions">
+                        <a href="${googleMapsUrl}" target="_blank" rel="noreferrer">Abrir no mapa</a>
+                        <button type="button" data-cid="map-navigation" data-message="mapOpenProperty" data-property-id="${escapeText(selected.id)}">Ver detalhes</button>
+                      </div>
+                    </div>
+                  ` : /*html*/ `
+                    <div class="map-empty-detail">Nenhum imóvel corresponde aos filtros selecionados.</div>
+                  `}
+                </aside>
+              </div>
+            </div>
+          </section>
+        `,
+      };
+    },
+  };
+};
+/* END MEZANINO MAP NAVIGATION */
+
 const bootApp = (rootSelector = "#app") => {
   const root =
     document.querySelector(rootSelector) ||
@@ -283,6 +2651,7 @@ const bootApp = (rootSelector = "#app") => {
   };
   const propsSync = () => requestRender();
   const propertyTools = {
+    requestRender: () => requestRender(),
     getRouteInfo: () => routeState.current(),
     getFeaturedScrollState: () => featuredScrollState,
     isFavorite: (id) => getSession().favorites.has(id),
@@ -309,6 +2678,7 @@ const bootApp = (rootSelector = "#app") => {
   add("hero", HeroComponent, routeTools);
   add("stats", StatsComponent);
   add("featured", FeaturedComponent, propertyTools);
+  add("map-navigation", MapNavigationComponent, propertyTools);
   add("announce", AnnounceComponent, { addLead });
   add("listing", ListingComponent, propertyTools);
   add("detail", DetailComponent, propertyTools);
@@ -674,7 +3044,7 @@ const bootApp = (rootSelector = "#app") => {
     root.innerHTML = /*html*/ `
         ${renderComponent("topbar")}
         <main>
-          ${panel("home", route === "home" ? `${renderComponent("hero")}${renderComponent("featured")}${renderComponent("brokers")}` : "")}
+          ${panel("home", route === "home" ? `${renderComponent("hero")}${renderComponent("featured")}${renderComponent("map-navigation")}${renderComponent("brokers")}` : "")}
           ${panel("imoveis", route === "imoveis" ? renderComponent("listing") : "")}
           ${panel("imovel", route === "imovel" ? `${renderComponent("detail")}${renderComponent("brokers")}` : "")}
           ${panel("vendedores", route === "vendedores" || route === "brokers" ? renderComponent("brokers") : "")}
