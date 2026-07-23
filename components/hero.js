@@ -136,9 +136,9 @@ const HeroComponent = ({ id, props }) => {
               <div class="hero-stack" style="width: 100%; display: flex; flex-direction: column; align-items: center; position: relative;">
                 
                 <!-- Original Phrase -->
-                <h1 class="hero-title" style="color: #16273f;
-    font-size: 4.5vw !important;
-    font-weight: 500;
+                <h1 class="hero-title" style="
+                    color: #16273f;
+    font-size: 5.2em !important;font-weight: 500;
     letter-spacing: -0.015em;
     text-align: left;
     max-width: 1200px;
