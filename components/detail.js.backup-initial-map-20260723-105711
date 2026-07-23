@@ -34,530 +34,105 @@ const DetailComponent = ({ props }) => {
     return match ? `${match[3]}/${match[2]}/${match[1]}` : String(value || "");
   };
 
+  const loadGoogleMapsScript = (address, callback) => {
+    // Registra a rotina de recuperação imediata em caso de falha de autenticação/restrição da API Key
+    window.gm_authFailure = () => {
+      console.warn("Google Maps Key rejeitada ou sem faturamento ativo. Revertendo para iframe público.");
+      const el = document.getElementById("detail-google-map");
+      if (el) {
+        el.innerHTML = /*html*/`
+          <iframe 
+            width="100%" 
+            height="100%" 
+            style="border:0;" 
+            loading="lazy" 
+            allowfullscreen 
+            referrerpolicy="no-referrer-when-downgrade"
+            src="https://maps.google.com/maps?q=${encodeURIComponent(address)}&t=&z=15&ie=UTF8&iwloc=&output=embed">
+          </iframe>
+        `;
+      }
+    };
 
-  /* mezanino-detail-initial-map-v1 */
-  let detailMapInstance = null;
-  let detailMapSequence = 0;
+    if (window.google && window.google.maps) {
+      callback();
+      return;
+    }
+    const existingScript = document.getElementById("google-maps-script");
+    if (existingScript) {
+      existingScript.addEventListener("load", callback);
+      return;
+    }
+    const script = document.createElement("script");
+    script.id = "google-maps-script";
+    script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyBCVhhiXk5-VlRAl5BujJf32_sT-Skwv4A";
+    script.async = true;
+    script.defer = true;
+    script.onload = callback;
+    script.onerror = () => {
+      console.warn("Script do Google Maps falhou no carregamento físico. Revertendo para iframe.");
+      if (window.gm_authFailure) window.gm_authFailure();
+    };
+    document.head.appendChild(script);
+  };
 
-  const ensureDetailLeaflet = () => {
-    if (window.L)
-      return Promise.resolve(window.L);
+  const initDetailMap = (address) => {
+    loadGoogleMapsScript(address, () => {
+      const el = document.getElementById("detail-google-map");
+      if (!el) return;
+      if (!window.google || !window.google.maps) return;
 
-    if (window.__mezaninoLeafletPromise)
-      return window.__mezaninoLeafletPromise;
+      // Consulta a geocodificação gratuita via Nominatim para contornar restrições de faturamento/API Key
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`)
+        .then((res) => res.json())
+        .then((data) => {
+          let coords = { lat: -12.9777, lng: -38.5016 }; // Centro padrão (Salvador, BA)
+          let found = false;
 
-    window.__mezaninoLeafletPromise = new Promise(
-      (resolve, reject) => {
-        if (
-          !document.querySelector(
-            'link[data-mezanino-leaflet="true"]',
-          )
-        ) {
-          const link = document.createElement("link");
-          link.rel = "stylesheet";
-          link.href =
-            "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-          link.dataset.mezaninoLeaflet = "true";
-          document.head.appendChild(link);
-        }
-
-        let script = document.querySelector(
-          'script[data-mezanino-leaflet="true"]',
-        );
-
-        if (!script) {
-          script = document.createElement("script");
-          script.src =
-            "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-          script.dataset.mezaninoLeaflet = "true";
-          script.async = true;
-          document.head.appendChild(script);
-        }
-
-        const finish = () => {
-          if (window.L) {
-            resolve(window.L);
-            return;
+          if (data && data[0]) {
+            coords = {
+              lat: parseFloat(data[0].lat),
+              lng: parseFloat(data[0].lon),
+            };
+            found = true;
           }
 
-          reject(
-            new Error("Leaflet não foi inicializado."),
-          );
-        };
+          const map = new google.maps.Map(el, {
+            zoom: 15,
+            center: coords,
+            mapTypeControl: false,
+            streetViewControl: false,
+          });
 
-        if (window.L) {
-          finish();
-          return;
-        }
-
-        script.addEventListener(
-          "load",
-          finish,
-          { once: true },
-        );
-        script.addEventListener(
-          "error",
-          reject,
-          { once: true },
-        );
-      },
-    ).catch((error) => {
-      window.__mezaninoLeafletPromise = null;
-      throw error;
-    });
-
-    return window.__mezaninoLeafletPromise;
-  };
-
-  const detailCleanLocationPart = (value) =>
-    String(value ?? "")
-      .replace(/\s+/g, " ")
-      .replace(
-        /^\s*[-–—|·,]+|[-–—|·,]+\s*$/g,
-        "",
-      )
-      .trim();
-
-  const detailIsBrazilPoint = (lat, lng) =>
-    Number.isFinite(lat) &&
-    Number.isFinite(lng) &&
-    lat >= -34 &&
-    lat <= 6 &&
-    lng >= -74 &&
-    lng <= -32;
-
-  const detailEmbeddedCoordinates = (property) => {
-    const candidates = [
-      [property?.latitude, property?.longitude],
-      [property?.lat, property?.lng],
-      [
-        property?.location?.latitude,
-        property?.location?.longitude,
-      ],
-      [
-        property?.location?.lat,
-        property?.location?.lng,
-      ],
-      [
-        property?.coordinates?.latitude,
-        property?.coordinates?.longitude,
-      ],
-      [
-        property?.coordinates?.lat,
-        property?.coordinates?.lng,
-      ],
-      Array.isArray(property?.coordinates)
-        ? [
-            property.coordinates[0],
-            property.coordinates[1],
-          ]
-        : [null, null],
-    ];
-
-    for (const [rawLat, rawLng] of candidates) {
-      if (
-        rawLat === null ||
-        rawLat === undefined ||
-        rawLat === "" ||
-        rawLng === null ||
-        rawLng === undefined ||
-        rawLng === ""
-      ) {
-        continue;
-      }
-
-      const lat = Number(rawLat);
-      const lng = Number(rawLng);
-
-      if (detailIsBrazilPoint(lat, lng))
-        return [lat, lng];
-    }
-
-    return null;
-  };
-
-  const detailLocationQueries = (property) => {
-    const address =
-      property?.address &&
-      typeof property.address === "object"
-        ? property.address
-        : {};
-
-    const street = detailCleanLocationPart(
-      property?.street ||
-        property?.streetName ||
-        address.street ||
-        address.road,
-    );
-    const number = detailCleanLocationPart(
-      property?.number ||
-        property?.streetNumber ||
-        address.number ||
-        address.houseNumber,
-    );
-    const neighborhood = detailCleanLocationPart(
-      property?.neighborhood ||
-        property?.district ||
-        address.neighborhood ||
-        address.district,
-    );
-    const city = detailCleanLocationPart(
-      property?.cityName ||
-        property?.municipality ||
-        address.city ||
-        property?.city,
-    );
-    const state = detailCleanLocationPart(
-      property?.state ||
-        property?.uf ||
-        address.state ||
-        "Bahia",
-    );
-    const postalCode = detailCleanLocationPart(
-      property?.postalCode ||
-        property?.zipCode ||
-        property?.cep ||
-        address.postalCode,
-    );
-    const fullAddress = detailCleanLocationPart(
-      property?.fullAddress ||
-        property?.addressText ||
-        property?.locationText ||
-        (
-          typeof property?.address === "string"
-            ? property.address
-            : ""
-        ),
-    );
-
-    const join = (...parts) =>
-      parts
-        .map(detailCleanLocationPart)
-        .filter(Boolean)
-        .join(", ");
-
-    return [
-      fullAddress,
-      join(
-        street,
-        number,
-        neighborhood,
-        city,
-        state,
-        postalCode,
-        "Brasil",
-      ),
-      join(
-        neighborhood,
-        city,
-        state,
-        "Brasil",
-      ),
-      join(city, state, "Brasil"),
-    ]
-      .filter(Boolean)
-      .filter(
-        (query, index, values) =>
-          values.indexOf(query) === index,
-      );
-  };
-
-  const detailSearchCoordinates = async (
-    property,
-  ) => {
-    const embedded =
-      detailEmbeddedCoordinates(property);
-
-    if (embedded) {
-      return {
-        point: embedded,
-        source: "data",
-      };
-    }
-
-    for (
-      const query of detailLocationQueries(property)
-    ) {
-      try {
-        const url = new URL(
-          "https://nominatim.openstreetmap.org/search",
-        );
-        url.searchParams.set("format", "jsonv2");
-        url.searchParams.set("limit", "1");
-        url.searchParams.set(
-          "countrycodes",
-          "br",
-        );
-        url.searchParams.set(
-          "accept-language",
-          "pt-BR",
-        );
-        url.searchParams.set("q", query);
-
-        const response = await fetch(
-          url.toString(),
-          {
-            headers: {
-              Accept: "application/json",
-            },
-          },
-        );
-
-        if (!response.ok)
-          continue;
-
-        const results = await response.json();
-        const lat = Number(results?.[0]?.lat);
-        const lng = Number(results?.[0]?.lon);
-
-        if (detailIsBrazilPoint(lat, lng)) {
-          return {
-            point: [lat, lng],
-            source: "geocode",
-            query,
-          };
-        }
-      } catch (error) {
-        console.warn(
-          "Falha ao localizar o imóvel:",
-          query,
-          error,
-        );
-      }
-    }
-
-    return {
-      point: null,
-      source: "none",
-    };
-  };
-
-  const initDetailMap = async (property) => {
-    const sequence = ++detailMapSequence;
-    const node = document.getElementById(
-      "detail-property-map",
-    );
-    const statusNode = document.getElementById(
-      "detail-property-map-status",
-    );
-
-    if (!node || !property)
-      return;
-
-    const setStatus = (text) => {
-      if (
-        statusNode &&
-        sequence === detailMapSequence
-      ) {
-        statusNode.textContent = text;
-      }
-    };
-
-    if (detailMapInstance) {
-      try {
-        detailMapInstance.remove();
-      } catch {}
-
-      detailMapInstance = null;
-    }
-
-    setStatus("Localizando imóvel");
-
-    try {
-      const [
-        L,
-        locationResult,
-      ] = await Promise.all([
-        ensureDetailLeaflet(),
-        detailSearchCoordinates(property),
-      ]);
-
-      if (
-        sequence !== detailMapSequence ||
-        !node.isConnected
-      ) {
-        return;
-      }
-
-      const point =
-        locationResult.point ||
-        [-14.8619, -40.8446];
-      const hasPropertyPoint =
-        Array.isArray(locationResult.point);
-
-      detailMapInstance = L.map(node, {
-        zoomControl: false,
-        scrollWheelZoom: true,
-        wheelDebounceTime: 30,
-        wheelPxPerZoomLevel: 70,
-        zoomDelta: 0.5,
-        zoomSnap: 0.5,
-        attributionControl: true,
-      }).setView(
-        point,
-        hasPropertyPoint ? 17.5 : 7,
-        {
-          animate: false,
-        },
-      );
-
-      const streetLayer = L.tileLayer(
-        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        {
-          maxZoom: 19,
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-          className:
-            "mezanino-street-layer",
-        },
-      );
-
-      const satelliteLayer = L.tileLayer(
-        "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        {
-          maxZoom: 19,
-          attribution:
-            "Tiles &copy; Esri, Maxar, Earthstar Geographics and contributors",
-          className:
-            "mezanino-satellite-layer",
-        },
-      );
-
-      let activeBaseLayer =
-        localStorage.getItem(
-          "mezanino:map:base-layer",
-        ) === "satellite"
-          ? "satellite"
-          : "map";
-
-      const initialLayer =
-        activeBaseLayer === "satellite"
-          ? satelliteLayer
-          : streetLayer;
-
-      initialLayer.addTo(detailMapInstance);
-
-      node.classList.toggle(
-        "map-is-satellite",
-        activeBaseLayer === "satellite",
-      );
-
-      L.control.layers(
-        {
-          Mapa: streetLayer,
-          "Satélite": satelliteLayer,
-        },
-        null,
-        {
-          position: "topright",
-          collapsed: false,
-        },
-      ).addTo(detailMapInstance);
-
-      L.control.zoom({
-        position: "bottomright",
-      }).addTo(detailMapInstance);
-
-      detailMapInstance.on(
-        "baselayerchange",
-        (event) => {
-          activeBaseLayer =
-            event.layer === satelliteLayer
-              ? "satellite"
-              : "map";
-
-          localStorage.setItem(
-            "mezanino:map:base-layer",
-            activeBaseLayer,
-          );
-
-          node.classList.toggle(
-            "map-is-satellite",
-            activeBaseLayer === "satellite",
-          );
-        },
-      );
-
-      detailMapInstance.scrollWheelZoom.enable();
-
-      if (hasPropertyPoint) {
-        const icon = L.divIcon({
-          className:
-            "mezanino-detail-map-pin is-active",
-          html: `
-            <span class="mezanino-detail-map-pin-shape" aria-hidden="true">
-              <svg viewBox="0 0 48 62" role="img">
-                <path d="M24 1C11.3 1 1 11.3 1 24c0 17.4 23 37 23 37s23-19.6 23-37C47 11.3 36.7 1 24 1Z"></path>
-                <circle cx="24" cy="24" r="9"></circle>
-              </svg>
-            </span>
-          `,
-          iconSize: [42, 54],
-          iconAnchor: [21, 52],
-        });
-
-        L.marker(point, {
-          icon,
-          title:
-            property.title || "Imóvel",
+          if (found) {
+            new google.maps.Marker({
+              position: coords,
+              map: map,
+            });
+          }
         })
-          .addTo(detailMapInstance)
-          .bindTooltip(
-            escapeText(
-              property.title || "Imóvel",
-            ),
-            {
-              direction: "top",
-              offset: [0, -48],
-            },
-          );
-
-        setStatus(
-          locationResult.source === "data"
-            ? "Localização cadastrada do imóvel"
-            : "Localização obtida pelo endereço",
-        );
-      } else {
-        setStatus(
-          "Cadastre latitude e longitude para localizar o imóvel",
-        );
-      }
-
-      const mapLink =
-        document.getElementById(
-          "detail-property-map-link",
-        );
-
-      if (mapLink && hasPropertyPoint) {
-        mapLink.href =
-          "https://www.google.com/maps/search/" +
-          "?api=1&query=" +
-          encodeURIComponent(
-            `${point[0]},${point[1]}`,
-          );
-      }
-
-      requestAnimationFrame(() => {
-        detailMapInstance?.invalidateSize?.({
-          animate: false,
-          pan: false,
+        .catch((err) => {
+          console.warn("Resilient geocoding failed, trying Google Geocoder fallback...", err);
+          const geocoder = new google.maps.Geocoder();
+          geocoder.geocode({ address: address }, (results, status) => {
+            if (status === "OK" && results[0]) {
+              const map = new google.maps.Map(el, {
+                zoom: 15,
+                center: results[0].geometry.location,
+                mapTypeControl: false,
+                streetViewControl: false,
+              });
+              new google.maps.Marker({
+                position: results[0].geometry.location,
+                map: map,
+              });
+            } else {
+              console.warn("All geocoding fallbacks exhausted.", status);
+            }
+          });
         });
-      });
-    } catch (error) {
-      node.innerHTML = `
-        <div class="detail-map-error">
-          Não foi possível carregar o mapa.<br>
-          <small>${escapeText(
-            error?.message || "Falha de rede",
-          )}</small>
-        </div>
-      `;
-
-      setStatus("Falha ao carregar o mapa");
-    }
+    });
   };
-
-
 
   const formatCurrency = (value) => {
     return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -897,30 +472,17 @@ const DetailComponent = ({ props }) => {
               <li><strong>Operacao:</strong> ${escapeText(property.operation || "Comprar")}</li>
             </ul>
 
-            <div class="detail-location-map-shell">
-              <div
-                id="detail-property-map-status"
-                class="detail-location-map-status"
-              >
-                Localizando imóvel
-              </div>
-
-              <div
-                id="detail-property-map"
-                class="detail-map"
-                aria-label="Mapa da localização do imóvel"
-              ></div>
+            <div id="detail-google-map" class="detail-map" style="margin-top: 20px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); height: 260px;">
+              <iframe 
+                width="100%" 
+                height="100%" 
+                style="border:0;" 
+                loading="lazy" 
+                allowfullscreen 
+                referrerpolicy="no-referrer-when-downgrade"
+                src="https://maps.google.com/maps?q=${encodeURIComponent(property.neighborhood + ', ' + property.city)}&t=&z=15&ie=UTF8&iwloc=&output=embed">
+              </iframe>
             </div>
-
-            <a
-              id="detail-property-map-link"
-              class="detail-location-map-link"
-              href="https://www.google.com/maps"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Abrir localização em nova guia
-            </a>
           `,
         },
         {
@@ -965,7 +527,7 @@ const DetailComponent = ({ props }) => {
 
       if (activeTab === "localizacao") {
         setTimeout(() => {
-          initDetailMap(property);
+          initDetailMap(`${property.neighborhood}, ${property.city}`);
         }, 150);
       }
 

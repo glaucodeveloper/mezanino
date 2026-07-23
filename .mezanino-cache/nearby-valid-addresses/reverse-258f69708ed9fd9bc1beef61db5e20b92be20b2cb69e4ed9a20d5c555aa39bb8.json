@@ -1,0 +1,35 @@
+{
+  "place_id": 15887153,
+  "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+  "osm_type": "node",
+  "osm_id": 12532952135,
+  "lat": "-12.8905888",
+  "lon": "-38.3210432",
+  "category": "amenity",
+  "type": "studio",
+  "place_rank": 30,
+  "importance": 5.9260700389059546e-05,
+  "addresstype": "amenity",
+  "name": "B3 Studios",
+  "display_name": "B3 Studios, 291, Rua Bernardino L. dos Santos, Itinga, Lauro de Freitas, Bahia, Região Nordeste, 42702-470, Brasil",
+  "address": {
+    "amenity": "B3 Studios",
+    "house_number": "291",
+    "road": "Rua Bernardino L. dos Santos",
+    "suburb": "Itinga",
+    "district": "Lauro de Freitas",
+    "city": "Lauro de Freitas",
+    "state": "Bahia",
+    "ISO3166-2-lvl4": "BR-BA",
+    "region": "Região Nordeste",
+    "postcode": "42702-470",
+    "country": "Brasil",
+    "country_code": "br"
+  },
+  "boundingbox": [
+    "-12.8906388",
+    "-12.8905388",
+    "-38.3210932",
+    "-38.3209932"
+  ]
+}

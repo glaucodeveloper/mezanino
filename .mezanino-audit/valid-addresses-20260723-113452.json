@@ -1,0 +1,66 @@
+{
+  "generatedAt": "2026-07-23T14:34:52.931825+00:00",
+  "dataFile": "/home/icarogdo/dev/mezanino-imobiliaria-app/cms-imobiliaria/data/site.okf.json",
+  "apply": false,
+  "acceptedCount": 0,
+  "writtenCount": 0,
+  "insufficientAddressCount": 9,
+  "rejectedCount": 0,
+  "items": [
+    {
+      "id": "alphaville",
+      "title": "Casa em Condominio Alphaville",
+      "status": "unchanged-insufficient-address",
+      "reason": "O cadastro não possui rua, número e município suficientes para validação exata."
+    },
+    {
+      "id": "jardim-armacao",
+      "title": "Apartamento no Jardim Armacao",
+      "status": "unchanged-insufficient-address",
+      "reason": "O cadastro não possui rua, número e município suficientes para validação exata."
+    },
+    {
+      "id": "vilarejo",
+      "title": "Casa no Vilarejo",
+      "status": "unchanged-insufficient-address",
+      "reason": "O cadastro não possui rua, número e município suficientes para validação exata."
+    },
+    {
+      "id": "busca-vida",
+      "title": "Terreno em Busca Vida",
+      "status": "unchanged-insufficient-address",
+      "reason": "O cadastro não possui rua, número e município suficientes para validação exata."
+    },
+    {
+      "id": "cobertura-barra",
+      "title": "Cobertura Vista Mar na Barra",
+      "status": "unchanged-insufficient-address",
+      "reason": "O cadastro não possui rua, número e município suficientes para validação exata."
+    },
+    {
+      "id": "studio-caminho",
+      "title": "Studio no Caminho das Arvores",
+      "status": "unchanged-insufficient-address",
+      "reason": "O cadastro não possui rua, número e município suficientes para validação exata."
+    },
+    {
+      "id": "casa-ipitanga",
+      "title": "Casa Familiar em Ipitanga",
+      "status": "unchanged-insufficient-address",
+      "reason": "O cadastro não possui rua, número e município suficientes para validação exata."
+    },
+    {
+      "id": "sala-comercial-pituba",
+      "title": "Sala Comercial na Pituba",
+      "status": "unchanged-insufficient-address",
+      "reason": "O cadastro não possui rua, número e município suficientes para validação exata."
+    },
+    {
+      "id": "terreno-jaua",
+      "title": "Terreno em Jaua",
+      "status": "unchanged-insufficient-address",
+      "reason": "O cadastro não possui rua, número e município suficientes para validação exata."
+    }
+  ],
+  "rule": "Somente rua e número idênticos, município compatível, bairro compatível quando disponível e distância regional plausível podem alterar o registro."
+}

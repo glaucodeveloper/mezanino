@@ -1,0 +1,40 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-07-23T14:42:12Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+    {
+      "type": "node",
+      "id": 8579350011,
+      "lat": -12.8334094,
+      "lon": -38.2653228,
+      "tags": {
+        "addr:city": "Vila de Abrantes/Camaçari/BA",
+        "addr:housenumber": "00",
+        "addr:postcode": "42827662",
+        "addr:street": "praça da Matriz",
+        "addr:suburb": "vila de Abrantes",
+        "name": "Cash Piercer Studio"
+      }
+    },
+    {
+      "type": "way",
+      "id": 353044596,
+      "center": {
+        "lat": -12.8254456,
+        "lon": -38.2678731
+      },
+      "tags": {
+        "addr:city": "Camaçari",
+        "addr:housenumber": "km 11",
+        "addr:street": "Estrada do Coco",
+        "name": "Outlet Premium Salvador",
+        "shop": "mall",
+        "website": "http://www.outletpremium.com.br/br/salvador/"
+      }
+    }
+  ]
+}

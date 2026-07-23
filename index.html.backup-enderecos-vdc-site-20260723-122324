@@ -61,7 +61,7 @@
 <script src="./runtime-config.js" charset="UTF-8"></script>
 <script>
       window.SuaImobiliariaCmsConfig = {
-        dataUrl: "./cms-imobiliaria/data/site.okf.json",
+        dataUrl: "https://raw.githubusercontent.com/glaucodeveloper/mezanino-imobiliaria-cms/main/data/site.json",
         githubToken: "github_pat_fixed_ZKUd4uCQ",
         apiBase: window.MezaninoRuntimeConfig?.apiBase || "",
         nativeDashboardOnly: Boolean(window.Capacitor?.isNativePlatform?.()),

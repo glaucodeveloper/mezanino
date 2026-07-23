@@ -1,0 +1,35 @@
+{
+  "place_id": 15918124,
+  "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+  "osm_type": "way",
+  "osm_id": 270656825,
+  "lat": "-12.9904233",
+  "lon": "-38.4379488",
+  "category": "building",
+  "type": "apartments",
+  "place_rank": 30,
+  "importance": 6.816433966578192e-05,
+  "addresstype": "building",
+  "name": "Art Studio Open Spaces",
+  "display_name": "Art Studio Open Spaces, 4217, Avenida Octávio Mangabeira, Jardim Armação, Salvador, Bahia, Região Nordeste, 41750-240, Brasil",
+  "address": {
+    "building": "Art Studio Open Spaces",
+    "house_number": "4217",
+    "road": "Avenida Octávio Mangabeira",
+    "suburb": "Jardim Armação",
+    "district": "Salvador",
+    "city": "Salvador",
+    "state": "Bahia",
+    "ISO3166-2-lvl4": "BR-BA",
+    "region": "Região Nordeste",
+    "postcode": "41750-240",
+    "country": "Brasil",
+    "country_code": "br"
+  },
+  "boundingbox": [
+    "-12.9907207",
+    "-12.9901235",
+    "-38.4382441",
+    "-38.4376508"
+  ]
+}

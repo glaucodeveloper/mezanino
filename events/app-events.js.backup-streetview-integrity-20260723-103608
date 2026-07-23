@@ -1,7 +1,6 @@
 "use strict";
 
 /* BEGIN MEZANINO MAP NAVIGATION */
-/* mezanino-streetview-coordinate-integrity-v1 */
 /* transicao-nativa-marker-v2 */
 const MapNavigationComponent = ({ props }) => {
   let selectedPropertyId = null;
@@ -409,13 +408,8 @@ const MapNavigationComponent = ({ props }) => {
       preference: google.maps.StreetViewPreference.NEAREST,
     };
 
-    if (
-      outdoorOnly &&
-      google.maps.StreetViewSource?.OUTDOOR
-    ) {
-      request.sources = [
-        google.maps.StreetViewSource.OUTDOOR,
-      ];
+    if (outdoorOnly) {
+      request.sources = [google.maps.StreetViewSource.OUTDOOR];
     }
 
     if (typeof service.getPanorama !== "function")
@@ -428,130 +422,32 @@ const MapNavigationComponent = ({ props }) => {
 
     return await new Promise((resolve, reject) => {
       service.getPanorama(request, (data, status) => {
-        if (
-          status === google.maps.StreetViewStatus.OK &&
-          data
-        ) {
+        if (status === google.maps.StreetViewStatus.OK && data) {
           resolve(data);
           return;
         }
-
-        reject(
-          new Error(String(status || "ZERO_RESULTS")),
-        );
+        reject(new Error(String(status || "ZERO_RESULTS")));
       });
     });
   };
 
-
-  const distanceMetersBetween = (
-    fromLat,
-    fromLng,
-    toLat,
-    toLng,
-  ) => {
-    const radians = (degrees) =>
-      degrees * Math.PI / 180;
-    const earthRadius = 6371000;
-    const deltaLat = radians(toLat - fromLat);
-    const deltaLng = radians(toLng - fromLng);
-    const firstLat = radians(fromLat);
-    const secondLat = radians(toLat);
-
-    const haversine =
-      Math.sin(deltaLat / 2) ** 2 +
-      Math.cos(firstLat) *
-        Math.cos(secondLat) *
-        Math.sin(deltaLng / 2) ** 2;
-
-    return (
-      2 *
-      earthRadius *
-      Math.atan2(
-        Math.sqrt(haversine),
-        Math.sqrt(1 - haversine),
-      )
-    );
-  };
-
   const mountStreetView = async (property) => {
     const sequence = ++streetViewSequence;
-    const propertyId = String(property?.id || "");
-    const node = document.getElementById(
-      "mezanino-streetview",
-    );
+    const node = document.getElementById("mezanino-streetview");
     const statusNode = document.getElementById(
       "mezanino-streetview-status",
     );
 
     if (!property || !node) return;
 
-    node.dataset.streetViewPropertyId = propertyId;
-
-    const isCurrent = () =>
-      sequence === streetViewSequence &&
-      node.isConnected &&
-      node.dataset.streetViewPropertyId === propertyId;
-
     const setStatus = (text) => {
-      if (statusNode && isCurrent())
-        statusNode.textContent = text;
+      if (statusNode) statusNode.textContent = text;
     };
 
-    /*
-     * Street View usa exclusivamente a mesma coordenada
-     * persistida que representa o marker. Não usa bairro,
-     * cidade, cache do Nominatim nem deslocamento visual.
-     */
-    const point = embeddedCoordinates(property);
-
-    if (!point) {
-      node.innerHTML = `
-        <div class="streetview-load-error">
-          Street View indisponível.<br>
-          <small>Cadastre latitude e longitude próprias para este imóvel.</small>
-        </div>
-      `;
-      setStatus("Imóvel sem coordenadas próprias");
-      return;
-    }
-
-    const target = {
-      lat: Number(point[0]),
-      lng: Number(point[1]),
-    };
-    const precision = String(
-      property.locationPrecision || "unspecified",
-    );
-
-    if (streetViewPanorama) {
-      try {
-        streetViewPanorama.setVisible(false);
-        window.google?.maps?.event
-          ?.clearInstanceListeners?.(
-            streetViewPanorama,
-          );
-      } catch {}
-
-      streetViewPanorama = null;
-    }
-
-    node.replaceChildren();
-
-    const loading = document.createElement("div");
-    loading.className = "streetview-loading";
-    loading.textContent =
-      "Buscando vista da rua desta coordenada...";
-    node.appendChild(loading);
-
-    setStatus(
-      `Buscando Street View de ${property.title || propertyId}`,
-    );
+    setStatus("Buscando uma vista da rua próxima ao imóvel");
 
     try {
       await ensureGoogleMaps();
-
-      if (!isCurrent()) return;
 
       if (
         typeof google?.maps?.StreetViewService !== "function" ||
@@ -562,90 +458,51 @@ const MapNavigationComponent = ({ props }) => {
         );
       }
 
-      const service =
-        new google.maps.StreetViewService();
+      if (
+        sequence !== streetViewSequence ||
+        !node.isConnected
+      ) return;
 
-      const attempts = [
-        { radius: 35, outdoorOnly: true },
-        { radius: 80, outdoorOnly: true },
-        { radius: 150, outdoorOnly: true },
-        { radius: 280, outdoorOnly: false },
-      ];
+      const point = await coordinatesOf(property);
+      if (!point)
+        throw new Error("Não foi possível localizar este imóvel.");
 
-      let response = null;
-      let lastError = null;
+      const target = { lat: point[0], lng: point[1] };
+      const service = new google.maps.StreetViewService();
 
-      for (const attempt of attempts) {
-        if (!isCurrent()) return;
-
-        try {
-          response =
-            await requestStreetViewPanorama(
-              service,
-              target,
-              attempt.radius,
-              attempt.outdoorOnly,
-            );
-
-          if (response) break;
-        } catch (error) {
-          lastError = error;
-        }
-      }
-
-      if (!response) {
-        throw (
-          lastError ||
-          new Error(
-            "Nenhum panorama próximo encontrado.",
-          )
+      let response;
+      try {
+        response = await requestStreetViewPanorama(
+          service,
+          target,
+          180,
+          true,
+        );
+      } catch {
+        response = await requestStreetViewPanorama(
+          service,
+          target,
+          1000,
+          false,
         );
       }
 
-      if (!isCurrent()) return;
+      if (
+        sequence !== streetViewSequence ||
+        !node.isConnected
+      ) return;
 
-      const panoramaLocation =
-        response?.data?.location ||
-        response?.location;
+      const panoramaLocation = response?.data?.location || response?.location;
       const panoId = panoramaLocation?.pano;
       const latLng = panoramaLocation?.latLng;
 
-      if (!panoId || !latLng) {
-        throw new Error(
-          "O Google não retornou um panorama válido.",
-        );
-      }
+      if (!panoId || !latLng)
+        throw new Error("Street View não disponível nesta localização.");
 
       const panoramaLat =
-        typeof latLng.lat === "function"
-          ? latLng.lat()
-          : Number(latLng.lat);
+        typeof latLng.lat === "function" ? latLng.lat() : Number(latLng.lat);
       const panoramaLng =
-        typeof latLng.lng === "function"
-          ? latLng.lng()
-          : Number(latLng.lng);
-
-      const distance = distanceMetersBetween(
-        panoramaLat,
-        panoramaLng,
-        target.lat,
-        target.lng,
-      );
-
-      /*
-       * Um panorama muito distante pode ser o mesmo para
-       * diversos imóveis. Rejeitar esse resultado impede
-       * a repetição falsa vista na miniatura.
-       */
-      if (
-        !Number.isFinite(distance) ||
-        distance > 320
-      ) {
-        throw new Error(
-          "Nenhum panorama suficientemente próximo desta coordenada.",
-        );
-      }
-
+        typeof latLng.lng === "function" ? latLng.lng() : Number(latLng.lng);
       const heading = bearingBetween(
         panoramaLat,
         panoramaLng,
@@ -653,81 +510,34 @@ const MapNavigationComponent = ({ props }) => {
         target.lng,
       );
 
-      if (!isCurrent()) return;
+      streetViewPanorama = new google.maps.StreetViewPanorama(node, {
+        disableDefaultUI: !streetViewOpen,
+        clickToGo: false,
+        linksControl: false,
+        pano: panoId,
+        pov: {
+          heading,
+          pitch: 0,
+        },
+        zoom: 1,
+        addressControl: false,
+        closeButton: false,
+        fullscreenControl: false,
+        motionTracking: false,
+        motionTrackingControl: false,
+        panControl: false,
+        zoomControl: false,
+      });
 
-      node.replaceChildren();
-
-      streetViewPanorama =
-        new google.maps.StreetViewPanorama(
-          node,
-          {
-            pano: panoId,
-            pov: {
-              heading,
-              pitch: 0,
-            },
-            zoom: 1,
-            visible: true,
-            disableDefaultUI: true,
-            addressControl: false,
-            clickToGo: false,
-            closeButton: false,
-            fullscreenControl: false,
-            linksControl: false,
-            motionTracking: false,
-            motionTrackingControl: false,
-            panControl: false,
-            zoomControl: false,
-          },
-        );
-
-      node.dataset.streetViewPano =
-        String(panoId);
-      node.dataset.streetViewTarget =
-        `${target.lat.toFixed(6)},${target.lng.toFixed(6)}`;
-
-      window.MezaninoStreetViewDebug = {
-        propertyId,
-        title: property.title || "",
-        targetLatitude: target.lat,
-        targetLongitude: target.lng,
-        locationPrecision: precision,
-        panoramaId: String(panoId),
-        panoramaLatitude: panoramaLat,
-        panoramaLongitude: panoramaLng,
-        distanceMeters: Math.round(distance),
-      };
-
-      setStatus(
-        `${property.title || propertyId} · panorama a ${Math.round(distance)} m`,
-      );
+      setStatus("Vista da rua mais próxima, orientada para o imóvel");
     } catch (error) {
-      if (!isCurrent()) return;
-
       node.innerHTML = `
         <div class="streetview-load-error">
           Street View indisponível para este imóvel.<br>
-          <small>${escapeText(
-            error?.message ||
-            "Nenhum panorama próximo encontrado",
-          )}</small>
+          <small>${escapeText(error?.message || "Nenhum panorama encontrado")}</small>
         </div>
       `;
-
-      window.MezaninoStreetViewDebug = {
-        propertyId,
-        title: property.title || "",
-        targetLatitude: target.lat,
-        targetLongitude: target.lng,
-        locationPrecision: precision,
-        error: String(
-          error?.message || error || "erro",
-        ),
-      };
-
-      setStatus(
-        `${property.title || propertyId} · Street View indisponível`,
-      );
+      setStatus("Street View indisponível");
     }
   };
 
@@ -910,7 +720,7 @@ const MapNavigationComponent = ({ props }) => {
         const rawPoint = await coordinatesOf(property);
         if (!rawPoint) continue;
 
-        const point = rawPoint;
+        const point = spreadDuplicatePoint(rawPoint);
         addMarker(property, point);
         locatedCount += 1;
 
