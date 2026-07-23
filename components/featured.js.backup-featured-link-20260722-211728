@@ -13,15 +13,7 @@ const FeaturedComponent = ({ props }) => ({
       const favorite = props.isFavorite(property.id);
       return /*html*/`
         <article class="featured-mini-card">
-          <!-- mezanino-featured-card-link-v1 -->
-          <a
-            class="featured-card-hit-area"
-            href="#imovel#${encodeURIComponent(property.id)}"
-            data-route="imovel"
-            data-property-id="${property.id}"
-            aria-label="Abrir imóvel ${property.title}"
-          ></a>
-<div class="featured-mini-media">
+          <div class="featured-mini-media">
             <img src="${property.image}" alt="${property.title}" loading="lazy">
             <span class="badge">${property.tag}</span>
           </div>
@@ -65,15 +57,7 @@ const FeaturedComponent = ({ props }) => ({
       }
       return /*html*/`
         <article class="featured-showcase-card ${isExpanded ? "is-expanded" : ""} ${isCompacting ? "is-compact" : ""} ${isNeighbor ? `is-neighbor ${neighborClass}` : ""}" data-featured-card data-property-id="${property.id}">
-          <!-- mezanino-featured-card-link-v1 -->
-          <a
-            class="featured-card-hit-area"
-            href="#imovel#${encodeURIComponent(property.id)}"
-            data-route="imovel"
-            data-property-id="${property.id}"
-            aria-label="Abrir imóvel ${property.title}"
-          ></a>
-<div class="featured-showcase-media">
+          <div class="featured-showcase-media">
             <img src="${property.image}" alt="${property.title}" loading="lazy">
             <span class="badge">${property.tag}</span>
           </div>

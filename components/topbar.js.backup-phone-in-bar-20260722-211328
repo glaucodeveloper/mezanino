@@ -185,7 +185,7 @@ const TopbarComponent = ({ props }) => {
                       return `<a class="${isActive}" href="${href}" data-route="${item.route}"${operationAttr}>${item.label}</a>`;
                     })
                     .join("")}
-                    <a class="phone-in-bar" href="tel:+5577981590101" aria-label="Ligar para (77) 98159-0101">(77) 98159-0101</a>
+                    <span class="phone-in-bar"> (77) 981590101 </span>
                 </nav>
               </div>
             </div>

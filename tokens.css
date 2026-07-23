@@ -877,9 +877,7 @@
       }
 
       .detail-section {
-        background:
-          radial-gradient(circle at top left, rgba(201, 144, 45, 0.08), transparent 18rem),
-          #fff;
+        
       }
 
       .detail-layout {
