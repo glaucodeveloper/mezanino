@@ -8658,7 +8658,7 @@ body {
 }
 
 .hero .custom-search-panel {
-  background: rgba(255, 255, 255, 0.97) !important;
+  background: rgb(255 255 255 / 34%) !important;
   border: 1px solid rgba(73, 45, 27, 0.12) !important;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.96) inset,
@@ -8672,7 +8672,7 @@ body {
   min-height: 50px;
   border: 1px solid var(--mezanino-search-brown-border) !important;
   color: #fff !important;
-  background: #834b21 !important;
+  background: #00243b !important;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.16) inset,
     0 5px 12px rgba(61, 37, 22, 0.15);
