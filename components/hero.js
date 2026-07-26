@@ -127,8 +127,8 @@ const HeroComponent = ({ id, props }) => {
     z-index: 5;
     box-sizing: border-box;
     padding: 0 16px;
-    margin-bottom: -1.5ch !important;
     margin: 0 auto;
+    margin-bottom: -1.5ch;
     width: auto;
     align-self: baseline;">
           Sonhe, conecte e realize
