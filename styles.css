@@ -8842,10 +8842,8 @@ h1 em {
 
 @media (max-width: 980px) {
   .hero .custom-search-panel .custom-search-row {
-    grid-template-areas:
-      'a a'
-      'c c'
-      'b b';
+    display: flex !important;
+    flex-direction: column;
     grid-template-columns: repeat(2, 50%) !important;
   }
 
