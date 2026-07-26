@@ -8842,16 +8842,19 @@ h1 em {
 
 @media (max-width: 980px) {
   .hero .custom-search-panel .custom-search-row {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr)) !important;
-    gap: 14px !important;
-    width: min(100%, 720px) !important;
-    margin-inline: auto !important;
+    grid-template-areas:
+      'a a'
+      'c c'
+      'b b';
+    grid-template-columns: repeat(2, 50%) !important;
   }
 
   .hero .custom-search-panel .custom-search-btn {
-    width: 100% !important;
+    width: fit-content !important;
+    margin: 0 auto;
+    grid-area: b;
     min-height: 52px !important;
+    margin-top: 10px;
   }
 }
 
