@@ -6860,7 +6860,7 @@ img {
     justify-content: space-between;
   }
   .featured-section {
-    padding-top: 50px !important;
+    padding-top: 12vh !important;
   }
 }
 
