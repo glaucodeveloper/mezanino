@@ -6830,7 +6830,10 @@ img {
   }
   .custom-search-row {
     grid-template-columns: 1fr !important;
-    gap: 12px !important;
+    gap: 10px 11px !important;
+    grid-template-areas:
+      'b c'
+      'a d' !important;
   }
   .custom-search-btn {
     width: 100% !important;
@@ -8094,7 +8097,7 @@ h1 em {
   .hero h1 {
     width: min(100%, 12ch) !important;
     max-width: 12ch !important;
-    margin: 0 0 -25px 29px !important;
+    margin: 0 0 -20vh 5vw !important;
     padding: 0 !important;
     font-size: clamp(2.45rem, 10.4vw, 3.85rem) !important;
     line-height: .96 !important;
@@ -8805,9 +8808,17 @@ h1 em {
     width: 102% !important;
     transform: scale(0.875) !important;
     padding: 18px 34px !important;
-    margin-bottom: -5px !important;
+    padding-top: 10vh !important;
   }
 
+	.custom-search-btn{
+		position: relative;
+		grid-area: c !important;
+		margin: 0 !important;
+		transform: scale(0.9);
+		margin-top: -50px !important;
+		margin-left: auto !important;
+	}
 .custom-search-panel {}
 
   .hero .custom-search-panel .custom-select-trigger {
@@ -8819,6 +8830,7 @@ h1 em {
       0 2px 2px rgba(0, 0, 0, 0.76),
       0 5px 11px rgba(0, 0, 0, 0.61),
       0 10px 22px rgba(0, 0, 0, 0.45) !important;
+    margin-bottom: -7vh !important;
   }
 }
 /* MEZANINO SEARCH CONTRAST + HERO RELIEF END */
@@ -8877,6 +8889,10 @@ h1 em {
 
 @media (max-width: 620px) {
   .hero .custom-search-panel .custom-search-row {
+	  position: relative
+  }
+  .hero .custom-search-panel .custom-search-row. custom-select-field{
+	  grid-area: a;
   }
 }
 /* MEZANINO HERO SEARCH WITHOUT CITY END */
@@ -9061,8 +9077,11 @@ h1 em {
   }
 
   .whatsapp-action-button {
-    width: 58px;
-    height: 58px;
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    bottom: 0vh;
+    right: -2vw;
   }
 
   .whatsapp-action-panel {
@@ -9159,7 +9178,20 @@ h1 em {
     display: inherit; 
   }
 @media (max-width: 760px) {
+  .hero .custom-search-panel [data-route="comprar"] {
+    transform: none !important;
+    position: absolute;
+    left: 7%;
+    margin: 0 !important;
+    top: 16%;
+  }
+
   #comprar-search-dropdown{
     display: none; 
   }
+
+  .custom-search-row .custom-select-field::nth-child(1){
+	  grid-area: a;
+  }
+	
 }
