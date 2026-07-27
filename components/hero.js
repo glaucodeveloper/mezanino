@@ -136,16 +136,16 @@ const HeroComponent = ({ id, props }) => {
 
                 <!-- Main Search Bar Card -->
                 <div class="custom-search-panel" style="background: #fff; padding: 28px 30px; border-radius: 8px; box-shadow: 0 15px 45px rgba(0,0,0,0.15); width: 100%; max-width: 1140px; box-sizing: border-box; transform: translateY(50px); z-index: 10;">
-                  <div class="custom-search-row" style="display: grid; grid-template-columns: repeat(3, minmax(205px, 1fr)) minmax(150px, 180px); gap: 20px; align-items: stretch; justify-content: center; width: min(100%, 1040px); margin: 0 auto;">
+                  <div   class="custom-search-row" style="display: grid; grid-template-columns: repeat(3, minmax(205px, 1fr)) minmax(150px, 180px); gap: 20px; align-items: stretch; justify-content: center; width: min(100%, 1040px); margin: 0 auto;">
                     
                     <!-- 1. O que deseja? -->
-                    <div class="custom-select-field" style="position: relative; width: 100%;">
+                    <div id="comprar-search-dropdown"  class="custom-select-field" style="position: relative; width: 100%;">
                       <div class="custom-select-trigger ${activeDropdown === "operation" ? "is-open" : ""}" data-cid="hero" data-message="toggleDropdown" data-value="operation" style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px 22px; background: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.95rem; color: #4a5568; transition: border-color 0.2s;">
                         <span>${escapeText(triggerOpText)}</span>
                         <span style="color: #a0aec0; font-size: 0.75rem;">▼</span>
                       </div>
                       ${activeDropdown === "operation" ? /*html*/ `
-                        <div class="custom-select-dropdown" style="position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 1000; padding: 6px 0; margin-top: 6px;">
+                        <divx class="custom-select-dropdown" style="position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 1000; padding: 6px 0; margin-top: 6px;">
                           <div class="dropdown-option-row ${selectedOperation === "comprar" ? "is-active-row" : ""}" data-cid="hero" data-message="selectOperation" data-value="comprar" style="padding: 10px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.92rem; color: #2d3748; transition: background 0.15s;">
                             <span class="option-check-mark ${selectedOperation === "comprar" ? "checked" : ""}"></span>
                             <span>Comprar</span>
