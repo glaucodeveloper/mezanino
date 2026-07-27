@@ -159,7 +159,7 @@ const HeroComponent = ({ id, props }) => {
                     </div>
 
                     <!-- 2. Bairro -->
-                    <div class="custom-select-field" style="grid-area:d;position: relative; width: 100%;">
+                    <div class="custom-select-field" style="position: relative; width: 100%;">
                       <div class="custom-select-trigger ${activeDropdown === "neighborhood" ? "is-open" : ""}" data-cid="hero" data-message="toggleDropdown" data-value="neighborhood" style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px 22px; background: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.95rem; color: #4a5568;">
                         <span>${escapeText(triggerNeighborhoodText)}</span>
                         <span style="color: #a0aec0; font-size: 0.75rem;">▼</span>
@@ -186,7 +186,7 @@ const HeroComponent = ({ id, props }) => {
                     </div>
 
                     <!-- 3. Tipos de imóvel -->
-                    <div class="custom-select-field" style="grid-area:a; position: relative; width: 100%;">
+                    <div class="custom-select-field" style="position: relative; width: 100%;">
                       <div class="custom-select-trigger ${activeDropdown === "type" ? "is-open" : ""}" data-cid="hero" data-message="toggleDropdown" data-value="type" style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px 22px; background: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.95rem; color: #4a5568;">
                         <span>${escapeText(triggerTypeText)}</span>
                         <span style="color: #a0aec0; font-size: 0.75rem;">▼</span>
