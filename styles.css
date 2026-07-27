@@ -6983,15 +6983,13 @@ img {
 .custom-search-panel {
   position: relative;
   isolation: isolate;
-
   width: 100%;
-  max-width: 1140px;
+  max-width: 80vw;
   padding: 24px;
   border-radius: 8px;
   box-sizing: border-box;
   transform: translateY(47px);
   z-index: 10;
-
   background: transparent !important;
   box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
 }
