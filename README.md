@@ -1,4 +1,4 @@
-# mezanino-crm
+# mezanino
 
 Levantamento funcional do CRM imobiliário em uma página HTML com visual Carbon Design.
 
@@ -21,7 +21,7 @@ Levantamento funcional do CRM imobiliário em uma página HTML com visual Carbon
 
 ## Repositório alvo
 
-O destino está fixado no arquivo como `glaucodeveloper/mezanino-crm`.
+O destino está fixado no arquivo como `glaucodeveloper/mezanino`.
 Se o owner ou o nome do repositório forem diferentes, ajuste a constante `GITHUB_REPOSITORY` no script do `index.html`.
 
 ## Observação
