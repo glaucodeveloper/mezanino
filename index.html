@@ -1,0 +1,990 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>Mezanino CRM | Levantamento funcional</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0f1214;
+        --panel: #161a1d;
+        --panel-2: #1f2529;
+        --panel-3: #262d31;
+        --border: #393f44;
+        --text: #f4f7f9;
+        --muted: #a9b2ba;
+        --subtle: #7f8b94;
+        --accent: #0f62fe;
+        --accent-2: #4589ff;
+        --success: #24a148;
+        --warning: #f1c21b;
+        --danger: #fa4d56;
+        --shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+        --radius: 0.875rem;
+        --radius-sm: 0.625rem;
+        --max: 1180px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top right, rgba(15, 98, 254, 0.16), transparent 32%),
+          radial-gradient(circle at left top, rgba(36, 161, 72, 0.08), transparent 24%),
+          linear-gradient(180deg, #0c0f11 0%, #101417 100%);
+        color: var(--text);
+        font-family: "IBM Plex Sans", system-ui, sans-serif;
+        line-height: 1.45;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+        background-size: 32px 32px;
+        mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.5), transparent 90%);
+        pointer-events: none;
+        opacity: 0.35;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .shell {
+        position: relative;
+        z-index: 1;
+        width: min(var(--max), calc(100vw - 2rem));
+        margin: 0 auto;
+        padding: 1.5rem 0 3rem;
+      }
+
+      .topbar {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+        padding: 1.25rem 1.25rem 1.5rem;
+        background: linear-gradient(180deg, rgba(22, 26, 29, 0.95), rgba(22, 26, 29, 0.72));
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: calc(var(--radius) + 0.25rem);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0 0 0.5rem;
+        color: var(--accent-2);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .title {
+        margin: 0;
+        font-size: clamp(1.8rem, 4vw, 3.45rem);
+        line-height: 1;
+        letter-spacing: -0.04em;
+      }
+
+      .subtitle {
+        margin: 0.85rem 0 0;
+        max-width: 72ch;
+        color: var(--muted);
+        font-size: 0.98rem;
+      }
+
+      .repo-pill,
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.6rem 0.8rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--muted);
+        font-size: 0.86rem;
+        white-space: nowrap;
+      }
+
+      .repo-pill code,
+      .status-pill code {
+        font-family: "IBM Plex Mono", monospace;
+        color: var(--text);
+      }
+
+      .toolbar {
+        display: grid;
+        gap: 0.85rem;
+        min-width: min(100%, 360px);
+      }
+
+      .panel {
+        margin-top: 1rem;
+        padding: 1.1rem;
+        background: rgba(22, 26, 29, 0.84);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+      }
+
+      .panel h2,
+      .panel h3 {
+        margin: 0;
+      }
+
+      .panel-lead {
+        margin: 0.35rem 0 0;
+        color: var(--muted);
+      }
+
+      .inline-form {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.75rem;
+        align-items: end;
+        margin-top: 1rem;
+      }
+
+      .field {
+        display: grid;
+        gap: 0.4rem;
+      }
+
+      .field label,
+      .field span {
+        color: var(--muted);
+        font-size: 0.88rem;
+        font-weight: 600;
+      }
+
+      .input,
+      .textarea,
+      .button {
+        font: inherit;
+      }
+
+      .input,
+      .textarea {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 0.7rem;
+        background: var(--panel-2);
+        color: var(--text);
+        transition:
+          border-color 120ms ease,
+          transform 120ms ease,
+          background-color 120ms ease;
+      }
+
+      .input {
+        padding: 0.95rem 1rem;
+      }
+
+      .textarea {
+        min-height: 9rem;
+        padding: 0.95rem 1rem;
+        resize: vertical;
+      }
+
+      .input:focus,
+      .textarea:focus {
+        outline: none;
+        border-color: rgba(69, 137, 255, 0.95);
+        box-shadow: 0 0 0 3px rgba(15, 98, 254, 0.2);
+        background: #22292d;
+      }
+
+      .button {
+        border: 0;
+        border-radius: 0.75rem;
+        background: linear-gradient(180deg, var(--accent-2), var(--accent));
+        color: #fff;
+        font-weight: 700;
+        padding: 0.95rem 1.2rem;
+        min-height: 3.15rem;
+        cursor: pointer;
+        box-shadow: 0 14px 30px rgba(15, 98, 254, 0.28);
+        transition:
+          transform 120ms ease,
+          filter 120ms ease;
+      }
+
+      .button:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.03);
+      }
+
+      .button:disabled {
+        opacity: 0.62;
+        cursor: progress;
+        transform: none;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 0.9rem;
+      }
+
+      .small-note {
+        color: var(--subtle);
+        font-size: 0.86rem;
+      }
+
+      .status {
+        padding: 0.8rem 0.9rem;
+        border-left: 3px solid var(--accent);
+        background: rgba(15, 98, 254, 0.08);
+        color: var(--muted);
+        border-radius: 0.5rem;
+      }
+
+      .status[data-tone="success"] {
+        border-left-color: var(--success);
+        background: rgba(36, 161, 72, 0.08);
+      }
+
+      .status[data-tone="warning"] {
+        border-left-color: var(--warning);
+        background: rgba(241, 194, 27, 0.09);
+      }
+
+      .status[data-tone="danger"] {
+        border-left-color: var(--danger);
+        background: rgba(250, 77, 86, 0.09);
+      }
+
+      .grid {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .sections {
+        margin-top: 1rem;
+        display: grid;
+        gap: 1rem;
+      }
+
+      details.section {
+        overflow: clip;
+        background: rgba(22, 26, 29, 0.82);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+      }
+
+      details.section[open] {
+        border-color: rgba(69, 137, 255, 0.34);
+      }
+
+      summary.section-summary {
+        list-style: none;
+        cursor: pointer;
+        display: grid;
+        gap: 0.2rem;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        padding: 1rem 1.1rem;
+      }
+
+      summary.section-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .section-meta {
+        color: var(--subtle);
+        font-size: 0.84rem;
+        font-family: "IBM Plex Mono", monospace;
+      }
+
+      .section-title {
+        margin: 0;
+        font-size: 1.08rem;
+        line-height: 1.2;
+      }
+
+      .section-body {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 1rem 1.1rem 1.2rem;
+      }
+
+      .section-grid {
+        display: grid;
+        gap: 0.85rem;
+      }
+
+      .prompt-card {
+        padding: 0.95rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 0.9rem;
+        background: linear-gradient(180deg, rgba(31, 37, 41, 0.95), rgba(25, 29, 33, 0.95));
+      }
+
+      .prompt-meta {
+        display: flex;
+        gap: 0.55rem;
+        align-items: baseline;
+        margin-bottom: 0.55rem;
+      }
+
+      .prompt-index {
+        color: var(--accent-2);
+        font-family: "IBM Plex Mono", monospace;
+        font-weight: 600;
+        font-size: 0.8rem;
+        white-space: nowrap;
+      }
+
+      .prompt-text {
+        margin: 0;
+        color: var(--text);
+        font-size: 0.96rem;
+      }
+
+      .prompt-card .field {
+        margin-top: 0.8rem;
+      }
+
+      .prompt-card .textarea {
+        min-height: 6.5rem;
+      }
+
+      .sticky-submit {
+        position: sticky;
+        bottom: 1rem;
+        z-index: 2;
+        margin-top: 1rem;
+        padding: 0.9rem;
+        background: rgba(22, 26, 29, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+      }
+
+      .footer {
+        margin: 1.5rem 0 0;
+        color: var(--subtle);
+        font-size: 0.84rem;
+        text-align: center;
+      }
+
+      .preview {
+        display: grid;
+        gap: 0.65rem;
+        margin-top: 1rem;
+        font-size: 0.95rem;
+        color: var(--muted);
+      }
+
+      .preview code,
+      .preview pre {
+        font-family: "IBM Plex Mono", monospace;
+      }
+
+      .preview pre {
+        margin: 0;
+        padding: 0.9rem;
+        overflow: auto;
+        border-radius: 0.8rem;
+        background: #0b0d0f;
+        color: #dfe6eb;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      @media (max-width: 900px) {
+        .topbar,
+        .inline-form {
+          grid-template-columns: 1fr;
+        }
+
+        .toolbar {
+          min-width: 0;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .shell {
+          width: min(var(--max), calc(100vw - 1rem));
+          padding-top: 0.5rem;
+        }
+
+        .topbar,
+        .panel,
+        .sticky-submit {
+          padding-left: 0.9rem;
+          padding-right: 0.9rem;
+        }
+
+        .section-body,
+        summary.section-summary {
+          padding-left: 0.9rem;
+          padding-right: 0.9rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <section>
+          <p class="eyebrow">Mezanino CRM</p>
+          <h1 class="title">Levantamento funcional imobiliário</h1>
+          <p class="subtitle">
+            Formulário Carbon para consolidar as respostas do CRM imobiliário, salvar o resultado em
+            um repositório GitHub e abrir uma notificação para acompanhamento.
+          </p>
+        </section>
+
+        <aside class="toolbar">
+          <div class="repo-pill">
+            Repositório alvo: <code>glaucodeveloper/mezanino-crm</code>
+          </div>
+          <div class="status-pill">
+            Branch padrão: <code>main</code>
+          </div>
+        </aside>
+      </header>
+
+      <section class="panel">
+        <h2>Envio para GitHub</h2>
+        <p class="panel-lead">
+          Preencha os campos do levantamento e informe apenas o token pessoal de acesso. O HTML usa
+          esse token para criar um arquivo JSON no repositório e abrir uma issue com o resumo.
+        </p>
+
+        <form id="submit-form" class="inline-form">
+          <label class="field" for="github-token">
+            <span>Token do GitHub</span>
+            <input
+              class="input"
+              id="github-token"
+              name="github-token"
+              type="password"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="ghp_..."
+              required
+            />
+          </label>
+          <button class="button" id="submit-button" type="submit">Salvar e notificar</button>
+        </form>
+
+        <div class="actions">
+          <div class="small-note">
+            O token não é salvo no navegador. O conteúdo fica disponível em <code>localStorage</code>
+            apenas como último rascunho do formulário.
+          </div>
+          <div class="status" id="status-box" data-tone="warning">Aguardando preenchimento do formulário.</div>
+        </div>
+
+        <div class="preview">
+          <strong>Destino da gravação</strong>
+          <pre id="payload-preview">Nenhum envio ainda.</pre>
+        </div>
+      </section>
+
+      <form id="survey-form" class="sections"></form>
+
+      <div class="sticky-submit">
+        <div class="actions">
+          <div class="small-note">
+            Cada resposta vai para o JSON de levantamento e também entra no texto da issue criada.
+          </div>
+          <button class="button" form="submit-form" type="submit">Enviar levantamento</button>
+        </div>
+      </div>
+
+      <p class="footer">
+        Carbon-inspired layout, pronto para adaptação em repo público ou privado.
+      </p>
+    </div>
+
+    <script>
+      const GITHUB_REPOSITORY = "glaucodeveloper/mezanino-crm";
+      const GITHUB_BRANCH = "main";
+      const STORAGE_KEY = "mezanino-crm:last-response";
+
+      const sections = [
+        {
+          id: "cadastro-imovel",
+          title: "1. Cadastro e captação de imóvel",
+          questions: [
+            "Quais informações identificam, descrevem, localizam e classificam o imóvel?",
+            "Quais características, medidas, valores, condições comerciais e informações de ocupação precisam ser registradas?",
+            "Quais documentos, fotografias e autorizações precisam entrar no cadastro, e quais deles são obrigatórios antes da disponibilização?",
+            "Quais situações o imóvel pode assumir, como rascunho, disponível, reservado, ocupado, vendido, indisponível ou arquivado?",
+            "Quais documentos ou apresentações o sistema precisa gerar a partir do cadastro?",
+            "Como os imóveis precisam ser visualizados, pesquisados e comparados: lista, cartões, mapa, filtros, galeria, resumo ou histórico?",
+          ],
+        },
+        {
+          id: "pessoas-empresas",
+          title: "2. Cadastro de pessoas e empresas",
+          questions: [
+            "Quais informações pessoais, empresariais, de contato, endereço e identificação precisam ser registradas?",
+            "Quais papéis podem ser associados ao mesmo cadastro, como proprietário, locador, locatário, vendedor, comprador, fiador ou representante?",
+            "Quais informações adicionais variam conforme o papel exercido?",
+            "Quais documentos precisam ser anexados, validados, substituídos ou mantidos em histórico?",
+            "Quais situações precisam existir para o cadastro, como incompleto, ativo, aguardando documentos, bloqueado ou arquivado?",
+            "O que deve aparecer na ficha da pessoa: imóveis, contratos, negociações, documentos, interações, pendências e histórico?",
+          ],
+        },
+        {
+          id: "perfil-interesse",
+          title: "3. Perfil de interesse por imóvel",
+          questions: [
+            "Quais critérios precisam ser registrados para representar o imóvel procurado?",
+            "Quais critérios são obrigatórios, quais são preferenciais e quais impedem uma compatibilidade?",
+            "Quais faixas de valor, localidades, tipos, áreas e características devem ser utilizadas na busca?",
+            "Quais documentos ou comprovações precisam acompanhar o interesse antes de uma proposta?",
+            "Como o sistema deve apresentar imóveis compatíveis, divergências e alternativas próximas?",
+            "O perfil pode ser alterado, pausado, atendido, encerrado ou reativado?",
+          ],
+        },
+        {
+          id: "negociacao",
+          title: "4. Negociação",
+          questions: [
+            "Quais informações precisam existir para abrir e acompanhar uma negociação?",
+            "Quais etapas representam o andamento da venda e da locação?",
+            "Quais dados, documentos ou atividades precisam estar completos para avançar em cada etapa?",
+            "Quais motivos precisam ser registrados quando a negociação é pausada, perdida, cancelada ou reaberta?",
+            "Quais informações devem aparecer no cartão, na lista e na página de detalhes?",
+            "Quais alertas devem existir para negociações paradas, sem retorno, sem documento ou próximas do fechamento?",
+          ],
+        },
+        {
+          id: "interacoes",
+          title: "5. Interações e acompanhamento",
+          questions: [
+            "Quais tipos de contato precisam ser registrados, como ligação, mensagem, reunião, anotação ou e-mail?",
+            "Quais informações precisam ser guardadas sobre o contato, seu resultado e a próxima atividade?",
+            "Quais arquivos ou documentos podem ser recebidos durante uma interação?",
+            "O registro deve criar tarefa, retorno, evento de agenda ou mudança na negociação?",
+            "Como as interações devem aparecer na linha do tempo e nos filtros?",
+            "Quais situações precisam ser destacadas, como contato sem resposta ou retorno vencido?",
+          ],
+        },
+        {
+          id: "visitas",
+          title: "6. Visitas",
+          questions: [
+            "Quais informações precisam ser registradas para agendar uma visita?",
+            "Quais condições ou documentos precisam existir antes da confirmação?",
+            "Quais situações a visita pode assumir, como agendada, confirmada, realizada, reagendada ou cancelada?",
+            "Quais informações precisam ser registradas depois da visita, incluindo interesse, objeções e próxima ação?",
+            "Quais documentos ou registros o sistema precisa gerar, como confirmação, relatório ou tarefa de retorno?",
+            "Como as visitas devem aparecer no calendário, na lista e na página do imóvel?",
+          ],
+        },
+        {
+          id: "propostas",
+          title: "7. Propostas",
+          questions: [
+            "Quais valores, condições, prazos, garantias e formas de pagamento precisam ser registrados?",
+            "Quais documentos precisam acompanhar uma proposta de venda ou locação?",
+            "Quais situações precisam existir, como rascunho, enviada, contraproposta, aceita, recusada ou expirada?",
+            "Quando uma nova versão deve substituir ou se relacionar com a versão anterior?",
+            "Quais documentos o sistema precisa gerar, como proposta, contraproposta ou termo de aceite?",
+            "Quais ações e informações devem aparecer conforme a situação da proposta?",
+          ],
+        },
+        {
+          id: "analise-documental",
+          title: "8. Análise documental",
+          questions: [
+            "Quais documentos precisam ser apresentados em cada tipo de operação?",
+            "Quais dados de cada documento precisam ser conferidos com os cadastros?",
+            "Quais critérios tornam um documento aprovado, pendente, recusado, vencido ou substituído?",
+            "O processo pode continuar com documentos faltantes ou inválidos?",
+            "Quais resultados o sistema precisa gerar, como parecer, lista de pendências ou solicitação de correção?",
+            "Como a interface deve mostrar completude, validade, divergências e bloqueios?",
+          ],
+        },
+        {
+          id: "contratos",
+          title: "9. Contratos",
+          questions: [
+            "Quais dados do imóvel, da proposta e dos participantes precisam formar o contrato?",
+            "Quais valores, datas, garantias, reajustes, multas e condições precisam ser registrados?",
+            "Quais documentos precisam existir antes da elaboração, assinatura e ativação?",
+            "Quais situações o contrato pode assumir, como rascunho, revisão, assinatura, ativo, renovação ou encerramento?",
+            "Quais documentos o sistema deve gerar, como minuta, contrato, aditivo ou termo de encerramento?",
+            "Quais informações, pendências, assinaturas, cobranças e eventos devem aparecer na página do contrato?",
+          ],
+        },
+        {
+          id: "vistorias-chaves",
+          title: "10. Vistorias e chaves",
+          questions: [
+            "Quais ambientes, itens, condições, medidores, fotografias e observações precisam ser registrados?",
+            "Como as vistorias de entrada e saída devem ser comparadas?",
+            "Quais documentos ou registros precisam ser anexados ou produzidos?",
+            "Quais chaves, controles, cartões ou acessórios precisam ser registrados na entrega e devolução?",
+            "Quais pendências impedem a conclusão da vistoria ou da devolução?",
+            "Como a interface deve permitir checklist, fotografias, comparação, assinatura e geração de laudo?",
+          ],
+        },
+        {
+          id: "cobrancas-pagamentos",
+          title: "11. Cobranças e pagamentos",
+          questions: [
+            "Quais componentes formam uma cobrança e como cada valor é calculado?",
+            "Quais datas, competências, multas, juros, descontos e formas de pagamento precisam ser registradas?",
+            "Quais situações precisam existir, como programada, emitida, paga, parcial, vencida, renegociada ou cancelada?",
+            "Quais documentos entram ou saem do processo, como boleto, comprovante, recibo ou demonstrativo?",
+            "Como pagamentos parciais, diferenças, duplicidades, estornos e renegociações devem ser tratados?",
+            "Como a interface deve apresentar cobranças por contrato, competência, vencimento e situação?",
+          ],
+        },
+        {
+          id: "repasses-comissoes",
+          title: "12. Repasses e comissões",
+          questions: [
+            "Quais valores recebidos entram no cálculo do repasse ou da comissão?",
+            "Quais taxas, despesas, retenções e descontos precisam ser considerados?",
+            "Como devem ser tratados agrupamentos por imóvel, contrato, competência ou período?",
+            "Quais situações precisam existir até a confirmação do pagamento?",
+            "Quais documentos precisam ser gerados, como demonstrativo, recibo ou comprovante?",
+            "Como a interface deve mostrar valor bruto, descontos, valor líquido e histórico?",
+          ],
+        },
+        {
+          id: "ocorrencias-manutencao",
+          title: "13. Ocorrências e manutenção",
+          questions: [
+            "Quais informações precisam ser registradas para descrever, classificar e acompanhar uma ocorrência?",
+            "Quais fotografias, vídeos, laudos, orçamentos, notas e autorizações podem ser anexados?",
+            "Quais etapas representam o andamento, desde abertura até conclusão ou reabertura?",
+            "Quais valores previstos, aprovados e realizados precisam ser controlados?",
+            "Quais documentos o sistema precisa gerar, como ordem de serviço, aprovação ou relatório?",
+            "Como a interface deve apresentar prioridade, prazo, evidências, orçamentos, custos e histórico?",
+          ],
+        },
+        {
+          id: "reajuste-renovacao",
+          title: "14. Reajuste e renovação",
+          questions: [
+            "Quais dados do contrato determinam reajuste ou renovação?",
+            "Quais índices, datas, valores e condições precisam ser calculados ou alterados?",
+            "Quais documentos precisam ser atualizados, renovados ou novamente analisados?",
+            "Quais alterações devem ser comparadas com o contrato vigente?",
+            "Quais documentos o sistema precisa gerar, como memória de cálculo, proposta, aditivo ou novo contrato?",
+            "Como a interface deve mostrar alterações, pendências, aprovações e impacto financeiro?",
+          ],
+        },
+        {
+          id: "desocupacao-encerramento",
+          title: "15. Desocupação e encerramento",
+          questions: [
+            "Quais dados precisam ser registrados para iniciar e acompanhar a saída do imóvel?",
+            "Quais valores, multas, pagamentos, reparos, medidores e chaves precisam ser verificados?",
+            "Quais documentos de entrada e saída precisam existir durante o encerramento?",
+            "Quais pendências impedem a conclusão?",
+            "Quais estados do contrato e do imóvel precisam ser alterados ao final?",
+            "Como a interface deve apresentar checklist, valores finais, vistoria, devolução e liberação do imóvel?",
+          ],
+        },
+        {
+          id: "conclusao-venda",
+          title: "16. Conclusão da venda",
+          questions: [
+            "Quais dados confirmam que a venda foi concluída?",
+            "Quais pagamentos, financiamentos, despesas, comissões e transferências precisam ser registrados?",
+            "Quais documentos precisam entrar, ser conferidos e permanecer vinculados à operação?",
+            "Quais documentos o sistema precisa gerar ao final?",
+            "Quais negociações, visitas, anúncios e estados do imóvel precisam ser encerrados automaticamente?",
+            "Como a interface deve mostrar progresso, documentos, valores, transferência e conclusão?",
+          ],
+        },
+        {
+          id: "gestao-documentos",
+          title: "17. Gestão geral de documentos",
+          questions: [
+            "Quais categorias de documentos precisam existir e a quais registros podem ser vinculadas?",
+            "Quais propriedades precisam ser armazenadas, como número, emissão, validade, versão, competência e confidencialidade?",
+            "Quais situações um documento pode assumir?",
+            "Como substituição, versionamento, aprovação, recusa e vencimento devem funcionar?",
+            "Quais documentos precisam ser gerados pelo próprio sistema?",
+            "Como a interface deve organizar visualização, upload, filtros, pendências, validade e histórico?",
+          ],
+        },
+        {
+          id: "tarefas-pendencias",
+          title: "18. Tarefas e pendências",
+          questions: [
+            "Quais dados precisam existir em uma tarefa ou pendência?",
+            "A tarefa pode depender de documento, estado, prazo ou conclusão anterior?",
+            "Quais situações precisam existir até sua conclusão?",
+            "Quais tarefas devem ser criadas automaticamente por eventos do sistema?",
+            "A conclusão deve alterar algum registro, gerar documento ou criar nova atividade?",
+            "Como as tarefas devem aparecer em lista, quadro, calendário e nos objetos relacionados?",
+          ],
+        },
+        {
+          id: "interfaces-comuns",
+          title: "Perguntas comuns para definir cada interface",
+          questions: [
+            "Quais informações precisam aparecer imediatamente na tela?",
+            "Quais informações devem ficar em seções, abas ou painéis secundários?",
+            "Quais campos são obrigatórios, condicionais, calculados ou somente leitura?",
+            "Quais ações devem estar disponíveis em cada situação do registro?",
+            "Quais filtros, buscas, ordenações e agrupamentos são necessários?",
+            "Quais avisos, pendências, prazos e bloqueios precisam ser destacados?",
+            "Quais documentos podem entrar ou sair diretamente pela página?",
+            "Quais registros relacionados precisam estar visíveis sem sair da página?",
+            "Quais informações precisam entrar no histórico?",
+            "O que deve acontecer na interface quando não houver registros, houver erro, dados incompletos ou processo encerrado?",
+          ],
+        },
+      ];
+
+      const surveyForm = document.getElementById("survey-form");
+      const statusBox = document.getElementById("status-box");
+      const payloadPreview = document.getElementById("payload-preview");
+      const submitButton = document.getElementById("submit-button");
+      const githubTokenInput = document.getElementById("github-token");
+      const submitForm = document.getElementById("submit-form");
+
+      const fieldName = (sectionIndex, questionIndex) => `s${sectionIndex + 1}_q${questionIndex + 1}`;
+
+      function escapeHtml(value) {
+        return value
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function renderQuestions() {
+        surveyForm.innerHTML = sections
+          .map((section, sectionIndex) => {
+            const questions = section.questions
+              .map((question, questionIndex) => {
+                const name = fieldName(sectionIndex, questionIndex);
+                return `
+                  <article class="prompt-card">
+                    <div class="prompt-meta">
+                      <span class="prompt-index">${sectionIndex + 1}.${questionIndex + 1}</span>
+                    </div>
+                    <p class="prompt-text">${escapeHtml(question)}</p>
+                    <label class="field" for="${name}">
+                      <span>Resposta</span>
+                      <textarea
+                        class="textarea"
+                        id="${name}"
+                        name="${name}"
+                        placeholder="Escreva a resposta para esta pergunta"
+                      ></textarea>
+                    </label>
+                  </article>
+                `;
+              })
+              .join("");
+
+            return `
+              <details class="section" ${sectionIndex === 0 ? "open" : ""}>
+                <summary class="section-summary">
+                  <div>
+                    <div class="section-meta">Seção ${sectionIndex + 1}</div>
+                    <h3 class="section-title">${escapeHtml(section.title)}</h3>
+                  </div>
+                  <div class="repo-pill">${section.questions.length} perguntas</div>
+                </summary>
+                <div class="section-body">
+                  <div class="section-grid">${questions}</div>
+                </div>
+              </details>
+            `;
+          })
+          .join("");
+      }
+
+      function setStatus(message, tone = "warning") {
+        statusBox.dataset.tone = tone;
+        statusBox.textContent = message;
+      }
+
+      function utf8ToBase64(value) {
+        return btoa(unescape(encodeURIComponent(value)));
+      }
+
+      function gatherPayload() {
+        const formData = new FormData(surveyForm);
+        const answers = {};
+
+        for (const [key, value] of formData.entries()) {
+          answers[key] = String(value).trim();
+        }
+
+        const answeredCount = Object.values(answers).filter(Boolean).length;
+        const totalQuestions = sections.reduce((sum, section) => sum + section.questions.length, 0);
+
+        return {
+          repository: GITHUB_REPOSITORY,
+          branch: GITHUB_BRANCH,
+          createdAt: new Date().toISOString(),
+          answeredCount,
+          totalQuestions,
+          sections: sections.map((section, sectionIndex) => ({
+            id: section.id,
+            title: section.title,
+            questions: section.questions.map((question, questionIndex) => ({
+              id: fieldName(sectionIndex, questionIndex),
+              question,
+              answer: answers[fieldName(sectionIndex, questionIndex)] || "",
+            })),
+          })),
+        };
+      }
+
+      function renderPreview(payload) {
+        const summary = {
+          repository: payload.repository,
+          branch: payload.branch,
+          answered: `${payload.answeredCount}/${payload.totalQuestions}`,
+          createdAt: payload.createdAt,
+        };
+
+        payloadPreview.textContent = JSON.stringify(summary, null, 2);
+      }
+
+      async function saveToGithub(token, payload) {
+        const stamp = new Date().toISOString().replaceAll(":", "-").replaceAll(".", "-");
+        const fileName = `responses/${stamp}.json`;
+        const serialized = JSON.stringify(payload, null, 2);
+        const issueTitle = `Levantamento CRM imobiliário ${new Date().toLocaleDateString("pt-BR")}`;
+        const issueBody = [
+          "# Levantamento CRM imobiliário",
+          "",
+          `- Repositório: \`${payload.repository}\``,
+          `- Branch: \`${payload.branch}\``,
+          `- Respostas preenchidas: \`${payload.answeredCount}/${payload.totalQuestions}\``,
+          `- Arquivo salvo: \`${fileName}\``,
+          "",
+          "## Resumo",
+          "",
+          "O formulário foi enviado pelo HTML do projeto `mezanino-crm`.",
+          "O JSON completo ficou gravado no repositório e este issue serve como notificação.",
+        ].join("\n");
+
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github+json",
+          "X-GitHub-Api-Version": "2022-11-28",
+        };
+
+        const fileResponse = await fetch(`https://api.github.com/repos/${payload.repository}/contents/${fileName}`, {
+          method: "POST",
+          headers: {
+            ...headers,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: `docs: registrar levantamento CRM em ${fileName}`,
+            content: utf8ToBase64(serialized),
+            branch: payload.branch,
+          }),
+        });
+
+        if (!fileResponse.ok) {
+          const errorBody = await fileResponse.text();
+          throw new Error(`Falha ao salvar JSON no GitHub: ${fileResponse.status} ${errorBody}`);
+        }
+
+        const issueResponse = await fetch(`https://api.github.com/repos/${payload.repository}/issues`, {
+          method: "POST",
+          headers: {
+            ...headers,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: issueTitle,
+            body: issueBody,
+          }),
+        });
+
+        if (!issueResponse.ok) {
+          const errorBody = await issueResponse.text();
+          throw new Error(`Falha ao criar issue no GitHub: ${issueResponse.status} ${errorBody}`);
+        }
+
+        return {
+          file: fileName,
+          issue: await issueResponse.json(),
+        };
+      }
+
+      renderQuestions();
+
+      submitForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const token = githubTokenInput.value.trim();
+        if (!token) {
+          setStatus("Informe o token do GitHub para enviar o levantamento.", "danger");
+          githubTokenInput.focus();
+          return;
+        }
+
+        const payload = gatherPayload();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        renderPreview(payload);
+
+        submitButton.disabled = true;
+        setStatus("Enviando para o GitHub...", "warning");
+
+        try {
+          const result = await saveToGithub(token, payload);
+          setStatus(`Enviado com sucesso. Issue criada: #${result.issue.number}.`, "success");
+          githubTokenInput.value = "";
+          githubTokenInput.blur();
+        } catch (error) {
+          setStatus(error instanceof Error ? error.message : "Falha inesperada no envio.", "danger");
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
+
+      const savedPayload = localStorage.getItem(STORAGE_KEY);
+      if (savedPayload) {
+        try {
+          const parsed = JSON.parse(savedPayload);
+          renderPreview(parsed);
+          setStatus("Último rascunho carregado do navegador. Pronto para novo envio.", "warning");
+        } catch {
+          setStatus("Rascunho local inválido. O formulário está pronto para um novo envio.", "warning");
+        }
+      }
+    </script>
+  </body>
+</html>
