@@ -36,7 +36,7 @@ jobs:
         run: git fetch origin site-root:site-root
 
       - name: Build pages bundle
-        run: node scripts/build-pages.mjs --source survey_processual_especifico.md --root-ref site-root --output dist
+        run: node scripts/build-pages.mjs --source survey_crm_nova_imobiliaria_perspectiva_do_respondente.md --root-ref site-root --output dist
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4

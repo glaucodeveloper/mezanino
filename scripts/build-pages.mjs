@@ -11,7 +11,7 @@ const repoRoot = path.resolve(__dirname, "..");
 
 function parseArgs(argv) {
   const args = {
-    source: "survey_processual_especifico.md",
+    source: "survey_crm_nova_imobiliaria_perspectiva_do_respondente.md",
     rootRef: process.env.PAGES_ROOT_REF || "site-root",
     output: "dist",
   };
