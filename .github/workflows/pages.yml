@@ -32,8 +32,11 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Fetch site root snapshot
+        run: git fetch origin site-root:site-root
+
       - name: Build pages bundle
-        run: node scripts/build-pages.mjs --source survey_revisado_conciso.md --root-commit 6a7b5b1 --output dist
+        run: node scripts/build-pages.mjs --source survey_revisado_conciso.md --root-ref site-root --output dist
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4

@@ -12,7 +12,7 @@ const repoRoot = path.resolve(__dirname, "..");
 function parseArgs(argv) {
   const args = {
     source: "survey_revisado_conciso.md",
-    rootCommit: process.env.PAGES_ROOT_COMMIT || "6a7b5b1",
+    rootRef: process.env.PAGES_ROOT_REF || "site-root",
     output: "dist",
   };
 
@@ -26,8 +26,8 @@ function parseArgs(argv) {
       continue;
     }
 
-    if (current === "--root-commit" && next) {
-      args.rootCommit = next;
+    if (current === "--root-ref" && next) {
+      args.rootRef = next;
       index += 1;
       continue;
     }
@@ -76,7 +76,7 @@ await fs.rm(outputRoot, { recursive: true, force: true });
 await fs.mkdir(outputRoot, { recursive: true });
 
 const archiveFile = path.join(os.tmpdir(), `mezanino-pages-${Date.now()}.tar`);
-const archiveResult = spawnSync("git", ["archive", "--format=tar", args.rootCommit, "-o", archiveFile], {
+const archiveResult = spawnSync("git", ["archive", "--format=tar", args.rootRef, "-o", archiveFile], {
   cwd: repoRoot,
   encoding: "utf8",
   maxBuffer: 1024 * 1024,
@@ -84,7 +84,7 @@ const archiveResult = spawnSync("git", ["archive", "--format=tar", args.rootComm
 
 if (archiveResult.status !== 0) {
   throw new Error(
-    `Falha ao montar o site raiz a partir de ${args.rootCommit}: ${archiveResult.stderr || archiveResult.error?.message || "erro desconhecido"}`,
+    `Falha ao montar o site raiz a partir de ${args.rootRef}: ${archiveResult.stderr || archiveResult.error?.message || "erro desconhecido"}`,
   );
 }
 
@@ -106,4 +106,4 @@ await fs.copyFile(path.resolve(repoRoot, "index.html"), path.join(surveyDir, "in
 await fs.copyFile(path.resolve(repoRoot, "survey-data.js"), path.join(surveyDir, "survey-data.js"));
 
 console.log(`survey-data.js gerado a partir de ${args.source}`);
-console.log(`Pages preparado com raiz ${args.rootCommit} e survey em /survey/`);
+console.log(`Pages preparado com raiz ${args.rootRef} e survey em /survey/`);
