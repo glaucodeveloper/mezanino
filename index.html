@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark" />
-    <title>Mezanino CRM | Levantamento funcional</title>
+    <title>Mezanino CRM | Escopo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -175,6 +175,19 @@
         max-width: 72ch;
         color: var(--muted);
         font-size: 0.98rem;
+      }
+
+      .scope-copy {
+        display: grid;
+        gap: 0.75rem;
+        margin-top: 0.85rem;
+        max-width: 72ch;
+        color: var(--muted);
+        font-size: 0.98rem;
+      }
+
+      .scope-copy p {
+        margin: 0;
       }
 
       .panel {
@@ -527,12 +540,8 @@
     <div class="shell" id="app">
       <header class="topbar">
         <section>
-          <p class="eyebrow">Mezanino CRM</p>
-          <h1 class="title">Levantamento funcional imobiliário</h1>
-          <p class="subtitle">
-            Levantamento para entender como a operação imobiliária funciona na prática e quais
-            informações precisam entrar na construção do CRM.
-          </p>
+          <h1 class="title">Escopo</h1>
+          <div class="scope-copy" id="scope-copy"></div>
         </section>
       </header>
 
@@ -591,9 +600,11 @@
       const tokenGateInput = document.getElementById("token-gate-input");
       const tokenGateSubmit = document.getElementById("token-gate-submit");
       const app = document.getElementById("app");
+      const scopeCopy = document.getElementById("scope-copy");
       const surveyDebug = document.getElementById("survey-debug");
       let surveyMarkdown = (window.MEZANINO_SURVEY_MARKDOWN || "").trim();
-      let sections = surveyMarkdown ? parseSurveyMarkdown(surveyMarkdown) : [];
+      let scope = null;
+      let sections = [];
 
       function slugify(value) {
         return value
@@ -608,10 +619,15 @@
         const parsed = [];
         const lines = markdown.split(/\r?\n/);
         let currentSection = null;
+        let currentScope = null;
 
         const pushCurrentSection = () => {
           if (currentSection) {
-            parsed.push(currentSection);
+            if (currentSection.title.toLowerCase() === "escopo") {
+              currentScope = currentSection;
+            } else {
+              parsed.push(currentSection);
+            }
             currentSection = null;
           }
         };
@@ -629,6 +645,7 @@
               id: slugify(headingMatch[1]),
               title: headingMatch[1],
               purpose: "",
+              paragraphs: [],
               questions: [],
             };
             continue;
@@ -644,6 +661,11 @@
             continue;
           }
 
+          if (currentSection.title.toLowerCase() === "escopo") {
+            currentSection.paragraphs.push(line);
+            continue;
+          }
+
           const questionMatch = line.match(/^\d+\.\s+(.+)$/);
           if (questionMatch) {
             currentSection.questions.push(questionMatch[1]);
@@ -651,7 +673,10 @@
         }
 
         pushCurrentSection();
-        return parsed.filter((section) => section.questions.length > 0);
+        return {
+          scope: currentScope,
+          sections: parsed.filter((section) => section.questions.length > 0),
+        };
       }
 
       const surveyForm = document.getElementById("survey-form");
@@ -723,8 +748,15 @@
 
       function applySurveyMarkdown(markdown) {
         surveyMarkdown = markdown.replace(/\r\n/g, "\n").trim();
-        sections = parseSurveyMarkdown(surveyMarkdown);
+        const parsed = parseSurveyMarkdown(surveyMarkdown);
+        scope = parsed.scope;
+        sections = parsed.sections;
         surveyReady = true;
+        if (scopeCopy) {
+          scopeCopy.innerHTML = scope?.paragraphs?.length
+            ? scope.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")
+            : "<p>Escopo do levantamento indisponível.</p>";
+        }
         surveyDebug.textContent =
           `Levantamento carregado.\n` +
           `Linhas úteis: ${surveyMarkdown.split(/\r?\n/).filter(Boolean).length}\n` +
