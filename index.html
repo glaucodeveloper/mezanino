@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark" />
-    <title>Mezanino CRM | Escopo</title>
+    <title>Mezanino | Escopo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -151,7 +151,7 @@
         backdrop-filter: blur(18px);
       }
 
-      .eyebrow {
+      .brand {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
@@ -161,6 +161,19 @@
         font-weight: 700;
         letter-spacing: 0.16em;
         text-transform: uppercase;
+      }
+
+      .brand-logo {
+        width: 1.75rem;
+        height: 1.75rem;
+        object-fit: contain;
+        border-radius: 0.35rem;
+        flex: 0 0 auto;
+      }
+
+      .brand-name {
+        color: var(--text);
+        font-size: 0.92rem;
       }
 
       .title {
@@ -540,13 +553,20 @@
     <div class="shell" id="app">
       <header class="topbar">
         <section>
+          <div class="brand">
+            <img
+              class="brand-logo"
+              src="https://glaucodeveloper.github.io/mezanino/logo_teste.png.png"
+              alt="Mezanino"
+            />
+            <span class="brand-name">Mezanino</span>
+          </div>
           <h1 class="title">Escopo</h1>
           <div class="scope-copy" id="scope-copy"></div>
         </section>
       </header>
 
       <section class="panel">
-        <h2>Resumo do levantamento</h2>
         <p class="panel-lead">
           O acesso foi liberado. Preencha os campos do levantamento e revise as respostas antes de salvar.
         </p>
@@ -1017,7 +1037,7 @@
 
         try {
           if (!surveyReady) {
-          if (!surveyMarkdown) {
+            if (!surveyMarkdown) {
               throw new Error("O levantamento não foi carregado.");
             }
 
@@ -1041,11 +1061,6 @@
             setStatus("Último registro carregado. Edite e salve novamente para atualizar as respostas.", "warning");
           } else {
             setStatus("Acesso liberado. Preencha o levantamento para registrar as respostas.", "warning");
-          }
-
-          const firstField = surveyForm.querySelector("textarea");
-          if (firstField) {
-            firstField.focus();
           }
         } catch (error) {
           setStatus(error instanceof Error ? error.message : "Falha ao carregar o formulário.", "danger");
