@@ -2,13 +2,13 @@
 
 ## Escopo
 
-Este levantamento orienta a criação do CRM de uma nova imobiliária dedicada à locação, à relação com locatários e à compra e venda de propriedades.
+Este levantamento serve para definir como a Mezanino deve registrar, acompanhar e concluir operações no CRM, desde a entrada da oportunidade até a negociação e o retorno do cliente.
 
-As perguntas seguem o fluxo real de uma oportunidade dentro do CRM. Elas procuram definir como a futura imobiliária deverá organizar contatos, confirmações, decisões, comunicações, documentos, análise de crédito, negociações e continuidade do relacionamento.
+As perguntas percorrem o fluxo prático de uso do sistema e ajudam a estabelecer quais dados, confirmações, prazos, decisões e comunicações precisam existir em cada etapa.
 
-A flexibilidade é tratada principalmente na relação comercial com o cliente: alternativas de imóvel, margem de negociação, prazo de resposta, forma de acompanhamento e possibilidade de retomada. A análise de locação deve utilizar critérios sociais e objetivos de crédito, capacidade financeira, garantia e histórico contratual, evitando avaliações baseadas em impressões pessoais.
+A flexibilidade deve refletir a forma real de atendimento: alternativas de imóvel, margem de negociação, prazo de resposta, forma de acompanhamento e possibilidade de retomada. Na locação, a avaliação deve considerar critérios objetivos de crédito, capacidade financeira, garantia e histórico contratual.
 
-As respostas podem combinar opções sugeridas pelo formulário com um campo aberto para adaptações próprias da futura imobiliária.
+As respostas podem ser complementadas com observações livres sempre que a prática da imobiliária exigir ajustes fora do padrão sugerido.
 
 ---
 

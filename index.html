@@ -139,48 +139,76 @@
       }
 
       .topbar {
+        position: relative;
         display: grid;
         gap: 1rem;
         grid-template-columns: minmax(0, 1fr) auto;
         align-items: start;
-        padding: 1.25rem 1.25rem 1.5rem;
-        background: linear-gradient(180deg, rgba(22, 26, 29, 0.95), rgba(22, 26, 29, 0.72));
+        padding: 1.4rem;
+        background:
+          radial-gradient(circle at top right, rgba(15, 98, 254, 0.16), transparent 30%),
+          linear-gradient(180deg, rgba(22, 26, 29, 0.98), rgba(18, 21, 24, 0.9));
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: calc(var(--radius) + 0.25rem);
         box-shadow: var(--shadow);
         backdrop-filter: blur(18px);
+        overflow: hidden;
+      }
+
+      .topbar::after {
+        content: "";
+        position: absolute;
+        inset: auto 0 0 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(69, 137, 255, 0.7), transparent);
+        opacity: 0.75;
       }
 
       .brand {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        margin: 0 0 0.5rem;
+        margin: 0 0 0.7rem;
+        padding: 0.32rem 0.6rem 0.32rem 0.45rem;
+        width: fit-content;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
         color: var(--accent-2);
-        font-size: 0.78rem;
+        font-size: 0.72rem;
         font-weight: 700;
         letter-spacing: 0.16em;
         text-transform: uppercase;
       }
 
       .brand-logo {
-        width: 1.75rem;
-        height: 1.75rem;
+        width: 1.55rem;
+        height: 1.55rem;
         object-fit: contain;
-        border-radius: 0.35rem;
+        border-radius: 0.3rem;
         flex: 0 0 auto;
       }
 
       .brand-name {
         color: var(--text);
         font-size: 0.92rem;
+        letter-spacing: 0.08em;
       }
 
       .title {
         margin: 0;
-        font-size: clamp(1.8rem, 4vw, 3.45rem);
+        font-size: clamp(2.5rem, 5vw, 4.5rem);
         line-height: 1;
         letter-spacing: -0.04em;
+      }
+
+      .scope-kicker {
+        margin: 0.9rem 0 0;
+        color: var(--accent-2);
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
       }
 
       .subtitle {
@@ -192,11 +220,18 @@
 
       .scope-copy {
         display: grid;
-        gap: 0.75rem;
-        margin-top: 0.85rem;
+        gap: 0.9rem;
+        margin-top: 1rem;
         max-width: 72ch;
-        color: var(--muted);
-        font-size: 0.98rem;
+        padding: 1rem 1rem 1rem 1.05rem;
+        color: #d3dbe2;
+        font-size: 1rem;
+        line-height: 1.6;
+        background: linear-gradient(180deg, rgba(31, 37, 41, 0.86), rgba(22, 26, 29, 0.78));
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-left: 3px solid rgba(69, 137, 255, 0.72);
+        border-radius: 0.9rem;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
       }
 
       .scope-copy p {
@@ -561,36 +596,20 @@
             />
             <span class="brand-name">Mezanino</span>
           </div>
+          <p class="scope-kicker">Levantamento operacional</p>
           <h1 class="title">Escopo</h1>
           <div class="scope-copy" id="scope-copy"></div>
         </section>
       </header>
 
       <section class="panel">
-        <p class="panel-lead">
-          O acesso foi liberado. Preencha os campos do levantamento e revise as respostas antes de salvar.
-        </p>
-
         <form id="submit-form" class="inline-form">
-          <button class="button" id="submit-button" type="submit">Salvar e notificar</button>
+          <button class="button" id="submit-button" type="submit">Enviar</button>
         </form>
 
-        <div class="actions">
-          <div class="small-note">
-            O acesso permanece disponível nesta sessão para você continuar de onde parou.
-          </div>
-          <div class="status" id="status-box" data-tone="warning">Aguardando preenchimento do formulário.</div>
-        </div>
-
-        <details class="preview" open>
-          <summary><strong>Base do levantamento</strong></summary>
-          <pre id="survey-debug">Aguardando carregamento do levantamento.</pre>
-        </details>
-
-        <div class="preview">
-          <strong>Resumo atual</strong>
-          <pre id="payload-preview">Nenhum envio ainda.</pre>
-        </div>
+        <div id="status-box" hidden></div>
+        <pre id="survey-debug" hidden></pre>
+        <pre id="payload-preview" hidden></pre>
       </section>
 
       <form id="survey-form" class="sections"></form>
@@ -600,7 +619,7 @@
           <div class="small-note">
             Cada resposta compõe o registro final do levantamento.
           </div>
-          <button class="button" form="submit-form" type="submit">Enviar levantamento</button>
+          <button class="button" form="submit-form" type="submit">Enviar</button>
         </div>
       </div>
 
@@ -682,6 +701,9 @@
           }
 
           if (currentSection.title.toLowerCase() === "escopo") {
+            if (/^-{3,}$/.test(line)) {
+              continue;
+            }
             currentSection.paragraphs.push(line);
             continue;
           }
