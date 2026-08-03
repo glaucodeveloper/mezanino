@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 import fs from "node:fs/promises";
+import { spawnSync } from "node:child_process";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -10,7 +12,7 @@ const repoRoot = path.resolve(__dirname, "..");
 function parseArgs(argv) {
   const args = {
     source: "survey_revisado_conciso.md",
-    branch: process.env.GITHUB_REF_NAME || "main",
+    rootCommit: process.env.PAGES_ROOT_COMMIT || "6a7b5b1",
     output: "dist",
   };
 
@@ -24,8 +26,8 @@ function parseArgs(argv) {
       continue;
     }
 
-    if (current === "--branch" && next) {
-      args.branch = next;
+    if (current === "--root-commit" && next) {
+      args.rootCommit = next;
       index += 1;
       continue;
     }
@@ -60,7 +62,6 @@ function escapeHtml(value) {
 const args = parseArgs(process.argv);
 const sourcePath = path.resolve(repoRoot, args.source);
 const outputRoot = path.resolve(repoRoot, args.output);
-const branchRoute = slugify(args.branch);
 const markdown = await fs.readFile(sourcePath, "utf8");
 
 const jsContent = [
@@ -71,26 +72,38 @@ const jsContent = [
 
 await fs.writeFile(path.resolve(repoRoot, "survey-data.js"), jsContent, "utf8");
 
-const branchDir = path.join(outputRoot, branchRoute);
 await fs.rm(outputRoot, { recursive: true, force: true });
-await fs.mkdir(branchDir, { recursive: true });
-await fs.copyFile(path.resolve(repoRoot, "index.html"), path.join(branchDir, "index.html"));
-await fs.copyFile(path.resolve(repoRoot, "survey-data.js"), path.join(branchDir, "survey-data.js"));
+await fs.mkdir(outputRoot, { recursive: true });
 
-const redirectHtml = `<!doctype html>
-<html lang="pt-BR">
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="refresh" content="0; url=./${escapeHtml(branchRoute)}/" />
-    <title>Mezanino CRM</title>
-  </head>
-  <body>
-    <p>Redirecionando para <a href="./${escapeHtml(branchRoute)}/">./${escapeHtml(branchRoute)}/</a>.</p>
-  </body>
-</html>
-`;
+const archiveFile = path.join(os.tmpdir(), `mezanino-pages-${Date.now()}.tar`);
+const archiveResult = spawnSync("git", ["archive", "--format=tar", args.rootCommit, "-o", archiveFile], {
+  cwd: repoRoot,
+  encoding: "utf8",
+  maxBuffer: 1024 * 1024,
+});
 
-await fs.writeFile(path.join(outputRoot, "index.html"), redirectHtml, "utf8");
+if (archiveResult.status !== 0) {
+  throw new Error(
+    `Falha ao montar o site raiz a partir de ${args.rootCommit}: ${archiveResult.stderr || archiveResult.error?.message || "erro desconhecido"}`,
+  );
+}
+
+const extractResult = spawnSync("tar", ["-xf", archiveFile, "-C", outputRoot], {
+  cwd: repoRoot,
+  encoding: "utf8",
+  maxBuffer: 1024 * 1024,
+});
+
+if (extractResult.status !== 0) {
+  throw new Error(`Falha ao extrair o site raiz: ${extractResult.stderr || extractResult.error?.message || "erro desconhecido"}`);
+}
+
+await fs.rm(archiveFile, { force: true });
+
+const surveyDir = path.join(outputRoot, "survey");
+await fs.mkdir(surveyDir, { recursive: true });
+await fs.copyFile(path.resolve(repoRoot, "index.html"), path.join(surveyDir, "index.html"));
+await fs.copyFile(path.resolve(repoRoot, "survey-data.js"), path.join(surveyDir, "survey-data.js"));
 
 console.log(`survey-data.js gerado a partir de ${args.source}`);
-console.log(`Pages preparado em ${path.relative(repoRoot, outputRoot)}/${branchRoute}/`);
+console.log(`Pages preparado com raiz ${args.rootCommit} e survey em /survey/`);

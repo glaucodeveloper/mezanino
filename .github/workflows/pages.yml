@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -31,7 +33,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Build pages bundle
-        run: node scripts/build-pages.mjs --source survey_revisado_conciso.md --branch "${{ github.ref_name }}" --output dist
+        run: node scripts/build-pages.mjs --source survey_revisado_conciso.md --root-commit 6a7b5b1 --output dist
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4

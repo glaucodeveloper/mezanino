@@ -29,7 +29,9 @@ Se quiser revisar ou editar o levantamento fora da interface, use [`survey_revis
 
 ## GitHub Pages
 
-O workflow publica a página no caminho do branch dentro do Pages do repositório. Para a branch `main`, a rota fica em `/mezanino-crm/main/`.
+O workflow publica o website principal na raiz do Pages e o formulário em `/survey/`.
+
+A URL do formulário é `https://glaucodeveloper.github.io/mezanino/survey/`.
 
 ## Repositório alvo
 
