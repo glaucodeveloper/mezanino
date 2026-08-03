@@ -503,12 +503,11 @@
         <p class="gate-kicker">Protegido</p>
         <h1 class="gate-title">Liberar acesso ao levantamento</h1>
         <p class="gate-copy">
-          Informe o token do GitHub para carregar os elementos do formulário e permitir o envio
-          do levantamento.
+          Informe o token para liberar o acesso e continuar o preenchimento do levantamento.
         </p>
         <form class="gate-form" id="token-gate-form">
           <label class="field" for="token-gate-input">
-            <span>Token do GitHub</span>
+            <span>Token de acesso</span>
             <input
               class="input"
               id="token-gate-input"
@@ -531,16 +530,16 @@
           <p class="eyebrow">Mezanino CRM</p>
           <h1 class="title">Levantamento funcional imobiliário</h1>
           <p class="subtitle">
-            Formulário de preenchimento simples, pensado para ser respondido por um profissional
-            não técnico da área e consolidar as respostas do CRM imobiliário no GitHub.
+            Levantamento para entender como a operação imobiliária funciona na prática e quais
+            informações precisam entrar na construção do CRM.
           </p>
         </section>
       </header>
 
       <section class="panel">
-        <h2>Envio para GitHub</h2>
+        <h2>Resumo do levantamento</h2>
         <p class="panel-lead">
-          O acesso foi liberado. Preencha os campos do levantamento e envie o JSON para o GitHub.
+          O acesso foi liberado. Preencha os campos do levantamento e revise as respostas antes de salvar.
         </p>
 
         <form id="submit-form" class="inline-form">
@@ -549,20 +548,18 @@
 
         <div class="actions">
           <div class="small-note">
-            O token é usado apenas para liberar o acesso nesta sessão. O formulário volta do último
-            rascunho salvo em <code>localStorage</code> e o mesmo JSON é atualizado no GitHub
-            quando existir um arquivo anterior.
+            O acesso permanece disponível nesta sessão para você continuar de onde parou.
           </div>
           <div class="status" id="status-box" data-tone="warning">Aguardando preenchimento do formulário.</div>
         </div>
 
         <details class="preview" open>
-          <summary><strong>Fonte do survey</strong></summary>
-          <pre id="survey-debug">Aguardando `survey-data.js`.</pre>
+          <summary><strong>Base do levantamento</strong></summary>
+          <pre id="survey-debug">Aguardando carregamento do levantamento.</pre>
         </details>
 
         <div class="preview">
-          <strong>Destino da gravação</strong>
+          <strong>Resumo atual</strong>
           <pre id="payload-preview">Nenhum envio ainda.</pre>
         </div>
       </section>
@@ -572,14 +569,14 @@
       <div class="sticky-submit">
         <div class="actions">
           <div class="small-note">
-            Cada resposta vai para o JSON de levantamento e também entra no texto da issue criada.
+            Cada resposta compõe o registro final do levantamento.
           </div>
           <button class="button" form="submit-form" type="submit">Enviar levantamento</button>
         </div>
       </div>
 
       <p class="footer">
-        Carbon-inspired layout, pronto para adaptação em repo público ou privado.
+        Pronto para uso no levantamento e na continuidade do cadastro.
       </p>
     </div>
 
@@ -595,7 +592,6 @@
       const tokenGateSubmit = document.getElementById("token-gate-submit");
       const app = document.getElementById("app");
       const surveyDebug = document.getElementById("survey-debug");
-      const surveyMarkdownSource = window.MEZANINO_SURVEY_MARKDOWN_SOURCE || "survey_revisado_conciso.md";
       let surveyMarkdown = (window.MEZANINO_SURVEY_MARKDOWN || "").trim();
       let sections = surveyMarkdown ? parseSurveyMarkdown(surveyMarkdown) : [];
 
@@ -730,8 +726,8 @@
         sections = parseSurveyMarkdown(surveyMarkdown);
         surveyReady = true;
         surveyDebug.textContent =
-          `Carregado de ${surveyMarkdownSource}\n` +
-          `Caracteres: ${surveyMarkdown.length}\n` +
+          `Levantamento carregado.\n` +
+          `Linhas úteis: ${surveyMarkdown.split(/\r?\n/).filter(Boolean).length}\n` +
           `Seções: ${sections.length}\n` +
           `Perguntas: ${getTotalQuestions()}`;
       }
@@ -739,7 +735,7 @@
       if (surveyReady) {
         applySurveyMarkdown(surveyMarkdown);
       } else {
-        surveyDebug.textContent = `survey-data.js não carregado.\nFonte esperada: ${surveyMarkdownSource}`;
+        surveyDebug.textContent = "Aguardando carregamento do levantamento.";
       }
 
       function setStatus(message, tone = "warning") {
@@ -895,7 +891,7 @@
 
         if (!response.ok) {
           const errorBody = await response.text();
-          throw new Error(`Falha ao verificar o JSON no GitHub: ${response.status} ${errorBody}`);
+          throw new Error(`Falha ao verificar o registro: ${response.status} ${errorBody}`);
         }
 
         const body = await response.json();
@@ -920,7 +916,7 @@
           "## Resumo",
           "",
           "O formulário foi enviado pelo HTML do projeto `mezanino`.",
-          "O JSON completo ficou gravado no repositório e este issue serve como notificação.",
+          "O registro completo ficou salvo no repositório e este issue serve como notificação.",
         ].join("\n");
 
         const headers = {
@@ -945,7 +941,7 @@
 
         if (!fileResponse.ok) {
           const errorBody = await fileResponse.text();
-          throw new Error(`Falha ao salvar JSON no GitHub: ${fileResponse.status} ${errorBody}`);
+          throw new Error(`Falha ao salvar o registro: ${fileResponse.status} ${errorBody}`);
         }
 
         const issueResponse = await fetch(`https://api.github.com/repos/${payload.repository}/issues`, {
@@ -962,7 +958,7 @@
 
         if (!issueResponse.ok) {
           const errorBody = await issueResponse.text();
-          throw new Error(`Falha ao criar issue no GitHub: ${issueResponse.status} ${errorBody}`);
+          throw new Error(`Falha ao criar a notificação: ${issueResponse.status} ${errorBody}`);
         }
 
         return {
@@ -989,8 +985,8 @@
 
         try {
           if (!surveyReady) {
-            if (!surveyMarkdown) {
-              throw new Error(`survey-data.js não carregou. Fonte esperada: ${surveyMarkdownSource}`);
+          if (!surveyMarkdown) {
+              throw new Error("O levantamento não foi carregado.");
             }
 
             applySurveyMarkdown(surveyMarkdown);
@@ -1010,9 +1006,9 @@
           const draft = loadDraft();
           if (draft) {
             loadDraftIntoForm(draft);
-            setStatus("Último rascunho carregado do navegador. Edite e reenviar vai atualizar o mesmo JSON.", "warning");
+            setStatus("Último registro carregado. Edite e salve novamente para atualizar as respostas.", "warning");
           } else {
-            setStatus("Acesso liberado. Preencha o formulário para registrar o levantamento.", "warning");
+            setStatus("Acesso liberado. Preencha o levantamento para registrar as respostas.", "warning");
           }
 
           const firstField = surveyForm.querySelector("textarea");
@@ -1057,16 +1053,16 @@
 
       const savedDraft = loadDraft();
       if (savedDraft) {
-        setStatus("Rascunho local disponível. Libere o acesso para continuar.", "warning");
+        setStatus("Há um registro salvo neste navegador. Libere o acesso para continuar.", "warning");
       } else {
-        setStatus("Aguardando liberação do token.", "warning");
+        setStatus("Aguardando liberação de acesso.", "warning");
       }
 
       submitForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
         if (!githubToken) {
-          setStatus("Libere o acesso com o token antes de enviar o levantamento.", "danger");
+          setStatus("Libere o acesso antes de enviar o levantamento.", "danger");
           document.body.classList.remove("unlocked");
           tokenGate.removeAttribute("aria-hidden");
           tokenGate.hidden = false;
@@ -1081,7 +1077,7 @@
         try {
           sha = await readFileSha(token, targetFile);
         } catch (error) {
-          setStatus(error instanceof Error ? error.message : "Falha ao verificar o arquivo no GitHub.", "danger");
+          setStatus(error instanceof Error ? error.message : "Falha ao verificar o registro.", "danger");
           return;
         }
 
@@ -1103,12 +1099,12 @@
         };
 
         submitButton.disabled = true;
-        setStatus("Enviando para o GitHub...", "warning");
+        setStatus("Salvando o levantamento...", "warning");
 
         try {
-          const result = await saveToGithub(githubToken, payload, sha);
+          await saveToGithub(githubToken, payload, sha);
           currentDocument.revision = payload.revision;
-          setStatus(`Enviado com sucesso. Issue criada: #${result.issue.number}.`, "success");
+          setStatus("Levantamento atualizado com sucesso.", "success");
         } catch (error) {
           setStatus(error instanceof Error ? error.message : "Falha inesperada no envio.", "danger");
         } finally {
