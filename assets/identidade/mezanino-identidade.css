@@ -1530,6 +1530,35 @@ body { background: var(--mezanino-preview-paper) !important; }
 }
 
 /* Busca inicial: controles alinhados e campo por código em linha própria. */
+.app-shell.route-home #home.hero .hero-code-search {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(100%, 360px);
+  min-height: 44px;
+  margin: 14px 0 0;
+  padding: 0 11px;
+  box-sizing: border-box;
+  border: 1px solid #dce9e0;
+  border-radius: 4px;
+  background: #f7faf8;
+  color: #476b65;
+}
+.app-shell.route-home #home.hero .hero-code-search svg {
+  width: 19px !important;
+  flex: 0 0 19px;
+  fill: #bd8d44 !important;
+}
+.app-shell.route-home #home.hero .hero-code-search input[name="propertyCode"] {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  color: #05343f !important;
+  font-size: 13px !important;
+}
+.app-shell.route-home #home.hero .hero-code-search input::placeholder { color: #58726e !important; }
 @media (max-width: 760px) {
   .app-shell.route-home #home.hero .hero-shell {
     padding-bottom: 22px !important;
@@ -1566,27 +1595,10 @@ body { background: var(--mezanino-preview-paper) !important; }
     grid-column: 1 / -1 !important;
     min-height: 48px !important;
   }
-  .app-shell.route-home #home.hero .custom-search-panel > div[data-route="comprar"] {
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
+  .app-shell.route-home #home.hero .hero-code-search {
     width: 100% !important;
     min-height: 44px !important;
-    margin: 12px 0 0 !important;
-    padding: 0 11px !important;
-    transform: none !important;
-    box-sizing: border-box !important;
-    border: 1px solid #dce9e0 !important;
-    border-radius: 4px !important;
-    background: #f7faf8 !important;
-  }
-  .app-shell.route-home #home.hero .custom-search-panel > div[data-route="comprar"] svg {
-    width: 19px !important;
-    flex: 0 0 19px !important;
-  }
-  .app-shell.route-home #home.hero .custom-search-panel > div[data-route="comprar"] input[name="propertyCode"] {
-    min-height: 40px !important;
-    font-size: 13px !important;
+    margin-top: 10px !important;
   }
   .app-shell.route-home .featured-section--grid { padding-top: 30px !important; }
 }
