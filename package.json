@@ -1,0 +1,23 @@
+{
+  "name": "mezanino-imobiliaria-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync:cms": "node ../cms-imobiliaria/scripts/build-okf.mjs && node scripts/sync-cms.mjs",
+    "build": "npm run sync:cms && node --env-file=.env scripts/build-web.mjs",
+    "deploy:pages": "node scripts/deploy-pages.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "cap:sync": "npm run build && npx cap sync",
+    "cms:api": "node scripts/cms-api-server.mjs",
+    "cms:start": "bash scripts/start-cms-api.sh",
+    "cms:stop": "bash scripts/stop-cms-api.sh"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/core": "^7.4.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3"
+  }
+}

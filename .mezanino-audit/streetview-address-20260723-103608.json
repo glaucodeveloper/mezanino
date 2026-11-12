@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2026-07-23T10:36:08.143721",
+  "dataFile": "/home/icarogdo/dev/mezanino-imobiliaria-app/cms-imobiliaria/data/site.okf.json",
+  "propertyCount": 9,
+  "distinctCoordinateCount": 9,
+  "exactDuplicateCoordinates": [],
+  "nearCoordinatePairs": [],
+  "approximateLocationIds": [
+    "alphaville",
+    "jardim-armacao",
+    "vilarejo",
+    "busca-vida",
+    "cobertura-barra",
+    "studio-caminho",
+    "casa-ipitanga",
+    "sala-comercial-pituba",
+    "terreno-jaua"
+  ],
+  "missingAddressIds": [
+    "alphaville",
+    "jardim-armacao",
+    "vilarejo",
+    "busca-vida",
+    "cobertura-barra",
+    "studio-caminho",
+    "casa-ipitanga",
+    "sala-comercial-pituba",
+    "terreno-jaua"
+  ],
+  "missingCoordinateIds": []
+}
