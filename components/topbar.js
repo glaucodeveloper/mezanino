@@ -42,7 +42,7 @@ const TopbarComponent = ({ props }) => {
         dashboard: "Gestão comercial",
         contato: "Fale com a imobiliária",
         sobre: "Conheça a equipe e o processo",
-        financiamento: "Simulação e apoio financeiro",
+        financiamento: "Financiamento imobiliário",
         vendedores: "Base comercial e atendimento",
         brokers: "Base comercial e atendimento",
       };
@@ -154,7 +154,7 @@ const TopbarComponent = ({ props }) => {
 
               <div class="container topbar-main-container">
                 <a class="topbar-brand" href="#home" data-route="home" style="text-decoration: none; border-bottom: 0;">
-                  <img class="topbar-brand-image" src="./logo_teste.png.png" alt="Mezanino Imobiliária">
+                  <img class="topbar-brand-image" src="./assets/identidade/logo-extenso.svg" alt="Mezanino Imobiliária">
                 </a>
                 
                 <button

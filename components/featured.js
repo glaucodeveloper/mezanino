@@ -120,10 +120,20 @@ const FeaturedComponent = ({ props }) => ({
               <button class="ghost-btn" type="button" data-route="comprar">Ver todos</button>
             </div>
             <div class="${isDedicatedPage ? `featured-showcase-grid ${showcaseStageClass}` : "featured-mini-grid"}">
-              ${isDedicatedPage ? properties.slice(0, 4).map((property) => renderShowcaseCard(property)).join("") : properties.slice(0, 4).map((property) => renderSimpleCard(property)).join("")}
+              ${isDedicatedPage ? properties.slice(0, 4).map((property) => renderShowcaseCard(property)).join("") : properties.slice(0, 3).map((property) => renderSimpleCard(property)).join("")}
             </div>
           </div>
         </section>
+        ${!isDedicatedPage ? `
+          <section class="mezanino-brand-statement" aria-label="Sobre a Mezanino">
+            <div class="mezanino-brand-statement-inner">
+              <div><p class="mezanino-brand-statement-kicker">UMA NOVA PERSPECTIVA IMOBILIÁRIA</p>
+                <h2>Mais do que imóveis.<br>Conexões que transformam.</h2>
+                <p>A Mezanino aproxima pessoas, espaços e novas possibilidades.</p>
+              </div>
+              <a href="#contato" data-route="contato">Fale com a Mezanino</a>
+            </div>
+          </section>` : ""}
       `,
     };
   },

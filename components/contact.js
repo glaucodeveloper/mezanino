@@ -12,13 +12,14 @@ const ContactComponent = () => ({
       value: /*html*/ `
         <section class="section detail-section contact-section">
           <style>
+
             .contact-section .contact-whatsapp-only {
               display: grid;
               grid-template-columns: minmax(0, 1.08fr) minmax(360px, .92fr);
               min-height: 540px;
               overflow: hidden;
               border-radius: 28px;
-              background: #082b59;
+              background: #05343f;
               box-shadow: 0 28px 70px rgba(12, 34, 61, .16);
             }
             .contact-section .contact-whatsapp-copy {
@@ -95,6 +96,7 @@ const ContactComponent = () => ({
                 order: -1;
               }
             }
+
           </style>
 
           <div class="container">

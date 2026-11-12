@@ -148,7 +148,7 @@ const FloatingWhatsComponent = () => ({
             <iframe
               class="whatsapp-action-frame"
               title="Conversa com a Mezanino pelo WhatsApp"
-              src="./components/whatsapp-action-frame.html"
+              src="./components/whatsapp-action-frame.html?v=20261111-v10"
               loading="eager"
               referrerpolicy="strict-origin-when-cross-origin"
               sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms"

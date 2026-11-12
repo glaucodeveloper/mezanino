@@ -972,8 +972,16 @@ const DetailComponent = ({ props }) => {
       return {
         done: false,
         value: /*html*/`
-          <section id="imovel" class="section detail-section">
-            <div class="container">
+          <section id="imovel" class="section detail-section mezanino-detail-v10">
+            <div class="container detail-intro">
+              <div class="mezanino-detail-breadcrumb">
+                <a href="#comprar" data-route="comprar">Imóveis</a><span aria-hidden="true">/</span>
+                <span>Detalhes do imóvel</span>
+              </div>
+              <div class="mezanino-detail-header">
+                <div><h1>${escapeText(property.title)}</h1>
+                <p>${escapeText(property.city)} · ${escapeText(property.type)}</p></div>
+              </div>
             </div>
             <div class="container detail-layout">
               <div>
@@ -983,7 +991,7 @@ const DetailComponent = ({ props }) => {
                 </div>
                 <div class="detail-copy">
                   <span class="eyebrow">${escapeText(property.type)}</span>
-                  <h2>${escapeText(property.title)}</h2>
+                  <h2>Conheça este imóvel</h2>
                   <p>${property.recordType === "market-comparable" ? `Referencia observada em ${escapeText(property.observedAt || "data nao informada")}. O preco e pedido, a imagem e ilustrativa e a disponibilidade precisa ser confirmada na fonte.` : "Cadastro comercial do imovel."}</p>
                   <ul class="feature-list">
                     <li>Area total: ${escapeText(property.area)}m2</li>
@@ -1001,7 +1009,8 @@ const DetailComponent = ({ props }) => {
                 </div>
               </div>
               <aside class="detail-panel">
-                <h3>${escapeText(property.title)}</h3>
+                <span class="mezanino-detail-card-kicker">ATENDIMENTO PERSONALIZADO</span>
+                <h3>Seu próximo endereço começa aqui</h3>
                 <div class="location">${escapeText(property.city)}</div>
                 <div class="meta">${(property.meta || []).map((item) => /*html*/`<span>${escapeText(item)}</span>`).join("")}</div>
                 <strong class="price">${escapeText(property.price)}</strong>
@@ -1039,111 +1048,6 @@ const DetailComponent = ({ props }) => {
                 </div>
               </div>
             ` : ""}
-            <!-- Seção de Simulador de Financiamento Dinâmico -->
-            <div class="container" id="financing-section" style="margin-top: 60px; margin-bottom: 60px;">
-              <div class="section-title">
-                <div>
-                  <span class="eyebrow">Financiamento</span>
-                  <h2>Simulação de Financiamento para este Imóvel</h2>
-                </div>
-              </div>
-
-              <div class="financing-simulator" style="background: var(--card-bg, #ffffff); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 24px; box-sizing: border-box;">
-                <div class="financing-simulator-controls">
-                  <h3 style="margin-top: 0; margin-bottom: 20px;">Configurar simulação</h3>
-                  <div class="financing-control-grid">
-                    <div class="financing-control">
-                      <label class="financing-control-label">Valor do imóvel</label>
-                      ${renderStepper("propertyValue", simulatorValues.propertyValue, 100000, 10000000, 50000, "", "R$", "currency")}
-                    </div>
-                    <div class="financing-control">
-                      <label class="financing-control-label">Entrada</label>
-                      ${renderStepper("downPayment", simulatorValues.downPayment, 0, simulatorValues.propertyValue, 10000, "", "R$", "currency")}
-                      <span class="financing-control-hint">${downPct}% do valor</span>
-                    </div>
-                    <div class="financing-control">
-                      <label class="financing-control-label">Prazo</label>
-                      ${renderStepper("termMonths", simulatorValues.termMonths, 12, 420, 12, "meses", "", "number")}
-                      <span class="financing-control-hint">${termDisplay}</span>
-                    </div>
-                    <div class="financing-control">
-                      <label class="financing-control-label">Taxa anual</label>
-                      ${renderStepper("annualRate", simulatorValues.annualRate, 0.5, 18, 0.5, "% a.a.", "", "number")}
-                    </div>
-                  </div>
-                </div>
-                <div class="financing-simulator-results">
-                  <h3 style="margin-top: 0; margin-bottom: 20px;">Resultado da Simulação</h3>
-                  <div class="financing-result-main">
-                    <span class="financing-result-label">Parcela mensal estimada</span>
-                    <strong class="financing-result-value">${formatCurrency(monthly)}</strong>
-                    <span class="financing-result-sub">em ${termDisplay}</span>
-                  </div>
-                  <div class="financing-result-grid">
-                    <div class="financing-result-stat">
-                      <span>Valor financiado</span>
-                      <strong>${formatCurrency(financed)}</strong>
-                    </div>
-                    <div class="financing-result-stat">
-                      <span>Total pago</span>
-                      <strong>${formatCurrency(total)}</strong>
-                    </div>
-                    <div class="financing-result-stat">
-                      <span>Juros totais</span>
-                      <strong>${formatCurrency(interest > 0 ? interest : 0)}</strong>
-                      <span class="financing-result-detail">${interestPct}% do financiado</span>
-                    </div>
-                    <div class="financing-result-stat">
-                      <span>Entrada</span>
-                      <strong>${downPct}%</strong>
-                      <span class="financing-result-detail">${formatCurrency(simulatorValues.downPayment)}</span>
-                    </div>
-                  </div>
-                  <div class="financing-bar-track">
-                    <div class="financing-bar-fill" style="width: ${downPct}%;"></div>
-                  </div>
-                  <div class="financing-bar-labels">
-                    <span>Entrada ${formatCurrency(simulatorValues.downPayment)}</span>
-                    <span>Financiado ${formatCurrency(financed)}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="financing-info-section" style="margin-top: 30px;">
-                <div class="financing-info-grid">
-                  <article class="financing-info-card">
-                    <h3>Como funciona</h3>
-                    <ul class="detail-bullet-list">
-                      <li>Simule as condições ideais para seu orçamento</li>
-                      <li>Envie sua proposta e documentos para análise de crédito</li>
-                      <li>O banco avalia o risco e aprova o limite</li>
-                      <li>Assinatura do contrato e liberação das chaves</li>
-                    </ul>
-                  </article>
-                  <article class="financing-info-card">
-                    <h3>Documentos necessários</h3>
-                    <ul class="detail-bullet-list">
-                      <li>RG, CPF e comprovante de estado civil</li>
-                      <li>Comprovante de renda (holerite ou IR)</li>
-                      <li>Comprovante de residência atualizado</li>
-                      <li>Extrato bancário (últimos 3 meses)</li>
-                    </ul>
-                  </article>
-                  <article class="financing-info-card financing-info-card--highlight">
-                    <h3>Fale com um especialista</h3>
-                    <p>Preencha o formulário e nossa equipe financeira entrará em contato para guiar seu financiamento.</p>
-                    <form class="financing-lead-form" data-cid="detail" data-message="submitFinancingLead">
-                      <div class="mini-field"><label>Nome</label><input name="name" required placeholder="Seu nome"></div>
-                      <div class="mini-field"><label>Telefone</label><input name="phone" required placeholder="(77) 981590101"></div>
-                      <div class="mini-field"><label>Renda mensal</label><input name="income" placeholder="R$"></div>
-                      <button class="gold-btn" type="submit">Solicitar contato</button>
-                      ${leadStatus ? `<p class="route-note" style="color: var(--gold); margin-top: 8px;">${escapeText(leadStatus)}</p>` : ""}
-                    </form>
-                  </article>
-                </div>
-              </div>
-            </div>
-
             <div class="container">
               <div class="section-title"><div><span class="eyebrow">Semelhantes</span><h2>Imoveis semelhantes</h2></div></div>
               <div class="property-grid">${properties.filter((item) => item.id !== property.id).slice(0, 3).map((item) => renderPropertyCard(item)).join("")}</div>

@@ -110,32 +110,25 @@ const HeroComponent = ({ id, props }) => {
       return {
         done: false,
         value: /*html*/ `
-          <section id="home" class="hero" style="position: relative; height: 70vh !important; min-height: 92vh !important; background-size: cover; background-position: 50% 0%;">
+          <section id="home" class="hero">
             <div class="hero-overlay" style="position: absolute; inset: 0; background: transparent; z-index: 1;"></div>
             
-            <div class="container hero-shell" style="position: relative; z-index: 2; height: 100%; display: flex; align-items: flex-end; justify-content: center; padding: 0 !important;">
-              <div class="hero-stack" style="width: 100%; display: flex; flex-direction: column; align-items: center; position: relative;">
+            <div class="container hero-shell">
+              <div class="hero-stack">
                 
                 <!-- Original Phrase -->
-                <h1 class="hero-title" style="
-                    color: #16273f;
-    font-size: 5.2em !important;font-weight: 500;
-    letter-spacing: -0.015em;
-    text-align: left;
-    max-width: 1200px;
-    opacity: 0.95;
-    z-index: 5;
-    box-sizing: border-box;
-    padding: 0 16px;
-    margin: 0 auto;
-    margin-bottom: -1.5ch;
-    width: auto;
-    align-self: baseline;">
-          Sonhe, conecte e realize
-                </h1>
+                <div class="mezanino-hero-editorial">
+                   <p class="mezanino-hero-kicker">MEZANINO · SOLUÇÕES IMOBILIÁRIAS</p>
+                   <h1 class="hero-title">Sonhe, conecte<br>e <em>realize.</em></h1>
+                   <p class="mezanino-hero-lead">Uma nova perspectiva para encontrar o seu lugar. Imóveis, pessoas e possibilidades em conexão.</p>
+                 </div>
 
                 <!-- Main Search Bar Card -->
                 <div class="custom-search-panel" style="background: #fff; padding: 28px 30px; border-radius: 8px; box-shadow: 0 15px 45px rgba(0,0,0,0.15); width: 100%; max-width: 1140px; box-sizing: border-box; transform: translateY(50px); z-index: 10;">
+                 <div class="mezanino-search-tabs" role="group" aria-label="Finalidade da busca">
+  <button type="button" class="mezanino-search-tab ${selectedOperation === "comprar" ? "is-active" : ""}" data-cid="hero" data-message="selectOperation" data-value="comprar" aria-pressed="${selectedOperation === "comprar"}">Comprar</button>
+  <button type="button" class="mezanino-search-tab ${selectedOperation === "alugar" ? "is-active" : ""}" data-cid="hero" data-message="selectOperation" data-value="alugar" aria-pressed="${selectedOperation === "alugar"}">Alugar</button>
+</div>
                   <div   class="custom-search-row" style="display: grid; grid-template-columns: repeat(3, minmax(205px, 1fr)) minmax(150px, 180px); gap: 20px; align-items: stretch; justify-content: center; width: min(100%, 1040px); margin: 0 auto;">
                     
                     <!-- 1. O que deseja? -->
