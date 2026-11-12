@@ -9189,16 +9189,25 @@ h1 em {
     display: inherit; 
   }
 @media (max-width: 760px) {
-  .hero .custom-search-panel [data-route="comprar"] {
+  .hero .hero-stack {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero .custom-search-panel {
+    position: relative;
+    margin: 18px auto 0 !important;
     transform: none !important;
-    position: absolute;
-    left: 7%;
-    margin: 0 !important;
-    top: 16%;
   }
 
-  #comprar-search-dropdown{
-    display: none; 
+  .hero .custom-search-panel .hero-code-search {
+    position: relative;
+    inset: auto;
+    margin: 0 0 16px !important;
+    transform: none !important;
   }
 
+  #comprar-search-dropdown {
+    display: none;
+  }
 }
