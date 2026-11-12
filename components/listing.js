@@ -275,7 +275,7 @@ const ListingComponent = ({ props }) => {
           <section id="comprar" class="section listing-section">
             <div class="container">
               <div class="section-title">
-                <div><span class="eyebrow">Vitoria da Conquista / BA</span><h2>${operation === "alugar" ? "Comparaveis de locacao" : "Comparaveis de venda"}</h2><p>${filtered.length} referencias observadas. Precos pedidos, imagens ilustrativas e disponibilidade a confirmar na fonte.</p></div>
+                <div><span class="eyebrow">Vitoria da Conquista / BA</span><h2>${operation === "alugar" ? "Comparáveis de locação" : "Comparáveis de venda"}</h2><p>${filtered.length} referencias observadas. Precos pedidos, imagens ilustrativas e disponibilidade a confirmar na fonte.</p></div>
               </div>
               <div class="listing-layout">
                 <aside class="filter-box" aria-label="Filtros">
