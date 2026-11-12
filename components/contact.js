@@ -61,11 +61,16 @@ const ContactComponent = () => ({
               min-height: 52px;
               padding: 0 24px;
               border-radius: 8px;
-              background: #d3a251;
-              color: #fff;
+              background: #b0d5b1;
+              color: #05343f;
               text-decoration: none;
               font-weight: 750;
-              box-shadow: 0 12px 30px rgba(0,0,0,.18);
+              box-shadow: 0 12px 30px rgba(176,213,177,.24);
+            }
+            .contact-section .contact-whatsapp-button:hover,
+            .contact-section .contact-whatsapp-button:focus-visible {
+              background: #cce4ce;
+              color: #05343f;
             }
             .contact-section .contact-whatsapp-number {
               color: rgba(255,255,255,.84);

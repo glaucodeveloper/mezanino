@@ -10,13 +10,12 @@
   font-display: swap;
 }
 @font-face {
-  font-family: 'Mezanino Zodiak';
-  src: url('./fonts/Zodiak-Variable.woff2') format('woff2');
+  font-family: 'Mezanino Raleway';
+  src: url('./fonts/Raleway-Italic-VariableFont_wght.ttf') format('truetype');
   font-weight: 100 900;
-  font-style: normal;
+  font-style: italic;
   font-display: swap;
 }
-
 :root {
   --brand-abissal: #05343f;
   --brand-mineral: #02474c;
@@ -36,13 +35,14 @@
   --cream: var(--brand-neve);
   --font-body: 'Mezanino Raleway', 'Raleway', 'Segoe UI', sans-serif;
   --font-ui: var(--font-body);
-  --font-display: 'Mezanino Zodiak', Georgia, serif;
+  --font-display: var(--font-body);
 }
 
 html { color-scheme: light; }
 body, button, input, select, textarea {
   font-family: var(--font-body);
 }
+h1, h2, h3, h4, h5, h6 { font-family: var(--font-body); }
 body {
   color: var(--brand-carvao);
   background: linear-gradient(150deg, #fbfcfa 0%, #f0f5f1 50%, #f9fbf8 100%);
@@ -414,7 +414,7 @@ body { background: var(--mezanino-preview-paper) !important; }
 }
 .hero .custom-search-panel .custom-search-row {
   display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(130px, 170px) !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(130px, 170px) !important;
   gap: 12px !important;
   width: 100% !important;
   max-width: none !important;
@@ -575,7 +575,7 @@ body { background: var(--mezanino-preview-paper) !important; }
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     grid-template-areas: none !important;
   }
-  .hero .custom-search-panel .custom-search-btn { grid-column: auto !important; }
+  .hero .custom-search-panel .custom-search-btn { grid-column: 1 / -1 !important; }
   .featured-section--grid .featured-mini-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
 }
 @media (max-width: 760px) {
@@ -610,7 +610,7 @@ body { background: var(--mezanino-preview-paper) !important; }
     grid-template-columns: repeat(2,minmax(0,1fr)) !important;
     grid-template-areas: none !important;
   }
-  .hero .custom-search-panel .custom-search-btn { height: auto !important; margin: 0 !important; min-height: 53px !important; }
+  .hero .custom-search-panel .custom-search-btn { grid-column: 1 / -1 !important; height: auto !important; margin: 0 !important; min-height: 53px !important; }
   .featured-section--grid { padding-top: 105px !important; }
   .featured-section--grid .featured-mini-grid { grid-template-columns: 1fr !important; }
   .mezanino-brand-statement-inner { flex-direction: column; align-items: flex-start; }
@@ -1029,8 +1029,10 @@ body { background: var(--mezanino-preview-paper) !important; }
     justify-content: space-between !important;
   }
   .app-shell #home.hero .custom-search-panel {
-    transform: translateY(6vh) !important;
-    margin: 22px auto 0 !important;
+    position: relative !important;
+    order: -1 !important;
+    transform: none !important;
+    margin: 0 auto !important;
   }
   .app-shell.route-home .featured-section--grid { padding-top: 118px !important; }
 }
@@ -1458,6 +1460,152 @@ body { background: var(--mezanino-preview-paper) !important; }
   max-height: 44px !important;
   object-fit: contain !important;
   object-position: left center !important;
+}
+
+/* Cartões da listagem em modo lista, na linguagem visual da marca. */
+.app-shell #comprar .list-stack {
+  display: grid !important;
+  gap: 12px !important;
+}
+.app-shell #comprar .list-stack .list-card {
+  display: grid !important;
+  grid-template-columns: 224px minmax(0, 1fr) 178px !important;
+  grid-template-areas: "photo info price" !important;
+  align-items: center !important;
+  gap: 22px !important;
+  min-width: 0 !important;
+  padding: 12px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(2,71,76,.2) !important;
+  border-radius: 10px !important;
+  background: #fff !important;
+  box-shadow: 0 5px 18px rgba(5,52,63,.045) !important;
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease !important;
+}
+.app-shell #comprar .list-stack .list-card:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(2,71,76,.42) !important;
+  box-shadow: 0 12px 26px rgba(5,52,63,.09) !important;
+}
+.app-shell #comprar .list-stack .list-card::before { content: none !important; }
+.app-shell #comprar .list-stack .list-card > img {
+  grid-area: photo !important;
+  width: 100% !important;
+  height: 148px !important;
+  border-radius: 7px !important;
+  object-fit: cover !important;
+}
+.app-shell #comprar .list-stack .list-info {
+  grid-area: info !important;
+  min-width: 0 !important;
+}
+.app-shell #comprar .list-stack .list-info .property-type {
+  display: inline-block !important;
+  margin-bottom: 5px !important;
+  color: #36706d !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: .1em !important;
+  text-transform: uppercase !important;
+}
+.app-shell #comprar .list-stack .list-info h3 {
+  display: -webkit-box !important;
+  overflow: hidden !important;
+  margin: 0 0 6px !important;
+  color: #05343f !important;
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  line-height: 1.28 !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+}
+.app-shell #comprar .list-stack .list-info .location {
+  margin: 0 0 8px !important;
+  color: #58726e !important;
+  font-size: 12px !important;
+}
+.app-shell #comprar .list-stack .list-info .meta {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 5px !important;
+  color: #315b58 !important;
+}
+.app-shell #comprar .list-stack .list-info .meta span {
+  padding: 4px 7px !important;
+  border: 1px solid #e0eae3 !important;
+  border-radius: 4px !important;
+  background: #f7faf8 !important;
+  font-size: 10px !important;
+}
+.app-shell #comprar .list-stack .list-price {
+  grid-area: price !important;
+  align-self: stretch !important;
+  align-content: center !important;
+  justify-items: start !important;
+  gap: 10px !important;
+  padding: 8px 0 8px 18px !important;
+  border-left: 1px solid #e3ece5 !important;
+}
+.app-shell #comprar .list-stack .list-price .price {
+  color: #05343f !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+}
+
+/* Um passo menor na tipografia da página Comprar/Alugar, sem afetar outras rotas. */
+.app-shell #comprar .section-title h2 { font-size: clamp(26px, 2.5vw, 34px) !important; }
+.app-shell #comprar .section-title p,
+.app-shell #comprar .filter-stack,
+.app-shell #comprar .mini-field,
+.app-shell #comprar .list-toolbar,
+.app-shell #comprar .pager button { font-size: 13px !important; }
+.app-shell #comprar .filter-head strong { font-size: clamp(25px, 2.15vw, 32px) !important; }
+.app-shell #comprar .list-stack .list-info h3 { font-size: 16px !important; }
+@media (max-width: 980px) {
+  .app-shell #comprar .list-stack .list-card {
+    grid-template-columns: 190px minmax(0, 1fr) 146px !important;
+    gap: 16px !important;
+  }
+  .app-shell #comprar .list-stack .list-price { padding-left: 12px !important; }
+}
+@media (max-width: 720px) {
+  .app-shell #comprar .list-stack .list-card {
+    grid-template-columns: 126px minmax(0, 1fr) !important;
+    grid-template-areas: "photo info" "photo price" !important;
+    align-items: start !important;
+    gap: 8px 14px !important;
+    padding: 10px !important;
+  }
+  .app-shell #comprar .list-stack .list-card > img { height: 126px !important; }
+  .app-shell #comprar .list-stack .list-price {
+    align-self: start !important;
+    justify-items: start !important;
+    padding: 0 !important;
+    border-left: 0 !important;
+  }
+}
+@media (max-width: 430px) {
+  .app-shell #comprar .list-stack .list-card {
+    grid-template-columns: 94px minmax(0, 1fr) !important;
+    grid-template-areas: "photo info" "photo price" !important;
+    gap: 6px 10px !important;
+  }
+  .app-shell #comprar .list-stack .list-card > img { height: 110px !important; }
+  .app-shell #comprar .list-stack .list-info h3 { font-size: 14px !important; }
+  .app-shell #comprar .list-stack .list-info .meta span { font-size: 9px !important; }
+  .app-shell #comprar .list-stack .list-price .price { font-size: 16px !important; }
+}
+
+/* No celular, a busca entra no fluxo relativo antes do texto do hero. */
+@media (max-width: 760px) {
+  .app-shell #home.hero .hero-stack { display: flex !important; flex-direction: column !important; }
+  .app-shell #home.hero .custom-search-panel {
+    position: relative !important;
+    order: -1 !important;
+    transform: none !important;
+    margin: 0 auto !important;
+  }
 }
 
 /* Paleta institucional também na chamada do mapa e no breadcrumb do imóvel. */

@@ -3,9 +3,8 @@ const ListingComponent = ({ props }) => {
   let page = 1;
   let sortBy = "recentes";
   const pageSize = 4;
-  const routeInfo = props.getRouteInfo?.() || {};
-  const operation = routeInfo.operation || "comprar";
-  const defaultMaxPrice = operation === "alugar" ? 10000 : 2500000;
+  let operation = props.getRouteInfo?.().operation || "comprar";
+  let defaultMaxPrice = operation === "alugar" ? 10000 : 2500000;
   let lastUrlHash = "";
   const filters = {
     kinds: new Set(),
@@ -150,6 +149,8 @@ const ListingComponent = ({ props }) => {
         // Parse parameters from window.location.hash
         const [, queryPart = ""] = currentHash.split("?");
         const params = new URLSearchParams(queryPart);
+        operation = params.get("operation") === "alugar" ? "alugar" : "comprar";
+        defaultMaxPrice = operation === "alugar" ? 10000 : 2500000;
         
         if (params.has("tipo") || params.has("type")) {
           const t = params.get("tipo") || params.get("type");
