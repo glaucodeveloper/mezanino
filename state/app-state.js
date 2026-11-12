@@ -679,7 +679,7 @@ const parseRoute = () => {
     operation: params.get("operation") || null,
   };
 };
-const brand = () => /*html*/ `<img class="brand" src="./logo_teste.png.png" alt="Mezanino"/> `;
+const brand = () => /*html*/ `<img class="brand" src="./assets/identidade/logo-extenso.svg" alt="Mezanino Imobiliária"/> `;
 const active = (currentRoute, route) =>
   currentRoute === route ? "active" : "";
 const money = (value) => Number(value).toLocaleString("pt-BR");

@@ -1450,6 +1450,15 @@ body { background: var(--mezanino-preview-paper) !important; }
 .app-shell .mezanino-detail-v10 > .container:last-child {
   scroll-margin-top: 96px !important;
 }
+.app-shell .dashboard-nav img.brand,
+.app-shell .editor-shell .dashboard-nav img.brand {
+  display: block !important;
+  width: min(205px, 100%) !important;
+  height: auto !important;
+  max-height: 44px !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+}
 
 /* Paleta institucional também na chamada do mapa e no breadcrumb do imóvel. */
 .app-shell .eye-eyebrow,

@@ -82,6 +82,12 @@ body {
 .site-footer a,
 .site-footer h4 { color: #eff8f1 !important; }
 .site-footer a:hover { color: #b0d5b1 !important; }
+.site-footer img.brand {
+  display: block;
+  width: min(245px, 80vw);
+  height: auto;
+  object-fit: contain;
+}
 @media (max-width: 760px) {
   .hero { background-position: 60% center !important; }
 }
