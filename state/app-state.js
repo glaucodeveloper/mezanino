@@ -659,7 +659,11 @@ const parseRoute = () => {
   const hash = window.location.hash.replace(/^#/, "").trim();
   const [routePartWithId, queryPart = ""] = hash.split("?");
   const [routePart = "", hashPropertyId = ""] = routePartWithId.split("#");
-  const route = ROUTES.includes(routePart) ? routePart : "home";
+  const route = routePart === "comprar"
+    ? "imoveis"
+    : ROUTES.includes(routePart)
+      ? routePart
+      : "home";
   const params = new URLSearchParams(queryPart);
   const queryPropertyId = params.get("propertyId") || null;
   const propertyId =

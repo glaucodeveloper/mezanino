@@ -3253,7 +3253,11 @@ const bootApp = (rootSelector = "#app") => {
   window.addEventListener("scroll", syncTopbarState, { passive: true });
   window.addEventListener("resize", syncTopbarState, { passive: true });
   const setRoute = (route, options = {}) => {
-    let requestedRoute = ROUTES.includes(route) ? route : "home";
+    let requestedRoute = route === "comprar"
+      ? "imoveis"
+      : ROUTES.includes(route)
+        ? route
+        : "home";
     if (requestedRoute === "financiamento") {
       requestedRoute = "imovel";
       setTimeout(() => {
@@ -3304,7 +3308,9 @@ const bootApp = (rootSelector = "#app") => {
         if (options.dashboardTab) query.set("tab", options.dashboardTab);
         if (options.entityId) query.set("entityId", options.entityId);
       }
-      const nextHash =
+      const nextHash = route === "comprar"
+        ? `#comprar${query.toString() ? `?${query.toString()}` : ""}`
+        :
         (nextRoute === "imovel" || nextRoute === "imovel-editar") && propertyId
           ? `#${nextRoute}#${encodeURIComponent(propertyId)}`
           : `#${nextRoute}${query.toString() ? `?${query.toString()}` : ""}`;

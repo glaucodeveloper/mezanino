@@ -1450,3 +1450,22 @@ body { background: var(--mezanino-preview-paper) !important; }
 .app-shell .mezanino-detail-v10 > .container:last-child {
   scroll-margin-top: 96px !important;
 }
+
+/* Paleta institucional também na chamada do mapa e no breadcrumb do imóvel. */
+.app-shell .eye-eyebrow,
+.app-shell .map-navigation-section .map-section-title .eyebrow {
+  color: #02474c !important;
+}
+.app-shell .eye-eyebrow::before,
+.app-shell .map-navigation-section .map-section-title .eyebrow::before {
+  background: #b0d5b1 !important;
+}
+.app-shell .map-navigation-section .map-reset-button {
+  color: #02474c !important;
+}
+.app-shell .map-navigation-section .map-reset-button:hover,
+.app-shell .map-navigation-section .map-reset-button:focus-visible {
+  color: #05343f !important;
+  text-decoration: underline;
+  text-decoration-color: #b0d5b1;
+}
