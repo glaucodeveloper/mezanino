@@ -8,12 +8,7 @@
               <img class="mezanino-footer-logo" src="./assets/identidade/logo-extenso.svg" alt="Mezanino Imobiliária" loading="lazy" decoding="async">
             </a>
             <p style="margin: 15px 0 20px; color: #4a5568; max-width: 420px;">Conectando pessoas aos melhores imóveis e oportunidades com curadoria premium.</p>
-            <p class="footer-social-links" style="color: #bd8d44; font-weight: 500; font-size: 0.92rem;">
-              <a href="#" aria-label="Instagram">Instagram</a><span aria-hidden="true"> · </span>
-              <a href="#" aria-label="Facebook">Facebook</a><span aria-hidden="true"> · </span>
-              <a href="#" aria-label="WhatsApp">WhatsApp</a><span aria-hidden="true"> · </span>
-              <a href="#" aria-label="YouTube">YouTube</a>
-            </p>
+            <p style="color: #bd8d44; font-weight: 500; font-size: 0.92rem;">Instagram · Facebook · WhatsApp · YouTube</p>
           </div>
           <div class="footer-contact-column" style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; justify-content: end;">
             <h4 style="margin: 0; color: #16273f; font-family: var(--font-display); font-size: 1.25rem;">Contato</h4>
