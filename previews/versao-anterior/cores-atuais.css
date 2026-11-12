@@ -88,6 +88,76 @@ body {
   height: auto;
   object-fit: contain;
 }
+.featured-section--grid > .featured-shell > .section-title {
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  gap: 24px !important;
+  margin: 0 0 26px !important;
+}
+.featured-section--grid > .featured-shell > .section-title .eyebrow,
+.featured-section--grid > .featured-shell > .section-title h2,
+.featured-section--grid > .featured-shell > .section-title p { display: block !important; }
+.featured-section--grid > .featured-shell > .section-title .eyebrow { margin-bottom: 10px; }
+.featured-section--grid > .featured-shell > .section-title h2 {
+  margin: 0 0 10px !important;
+  color: #05343f !important;
+  font-size: clamp(2rem, 3.6vw, 3.5rem) !important;
+  line-height: 1.05 !important;
+}
+.featured-section--grid > .featured-shell > .section-title p {
+  margin: 0 !important;
+  color: #58726e !important;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.featured-section--grid .featured-afterword {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 26px;
+  margin-top: 24px;
+  padding: 22px 26px;
+  border: 1px solid rgba(2, 71, 76, .18);
+  border-radius: 8px;
+  background: linear-gradient(110deg, #edf4ef 0%, #f7faf8 76%);
+}
+.featured-section--grid .featured-afterword p {
+  max-width: 72ch;
+  margin: 0;
+  color: #58726e;
+  font-size: 15px;
+  line-height: 1.65;
+}
+.featured-section--grid .featured-afterword strong {
+  display: block;
+  margin-bottom: 3px;
+  color: #05343f;
+  font-family: var(--font-display);
+  font-size: 23px;
+  line-height: 1.2;
+}
+.featured-section--grid .featured-afterword a {
+  flex: 0 0 auto;
+  padding: 8px 0;
+  border-bottom: 1px solid #b0d5b1;
+  color: #05343f;
+  font-size: 13px;
+  font-weight: 800;
+}
+@media (max-width: 700px) {
+  .featured-section--grid > .featured-shell > .section-title {
+    align-items: flex-start !important;
+    flex-direction: column;
+    gap: 12px !important;
+  }
+  .featured-section--grid .featured-afterword {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px;
+  }
+}
 @media (max-width: 760px) {
   .hero { background-position: 60% center !important; }
 }
