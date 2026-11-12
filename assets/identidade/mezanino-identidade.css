@@ -226,7 +226,7 @@ body { background: var(--mezanino-preview-paper) !important; }
 }
 .app-shell .topbar .topbar-main {
   background: #05343f !important;
-  padding: 12px 0 !important;
+  padding: 0 0 !important;
   min-height: 72px !important;
   box-shadow: none !important;
 }
@@ -244,20 +244,22 @@ body { background: var(--mezanino-preview-paper) !important; }
   position: relative !important;
   inset: auto !important;
   height: auto !important;
-  min-height: 46px !important;
-  max-width: min(40%, 260px) !important;
-  flex: 0 1 260px;
+  /*! min-height: 46px !important; */
+  max-width: min(50%, 260px) !important;
+  /*! flex: 0 1 260px; */
   padding: 0 !important;
   border: 0 !important;
   transform: none !important;
+  height: 100px !important;
 }
 .app-shell .topbar .topbar-brand-image {
   display: block !important;
-  width: 84% !important;
-  max-width: 252px !important;
-  max-height: 57px !important;
-  height: auto !important;
+  /*! width: 100% !important; */
+  /*! max-width: 275px !important; */
+  /*! max-height: 57px !important; */
+  /*! height: auto !important; */
   object-fit: contain !important;
+  height: 100% !important;
 }
 .app-shell .topbar .topbar-main-container .topbar-nav {
   margin: 0 !important;
@@ -268,7 +270,7 @@ body { background: var(--mezanino-preview-paper) !important; }
 .app-shell .topbar .topbar-main-container .topbar-nav a {
   color: #e9f5ed !important;
   font-family: var(--font-body) !important;
-  font-size: clamp(10px, .9vw, 12px) !important;
+  font-size: clamp(10px, 0.9vw, 16px) !important;
   font-weight: 700 !important;
   letter-spacing: .04em !important;
   border-bottom: 0 !important;
@@ -382,7 +384,7 @@ body { background: var(--mezanino-preview-paper) !important; }
   background: #fff !important;
   border: 1px solid #dce8df !important;
   border-radius: 5px !important;
-  transform: translateY(78px) !important;
+  transform: translateY(-8vh) !important;
   box-shadow: 0 19px 55px rgba(5,52,63,.16) !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
@@ -1063,7 +1065,7 @@ body { background: var(--mezanino-preview-paper) !important; }
   }
   .app-shell #home.hero .custom-search-panel {
     position: relative !important;
-    transform: none !important;
+    /*! transform: none !important; */
     margin: 0 auto !important;
   }
   .app-shell.route-home .featured-section--grid { padding-top: 118px !important; }
