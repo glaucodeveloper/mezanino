@@ -117,7 +117,7 @@ body {
   justify-content: space-between;
   gap: 26px;
   margin-top: 24px;
-  padding: 22px 26px;
+  padding: 22px 190px 22px 26px;
   border: 1px solid rgba(2, 71, 76, .18);
   border-radius: 8px;
   background: linear-gradient(110deg, #edf4ef 0%, #f7faf8 76%);
