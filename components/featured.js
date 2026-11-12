@@ -116,12 +116,20 @@ const FeaturedComponent = ({ props }) => ({
         <section id="destaques" class="section featured-section ${isDedicatedPage ? `featured-section--showcase ${showcaseStageClass}` : "featured-section--grid"}" ${isDedicatedPage && expandedHeight ? `style="--featured-expanded-height:${expandedHeight}px"` : ""}>
           <div class="container featured-shell">
             <div class="section-title">
-              <div><span class="eyebrow">Destaques</span><h2>Imoveis em destaque</h2><p>Selecionamos as oportunidades mais fortes para voce.</p></div>
+              <div><span class="eyebrow">Destaques</span><h2>${isDedicatedPage ? "Imóveis em destaque" : "O próximo capítulo da sua vida começa aqui."}</h2><p>${isDedicatedPage ? "Selecionamos as oportunidades mais fortes para você." : "Endereços escolhidos para transformar seus planos em novas conquistas."}</p></div>
               <button class="ghost-btn" type="button" data-route="comprar">Ver todos</button>
             </div>
             <div class="${isDedicatedPage ? `featured-showcase-grid ${showcaseStageClass}` : "featured-mini-grid"}">
               ${isDedicatedPage ? properties.slice(0, 4).map((property) => renderShowcaseCard(property)).join("") : properties.slice(0, 3).map((property) => renderSimpleCard(property)).join("")}
             </div>
+            ${!isDedicatedPage ? `
+              <div class="featured-home-closing">
+                <div>
+                  <span class="featured-home-closing-kicker">O imóvel certo faz a diferença</span>
+                  <p>Gostou de algum destaque? Explore os detalhes e conte com a nossa equipe para dar o próximo passo, no seu tempo.</p>
+                </div>
+                <a href="#comprar" data-route="comprar">Encontre seu próximo endereço <span aria-hidden="true">→</span></a>
+              </div>` : ""}
           </div>
         </section>
         ${!isDedicatedPage ? `
