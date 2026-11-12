@@ -1,7 +1,0 @@
-__pycache__/
-*.pyc
-pdf_preview/
-.DS_Store
-Thumbs.db
-node_modules/
-www/
