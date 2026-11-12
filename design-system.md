@@ -1,4 +1,4 @@
-# Mezanino Imobili·ria Design System
+# Mezanino Imobili√°ria Design System
 
 Based on `proposta.png`, translated into tokens for the current hash-routed JS app.
 
