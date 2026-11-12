@@ -283,7 +283,7 @@ body { background: var(--mezanino-preview-paper) !important; }
 
 /* A foto enviada pelo usuário recebe o tratamento tonal da paleta oficial. */
 .hero {
-  min-height: clamp(600px, 80vh, 830px) !important;
+  min-height: clamp(600px, 100vh, 830px) !important;
   height: auto !important;
   padding: 0 !important;
   background-image:
@@ -298,11 +298,11 @@ body { background: var(--mezanino-preview-paper) !important; }
 .hero .hero-overlay {
   background: transparent !important;
   pointer-events: none !important;
-  height: 80vh;
+  height: 100vh;
 }
 .hero .hero-shell {
   width: min(1180px, calc(100% - 56px)) !important;
-  min-height: clamp(600px, 80vh, 830px) !important;
+  min-height: clamp(600px, 100vh, 830px) !important;
   height: auto !important;
   padding: clamp(124px, 13vh, 174px) 0 75px !important;
   display: flex !important;
@@ -883,7 +883,7 @@ body { background: var(--mezanino-preview-paper) !important; }
 }
 /* MEZANINO-MOBILE-V7 END */
 
-/* MEZANINO-V9 START — hero 80vh, texturas pontuais, financiamento sem simulador. */
+/* MEZANINO-V9 START — hero 100vh, texturas pontuais, financiamento sem simulador. */
 /* Aplicar textura em um canto da barra, sem prejudicar o contraste da marca. */
 .app-shell .topbar,
 .app-shell.route-home .topbar,
@@ -952,7 +952,7 @@ body { background: var(--mezanino-preview-paper) !important; }
   .app-shell .hero,
   .app-shell.route-home .hero,
   #home.hero {
-    height: 80vh !important;
+    height: 100vh !important;
     min-height: 0 !important;
     max-height: none !important;
     overflow: visible !important;
@@ -1007,11 +1007,11 @@ body { background: var(--mezanino-preview-paper) !important; }
 /* MEZANINO V10 — acabamento do detalhe e altura de hero controlada */
 :root { --mezanino-page: #f7faf8; --mezanino-line: rgba(2,71,76,.17); }
 
-/* Hero 80vh também em desktop, sem os min-height herdados de versões anteriores. */
+/* Hero 100vh também em desktop, sem os min-height herdados de versões anteriores. */
 @media (min-width: 761px) {
   .app-shell.route-home #home.hero,
   .app-shell #home.hero {
-    height: 80vh !important;
+    height: 100vh !important;
     min-height: 0 !important;
     max-height: none !important;
     overflow: visible !important;
@@ -1020,12 +1020,12 @@ body { background: var(--mezanino-preview-paper) !important; }
   .app-shell #home.hero .hero-shell {
     box-sizing: border-box !important;
     height: 100% !important;
-    min-height: 80vh !important;
+    min-height: 100vh !important;
     padding: clamp(92px, 12vh, 140px) 0 32px !important;
   }
   .app-shell #home.hero .hero-stack {
     height: 100% !important;
-    min-height:  80vh !important;
+    min-height:  100vh !important;
     justify-content: space-between !important;
   }
   .app-shell #home.hero .custom-search-panel {
@@ -1336,7 +1336,7 @@ body { background: var(--mezanino-preview-paper) !important; }
   .mezanino-detail-v10 > .container:last-child .property-card h3 { font-size: 14px !important; }
 }
 @media (max-width: 430px) {
-  .app-shell.route-home #home.hero, .app-shell #home.hero { height: 80vh !important; min-height: 0 !important; }
+  .app-shell.route-home #home.hero, .app-shell #home.hero { height: 100vh !important; min-height: 0 !important; }
   .app-shell #home.hero .hero-shell { height: 100% !important; min-height: 0 !important; }
   .app-shell #home.hero .hero-stack { height: 100% !important; }
   .app-shell .mezanino-detail-v10 > .container:last-child .property-grid { grid-template-columns: 1fr !important; }
