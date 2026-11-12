@@ -1,0 +1,753 @@
+{
+  "format": "okf",
+  "okfVersion": "1.0",
+  "meta": {
+    "id": "mezanino-imobiliaria-cms",
+    "title": "Mezanino Imobiliaria CMS",
+    "sourceFile": "data/site.okf.json",
+    "locationNote": "Coordenadas iniciais aproximadas. Substituir por coordenadas exatas da fachada de cada imóvel."
+  },
+  "collections": {
+    "properties": [
+      {
+        "id": "alphaville",
+        "title": "Casa no Terras Alphaville 2 Vitória da Conquista",
+        "type": "Casa a venda",
+        "kind": "Casa",
+        "city": "Universidade, Vitória da Conquista/BA",
+        "cityName": "Vitória da Conquista",
+        "neighborhood": "Universidade",
+        "price": "R$ 1.850.000",
+        "priceNumber": 1850000,
+        "bedrooms": 4,
+        "area": 320,
+        "meta": [
+          "4 quartos",
+          "5 banheiros",
+          "4 vagas",
+          "320m2"
+        ],
+        "tag": "Destaque",
+        "image": "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=900&q=82",
+        "suites": 0,
+        "bathrooms": 0,
+        "parking": 0,
+        "features": [],
+        "images": [],
+        "latitude": -14.865979,
+        "longitude": -40.7758749,
+        "locationPrecision": "site-example-vitoria-da-conquista",
+        "street": "Av. Terras Alphaville",
+        "number": "275",
+        "postalCode": "",
+        "fullAddress": "Av. Terras Alphaville, 275, Universidade, Vitória da Conquista, Bahia, Brasil",
+        "state": "Bahia",
+        "locationSource": "fixed-site-demo-record",
+        "addressExample": true,
+        "addressRecordValid": true,
+        "propertyAddressVerified": false,
+        "locationVerified": false,
+        "locationConfidence": 0.72,
+        "addressExampleMetadata": {
+          "scope": "mezanino-site-demo",
+          "city": "Vitória da Conquista",
+          "note": "Exemplo de endereço para funcionamento do mapa e do Street View no site. Não representa endereço jurídico confirmado do anúncio."
+        }
+      },
+      {
+        "id": "jardim-armacao",
+        "title": "Apartamento no Centro de Vitória da Conquista",
+        "type": "Apartamento a venda",
+        "kind": "Apartamento",
+        "city": "Centro, Vitória da Conquista/BA",
+        "cityName": "Vitória da Conquista",
+        "neighborhood": "Centro",
+        "price": "R$ 650.000",
+        "priceNumber": 650000,
+        "bedrooms": 3,
+        "area": 98,
+        "meta": [
+          "3 quartos",
+          "2 banheiros",
+          "2 vagas",
+          "98m2"
+        ],
+        "tag": "Com vista",
+        "image": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=900&q=82",
+        "suites": 0,
+        "bathrooms": 0,
+        "parking": 0,
+        "features": [],
+        "images": [],
+        "latitude": -14.85073,
+        "longitude": -40.83854,
+        "locationPrecision": "site-example-vitoria-da-conquista",
+        "street": "Praça Presidente Tancredo Neves",
+        "number": "86",
+        "postalCode": "45000-902",
+        "fullAddress": "Praça Presidente Tancredo Neves, 86, Centro, Vitória da Conquista, Bahia, 45000-902, Brasil",
+        "state": "Bahia",
+        "locationSource": "fixed-site-demo-record",
+        "addressExample": true,
+        "addressRecordValid": true,
+        "propertyAddressVerified": false,
+        "locationVerified": false,
+        "locationConfidence": 0.72,
+        "addressExampleMetadata": {
+          "scope": "mezanino-site-demo",
+          "city": "Vitória da Conquista",
+          "note": "Exemplo de endereço para funcionamento do mapa e do Street View no site. Não representa endereço jurídico confirmado do anúncio."
+        }
+      },
+      {
+        "id": "vilarejo",
+        "title": "Casa no Centro de Vitória da Conquista",
+        "type": "Casa a venda",
+        "kind": "Casa",
+        "city": "Centro, Vitória da Conquista/BA",
+        "cityName": "Vitória da Conquista",
+        "neighborhood": "Centro",
+        "price": "R$ 790.000",
+        "priceNumber": 790000,
+        "bedrooms": 3,
+        "area": 180,
+        "meta": [
+          "3 quartos",
+          "3 banheiros",
+          "2 vagas",
+          "180m2"
+        ],
+        "tag": "Novo",
+        "image": "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=900&q=82",
+        "suites": 0,
+        "bathrooms": 0,
+        "parking": 0,
+        "features": [],
+        "images": [],
+        "latitude": -14.84952,
+        "longitude": -40.83713,
+        "locationPrecision": "site-example-vitoria-da-conquista",
+        "street": "Praça Joaquim Correia",
+        "number": "55",
+        "postalCode": "45000-907",
+        "fullAddress": "Praça Joaquim Correia, 55, Centro, Vitória da Conquista, Bahia, 45000-907, Brasil",
+        "state": "Bahia",
+        "locationSource": "fixed-site-demo-record",
+        "addressExample": true,
+        "addressRecordValid": true,
+        "propertyAddressVerified": false,
+        "locationVerified": false,
+        "locationConfidence": 0.72,
+        "addressExampleMetadata": {
+          "scope": "mezanino-site-demo",
+          "city": "Vitória da Conquista",
+          "note": "Exemplo de endereço para funcionamento do mapa e do Street View no site. Não representa endereço jurídico confirmado do anúncio."
+        }
+      },
+      {
+        "id": "busca-vida",
+        "title": "Terreno no bairro Universitário",
+        "type": "Terreno a venda",
+        "kind": "Terreno",
+        "city": "Universitário, Vitória da Conquista/BA",
+        "cityName": "Vitória da Conquista",
+        "neighborhood": "Universitário",
+        "price": "R$ 470.000",
+        "priceNumber": 470000,
+        "bedrooms": 0,
+        "area": 450,
+        "meta": [
+          "450m2",
+          "lote plano",
+          "condominio"
+        ],
+        "tag": "Oportunidade",
+        "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=82",
+        "suites": 0,
+        "bathrooms": 0,
+        "parking": 0,
+        "features": [],
+        "images": [],
+        "latitude": -14.8899,
+        "longitude": -40.8047,
+        "locationPrecision": "site-example-vitoria-da-conquista",
+        "street": "Estrada do Bem Querer",
+        "number": "KM 4",
+        "postalCode": "45031-900",
+        "fullAddress": "Estrada do Bem Querer, KM 4, Universitário, Vitória da Conquista, Bahia, 45031-900, Brasil",
+        "state": "Bahia",
+        "locationSource": "fixed-site-demo-record",
+        "addressExample": true,
+        "addressRecordValid": true,
+        "propertyAddressVerified": false,
+        "locationVerified": false,
+        "locationConfidence": 0.72,
+        "addressExampleMetadata": {
+          "scope": "mezanino-site-demo",
+          "city": "Vitória da Conquista",
+          "note": "Exemplo de endereço para funcionamento do mapa e do Street View no site. Não representa endereço jurídico confirmado do anúncio."
+        }
+      },
+      {
+        "id": "cobertura-barra",
+        "title": "Cobertura no bairro Felícia",
+        "type": "Cobertura a venda",
+        "kind": "Cobertura",
+        "city": "Felícia, Vitória da Conquista/BA",
+        "cityName": "Vitória da Conquista",
+        "neighborhood": "Felícia",
+        "price": "R$ 1.250.000",
+        "priceNumber": 1250000,
+        "bedrooms": 4,
+        "area": 210,
+        "meta": [
+          "4 quartos",
+          "4 banheiros",
+          "3 vagas",
+          "210m2"
+        ],
+        "tag": "Vista mar",
+        "image": "https://images.unsplash.com/photo-1600607688969-a5bfcd646154?auto=format&fit=crop&w=900&q=82",
+        "suites": 0,
+        "bathrooms": 0,
+        "parking": 0,
+        "features": [],
+        "images": [],
+        "latitude": -14.8879,
+        "longitude": -40.8426,
+        "locationPrecision": "site-example-vitoria-da-conquista",
+        "street": "Avenida Juracy Magalhães",
+        "number": "3340",
+        "postalCode": "45055-900",
+        "fullAddress": "Avenida Juracy Magalhães, 3340, Felícia, Vitória da Conquista, Bahia, 45055-900, Brasil",
+        "state": "Bahia",
+        "locationSource": "fixed-site-demo-record",
+        "addressExample": true,
+        "addressRecordValid": true,
+        "propertyAddressVerified": false,
+        "locationVerified": false,
+        "locationConfidence": 0.72,
+        "addressExampleMetadata": {
+          "scope": "mezanino-site-demo",
+          "city": "Vitória da Conquista",
+          "note": "Exemplo de endereço para funcionamento do mapa e do Street View no site. Não representa endereço jurídico confirmado do anúncio."
+        }
+      },
+      {
+        "id": "studio-caminho",
+        "title": "Studio no bairro Felícia",
+        "type": "Apartamento a venda",
+        "kind": "Apartamento",
+        "city": "Felícia, Vitória da Conquista/BA",
+        "cityName": "Vitória da Conquista",
+        "neighborhood": "Felícia",
+        "price": "R$ 420.000",
+        "priceNumber": 420000,
+        "bedrooms": 1,
+        "area": 48,
+        "meta": [
+          "1 quarto",
+          "1 banheiro",
+          "1 vaga",
+          "48m2"
+        ],
+        "tag": "Compacto",
+        "image": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=82",
+        "suites": 0,
+        "bathrooms": 0,
+        "parking": 0,
+        "features": [],
+        "images": [],
+        "latitude": -14.8942,
+        "longitude": -40.8437,
+        "locationPrecision": "site-example-vitoria-da-conquista",
+        "street": "Avenida Juracy Magalhães",
+        "number": "3956",
+        "postalCode": "45055-901",
+        "fullAddress": "Avenida Juracy Magalhães, 3956, Felícia, Vitória da Conquista, Bahia, 45055-901, Brasil",
+        "state": "Bahia",
+        "locationSource": "fixed-site-demo-record",
+        "addressExample": true,
+        "addressRecordValid": true,
+        "propertyAddressVerified": false,
+        "locationVerified": false,
+        "locationConfidence": 0.72,
+        "addressExampleMetadata": {
+          "scope": "mezanino-site-demo",
+          "city": "Vitória da Conquista",
+          "note": "Exemplo de endereço para funcionamento do mapa e do Street View no site. Não representa endereço jurídico confirmado do anúncio."
+        }
+      },
+      {
+        "id": "casa-ipitanga",
+        "title": "Casa no bairro Universidade",
+        "type": "Casa a venda",
+        "kind": "Casa",
+        "city": "Universidade, Vitória da Conquista/BA",
+        "cityName": "Vitória da Conquista",
+        "neighborhood": "Universidade",
+        "price": "R$ 690.000",
+        "priceNumber": 690000,
+        "bedrooms": 3,
+        "area": 160,
+        "meta": [
+          "3 quartos",
+          "2 banheiros",
+          "2 vagas",
+          "160m2"
+        ],
+        "tag": "Familia",
+        "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=82",
+        "suites": 0,
+        "bathrooms": 0,
+        "parking": 0,
+        "features": [],
+        "images": [],
+        "latitude": -14.877,
+        "longitude": -40.8124,
+        "locationPrecision": "site-example-vitoria-da-conquista",
+        "street": "Avenida Olívia Flores",
+        "number": "S/N",
+        "postalCode": "45031-000",
+        "fullAddress": "Avenida Olívia Flores, Universidade, Vitória da Conquista, Bahia, 45031-000, Brasil",
+        "state": "Bahia",
+        "locationSource": "fixed-site-demo-record",
+        "addressExample": true,
+        "addressRecordValid": true,
+        "propertyAddressVerified": false,
+        "locationVerified": false,
+        "locationConfidence": 0.72,
+        "addressExampleMetadata": {
+          "scope": "mezanino-site-demo",
+          "city": "Vitória da Conquista",
+          "note": "Exemplo de endereço para funcionamento do mapa e do Street View no site. Não representa endereço jurídico confirmado do anúncio."
+        }
+      },
+      {
+        "id": "sala-comercial-pituba",
+        "title": "Sala comercial no bairro Brasil",
+        "type": "Sala comercial a venda",
+        "kind": "Sala comercial",
+        "city": "Brasil, Vitória da Conquista/BA",
+        "cityName": "Vitória da Conquista",
+        "neighborhood": "Brasil",
+        "price": "R$ 350.000",
+        "priceNumber": 350000,
+        "bedrooms": 0,
+        "area": 62,
+        "meta": [
+          "62m2",
+          "1 banheiro",
+          "1 vaga",
+          "empresarial"
+        ],
+        "tag": "Comercial",
+        "image": "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=82",
+        "suites": 0,
+        "bathrooms": 0,
+        "parking": 0,
+        "features": [],
+        "images": [],
+        "latitude": -14.8546,
+        "longitude": -40.8568,
+        "locationPrecision": "site-example-vitoria-da-conquista",
+        "street": "Avenida Brumado",
+        "number": "S/N",
+        "postalCode": "45051-000",
+        "fullAddress": "Avenida Brumado, Brasil, Vitória da Conquista, Bahia, 45051-000, Brasil",
+        "state": "Bahia",
+        "locationSource": "fixed-site-demo-record",
+        "addressExample": true,
+        "addressRecordValid": true,
+        "propertyAddressVerified": false,
+        "locationVerified": false,
+        "locationConfidence": 0.72,
+        "addressExampleMetadata": {
+          "scope": "mezanino-site-demo",
+          "city": "Vitória da Conquista",
+          "note": "Exemplo de endereço para funcionamento do mapa e do Street View no site. Não representa endereço jurídico confirmado do anúncio."
+        }
+      },
+      {
+        "id": "terreno-jaua",
+        "title": "Terreno no bairro Jurema",
+        "type": "Terreno a venda",
+        "kind": "Terreno",
+        "city": "Jurema, Vitória da Conquista/BA",
+        "cityName": "Vitória da Conquista",
+        "neighborhood": "Jurema",
+        "price": "R$ 290.000",
+        "priceNumber": 290000,
+        "bedrooms": 0,
+        "area": 600,
+        "meta": [
+          "600m2",
+          "lote plano",
+          "perto da praia"
+        ],
+        "tag": "Praia",
+        "image": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=82",
+        "suites": 0,
+        "bathrooms": 0,
+        "parking": 0,
+        "features": [],
+        "images": [],
+        "latitude": -14.8723,
+        "longitude": -40.8368,
+        "locationPrecision": "site-example-vitoria-da-conquista",
+        "street": "Avenida Bartolomeu de Gusmão",
+        "number": "S/N",
+        "postalCode": "45023-000",
+        "fullAddress": "Avenida Bartolomeu de Gusmão, Jurema, Vitória da Conquista, Bahia, 45023-000, Brasil",
+        "state": "Bahia",
+        "locationSource": "fixed-site-demo-record",
+        "addressExample": true,
+        "addressRecordValid": true,
+        "propertyAddressVerified": false,
+        "locationVerified": false,
+        "locationConfidence": 0.72,
+        "addressExampleMetadata": {
+          "scope": "mezanino-site-demo",
+          "city": "Vitória da Conquista",
+          "note": "Exemplo de endereço para funcionamento do mapa e do Street View no site. Não representa endereço jurídico confirmado do anúncio."
+        }
+      }
+    ],
+    "brokers": [
+      {
+        "name": "Joao Almeida",
+        "phone": "(71) 99999-0001",
+        "photo": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=240&q=80",
+        "creci": "CRECI 12345"
+      },
+      {
+        "name": "Mariana Santos",
+        "phone": "(71) 99999-0002",
+        "photo": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=80",
+        "creci": "CRECI 22334"
+      },
+      {
+        "name": "Carlos Mendes",
+        "phone": "(71) 99999-0003",
+        "photo": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80",
+        "creci": "CRECI 33445"
+      },
+      {
+        "name": "Juliana Oliveira",
+        "phone": "(71) 99999-0004",
+        "photo": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80",
+        "creci": "CRECI 44556"
+      }
+    ]
+  },
+  "views": {
+    "dashboard": {
+      "about": {
+        "historia": {
+          "copy": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+          "detail": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem.",
+          "image": "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1100&q=82"
+        },
+        "missao": {
+          "copy": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque id nibh ut turpis interdum tincidunt nec sit amet mauris. Cras convallis purus non sapien malesuada, vel vestibulum odio iaculis.",
+          "detail": "Nulla facilisi. Morbi sed diam eget risus varius blandit sit amet non magna. Donec id elit non mi porta gravida at eget metus. Praesent commodo cursus magna, vel scelerisque nisl consectetur et.",
+          "image": "https://images.unsplash.com/photo-1497366811353-6870740d34b0?auto=format&fit=crop&w=1100&q=82"
+        },
+        "diferenciais": [
+          {
+            "title": "CRECI ativo",
+            "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt."
+          },
+          {
+            "title": "Consultoria fiscal",
+            "desc": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip."
+          },
+          {
+            "title": "Curadoria de portfólio",
+            "desc": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat."
+          },
+          {
+            "title": "Atendimento exclusivo",
+            "desc": "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt."
+          },
+          {
+            "title": "Cobertura metropolitana",
+            "desc": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium."
+          },
+          {
+            "title": "Pós-venda",
+            "desc": "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit."
+          }
+        ]
+      },
+      "metrics": [
+        {
+          "label": "Total de imoveis",
+          "value": "56",
+          "id": "metrics-1-total-de-imoveis"
+        },
+        {
+          "label": "Imoveis ativos",
+          "value": "42",
+          "color": "#1f9b61",
+          "id": "metrics-2-imoveis-ativos"
+        },
+        {
+          "label": "Leads",
+          "value": "128",
+          "id": "metrics-3-leads"
+        },
+        {
+          "label": "Visitas este mes",
+          "value": "1.245",
+          "id": "metrics-4-visitas-este-mes"
+        }
+      ],
+      "activities": [
+        {
+          "icon": "L",
+          "title": "Novo lead recebido",
+          "detail": "Teste",
+          "time": "Agora",
+          "color": "var(--gold)",
+          "properties": [],
+          "brokers": [],
+          "clients": []
+        },
+        {
+          "icon": "A",
+          "title": "Novo lead recebido",
+          "detail": "Apartamento no Jardim Armacao",
+          "time": "Hoje, 10:23",
+          "color": "var(--gold)",
+          "id": "activities-1-novo-lead-recebido"
+        },
+        {
+          "icon": "G",
+          "title": "Agendamento confirmado",
+          "detail": "Visita - Casa no Vilarejo",
+          "time": "Hoje, 09:15",
+          "color": "#24a45a",
+          "id": "activities-2-agendamento-confirmado"
+        },
+        {
+          "icon": "N",
+          "title": "Novo imovel publicado",
+          "detail": "Casa em Alphaville",
+          "time": "Ontem",
+          "color": "#d48a1d",
+          "id": "activities-3-novo-imovel-publicado"
+        },
+        {
+          "icon": "C",
+          "title": "Cliente reativado",
+          "detail": "Juliana Oliveira pediu retorno",
+          "time": "Ontem, 17:40",
+          "color": "#4d7bd6",
+          "id": "activities-4-cliente-reativado"
+        }
+      ],
+      "leads": [
+        {
+          "name": "ICARO GLAUCO DE OLIVEIRA",
+          "source": "Contato",
+          "interest": "Teste",
+          "email": "icaroglaucooliveira@gmail.com",
+          "phone": "5574991220997",
+          "stage": "novo"
+        },
+        {
+          "name": "Lucas Andrade",
+          "source": "Landing page home",
+          "interest": "Casa em Condominio Alphaville",
+          "stage": "Quente",
+          "id": "leads-1-lucas-andrade"
+        },
+        {
+          "name": "Patricia Souza",
+          "source": "WhatsApp",
+          "interest": "Apartamento no Jardim Armacao",
+          "stage": "Em visita",
+          "id": "leads-2-patricia-souza"
+        },
+        {
+          "name": "Rafael Lima",
+          "source": "Formulario de anuncio",
+          "interest": "Casa no Vilarejo",
+          "stage": "Qualificando",
+          "id": "leads-3-rafael-lima"
+        },
+        {
+          "name": "Helena Prado",
+          "source": "Quiz mobile",
+          "interest": "Terreno em Busca Vida",
+          "stage": "Novo",
+          "id": "leads-4-helena-prado"
+        }
+      ],
+      "clients": [
+        {
+          "name": "Mariana Costa",
+          "profile": "Compradora",
+          "focus": "3 quartos em Salvador",
+          "owner": "Joao Almeida",
+          "id": "clients-1-mariana-costa"
+        },
+        {
+          "name": "Eduardo Nunes",
+          "profile": "Investidor",
+          "focus": "Imoveis acima de R$ 1,2 mi",
+          "owner": "Carlos Mendes",
+          "id": "clients-2-eduardo-nunes"
+        },
+        {
+          "name": "Bianca Ramos",
+          "profile": "Locataria",
+          "focus": "Apartamento compacto",
+          "owner": "Juliana Oliveira",
+          "id": "clients-3-bianca-ramos"
+        },
+        {
+          "name": "Fernando Pires",
+          "profile": "Proprietario",
+          "focus": "Captacao no litoral",
+          "owner": "Mariana Santos",
+          "id": "clients-4-fernando-pires"
+        },
+        {
+          "id": "client-1784667401176",
+          "name": "ICARO GLAUCO DE OLIVEIRA",
+          "phone": "5574991220997",
+          "email": "icaroglaucooliveira@gmail.com",
+          "profile": "Registrado pelo formulário de contato do imóvel.",
+          "focus": "Comprar",
+          "created": "2026-07-21T20:56:41.176Z"
+        }
+      ],
+      "appointments": [
+        {
+          "date": "19/06 - 09:30",
+          "client": "Lucas Andrade",
+          "property": "Casa em Condominio Alphaville",
+          "broker": "Joao Almeida",
+          "id": "appointments-1-19-06-09-30"
+        },
+        {
+          "date": "19/06 - 14:00",
+          "client": "Patricia Souza",
+          "property": "Apartamento no Jardim Armacao",
+          "broker": "Mariana Santos",
+          "id": "appointments-2-19-06-14-00"
+        },
+        {
+          "date": "20/06 - 11:00",
+          "client": "Eduardo Nunes",
+          "property": "Casa no Vilarejo",
+          "broker": "Carlos Mendes",
+          "id": "appointments-3-20-06-11-00"
+        },
+        {
+          "date": "20/06 - 16:30",
+          "client": "Helena Prado",
+          "property": "Terreno em Busca Vida",
+          "broker": "Juliana Oliveira",
+          "id": "appointments-4-20-06-16-30"
+        }
+      ],
+      "reports": [
+        {
+          "title": "Conversao de leads",
+          "value": "18%",
+          "note": "Alta de 3 pontos na semana",
+          "id": "reports-1-conversao-de-leads"
+        },
+        {
+          "title": "Tempo medio ate visita",
+          "value": "2,4 dias",
+          "note": "Melhor janela em 30 dias",
+          "id": "reports-2-tempo-medio-ate-visita"
+        },
+        {
+          "title": "Imoveis com maior intencao",
+          "value": "Casas premium",
+          "note": "Alphaville e Busca Vida lideram",
+          "id": "reports-3-imoveis-com-maior-intencao"
+        },
+        {
+          "title": "Canal com melhor custo",
+          "value": "WhatsApp",
+          "note": "Maior taxa de resposta organica",
+          "id": "reports-4-canal-com-melhor-custo"
+        }
+      ],
+      "settings": [
+        {
+          "label": "Aprovacao manual de novos anuncios",
+          "value": "Ativada",
+          "id": "settings-1-aprovacao-manual-de-novos-anuncios"
+        },
+        {
+          "label": "Aviso de lead quente por e-mail",
+          "value": "Ativado",
+          "id": "settings-2-aviso-de-lead-quente-por-e-mail"
+        },
+        {
+          "label": "Sincronizacao com CRM externo",
+          "value": "Planejada",
+          "id": "settings-3-sincronizacao-com-crm-externo"
+        },
+        {
+          "label": "Relatorio semanal para diretoria",
+          "value": "Toda segunda, 08:00",
+          "id": "settings-4-relatorio-semanal-para-diretoria"
+        }
+      ],
+      "editions": {
+        "hero": {
+          "title": "Bem-vindo a Mezanino Imobiliaria",
+          "subtitle": "Encontre o imovel dos seus sonhos com quem entende do mercado.",
+          "image": ""
+        },
+        "featured": {
+          "title": "Imoveis em destaque",
+          "copy": "Selecao curada de propriedades premium nos melhores bairros da regiao metropolitana.",
+          "image": ""
+        },
+        "about": {
+          "title": "Sobre nos",
+          "copy": "Conheca a equipe e a historia que transforma negocios imobiliarios em relacoes duradouras.",
+          "image": ""
+        },
+        "contact": {
+          "title": "Fale conosco",
+          "copy": "Entre em contato com nossa equipe para agendar visitas ou tirar duvidas.",
+          "image": ""
+        }
+      },
+      "deals": [],
+      "marketAnalyses": [],
+      "messages": [
+        {
+          "from": "Site institucional",
+          "subject": "Pedido de retorno comercial",
+          "status": "Nao lida"
+        },
+        {
+          "from": "WhatsApp",
+          "subject": "Cliente quer simular financiamento",
+          "status": "Respondida"
+        },
+        {
+          "from": "Formulario de anuncio",
+          "subject": "Novo imovel para avaliacao",
+          "status": "Triagem"
+        },
+        {
+          "from": "Instagram",
+          "subject": "Pergunta sobre taxa de corretagem",
+          "status": "Nao lida"
+        }
+      ]
+    }
+  }
+}

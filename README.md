@@ -1,23 +1,22 @@
-# Mezanino — levantamento de CRM imobiliário
+# Nexus Based Imobiliaria CMS
 
-Protótipo de pesquisa funcional para definir o fluxo de operação de um CRM imobiliário. O formulário organiza perguntas por tema, salva rascunhos no navegador e gera respostas em JSON.
+Projeto base para um website imobiliario renderizado no cliente com uma estrutura auxiliar de CMS para organizar dados, catalogo e conteudo operacional.
 
-## Conteúdo
+## Escopo atual
 
-- [`index.html`](index.html): formulário interativo.
-- [`survey_revisado_conciso.md`](survey_revisado_conciso.md): perguntas e propósitos das seções.
-- [`survey-data.js`](survey-data.js): conteúdo Markdown preparado para consumo pelo navegador.
-- [`scripts/build-pages.mjs`](scripts/build-pages.mjs): geração do arquivo de dados usado pela página.
-- [`.github/workflows/pages.yml`](.github/workflows/pages.yml): publicação do site.
+- Website monolitico em JavaScript com homepage, listagem, detalhe do imovel, login e dashboard.
+- Estrutura de CMS em `cms-imobiliaria/` para evoluir dados, conteudo e operacao do site.
+- Materiais de proposta visual e geracao de PDF.
 
-## Usar
+## Estrutura
 
-Abra `index.html` em um navegador. O formulário mantém o rascunho localmente. Para enviar e notificar, precisa de um token GitHub com acesso de gravação ao repositório e permissão para abrir issues.
+- `index.html`: entrada da aplicacao cliente.
+- `script_component_system_router_001.js`: app principal, componentes e roteamento.
+- `cms-imobiliaria/`: base do CMS e estrutura de dados.
+- `gerar_proposta_pdf.py`: geracao do PDF comercial.
+- `proposta.png`: referencia visual principal.
 
-O site publicado está em [glaucodeveloper.github.io/mezanino](https://glaucodeveloper.github.io/mezanino/); o formulário fica em `/survey/`.
+## Objetivo
 
-## Privacidade das respostas
+Centralizar a vitrine do site e a estrutura de conteudo em um unico repositorio, preparado para evoluir catalogo, filtros, dashboard e integracoes futuras.
 
-Este repositório é público. Respostas enviadas são gravadas em `responses/*.json` e notificadas por issue, portanto ficam publicamente acessíveis. Não envie dados pessoais nem informações comerciais confidenciais por este formulário.
-
-O projeto é um levantamento de requisitos, não um CRM operacional.

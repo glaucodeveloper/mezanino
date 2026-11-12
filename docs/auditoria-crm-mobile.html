@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auditoria CRM Mobile Mezanino</title>
+    <style>
+      :root { --ink:#101817; --muted:#61706d; --paper:#f5f4ef; --card:#fff; --gold:#c9902d; --line:#e6e2d9; --ok:#167a52; --review:#a56b12; }
+      * { box-sizing:border-box; }
+      body { margin:0; color:var(--ink); background:var(--paper); font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+      main { width:min(960px,calc(100% - 32px)); margin:0 auto; padding:56px 0 80px; }
+      .eyebrow { margin:0 0 8px; color:var(--gold); font-size:.78rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+      h1,h2 { line-height:1.12; } h1 { margin:0; font:700 clamp(2.2rem,8vw,4.5rem)/.95 Georgia,serif; } h2 { margin:48px 0 14px; font-size:1.35rem; }
+      .lead { max-width:680px; color:var(--muted); font-size:1.1rem; }
+      .meta,.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin-top:28px; }
+      .card,.meta div,section { background:var(--card); border:1px solid var(--line); border-radius:20px; }
+      .meta div { padding:16px; } .meta strong,.card strong { display:block; font-size:.78rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+      .card { padding:20px; } .card p { margin:8px 0 0; }
+      section { padding:4px 22px 22px; margin-top:20px; }
+      table { width:100%; border-collapse:collapse; font-size:.92rem; } th,td { padding:14px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; } th { color:var(--muted); font-size:.75rem; letter-spacing:.06em; text-transform:uppercase; }
+      .status { display:inline-block; padding:4px 8px; border-radius:999px; font-size:.76rem; font-weight:800; white-space:nowrap; } .ok { color:var(--ok); background:#e8f5ef; } .review { color:var(--review); background:#fbf0dc; }
+      .flow { display:grid; gap:8px; margin:16px 0 0; } .flow div { padding:12px 14px; border-left:3px solid var(--gold); background:#fbfaf6; border-radius:0 10px 10px 0; }
+      ul { padding-left:20px; } li+li { margin-top:8px; }
+      @media (max-width:640px) { main { width:min(100% - 20px,960px); padding-top:34px; } section { padding-inline:14px; overflow:auto; } table { min-width:680px; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">Mezanino CRM · auditoria em andamento</p>
+      <h1>Revisão do CRM mobile</h1>
+      <p class="lead">Avaliação de experiência, navegação e fluxos operacionais do aplicativo Capacitor, com evidências diretas no Moto G24 Power.</p>
+
+      <div class="meta">
+        <div><strong>Dispositivo</strong>Moto G24 Power · Android 14<br>720 × 1612</div>
+        <div><strong>Build</strong>com.mezanino.imobiliaria.audit</div>
+        <div><strong>Escopo</strong>CRM comercial e edição de conteúdo do site</div>
+      </div>
+
+      <h2>Princípios confirmados</h2>
+      <div class="cards">
+        <article class="card"><strong>Visual</strong><p>Preservação da paleta, tipografia e superfícies existentes; arredondamento aplicado a ações e containers.</p></article>
+        <article class="card"><strong>Linguagem</strong><p>Remoção progressiva de termos internos e técnicos dos fluxos de uso final.</p></article>
+        <article class="card"><strong>Segurança de teste</strong><p>O modo de auditoria grava dados somente no aparelho e não publica alterações de teste.</p></article>
+      </div>
+
+      <h2>Fluxos e estado da avaliação</h2>
+      <section>
+        <table>
+          <thead><tr><th>Fluxo</th><th>Estado</th><th>Evidência / decisão</th></tr></thead>
+          <tbody>
+            <tr><td>Abertura e painel</td><td><span class="status ok">Validado</span></td><td>Entrada direta no CRM de auditoria, sem vitrine pública. Indicadores e cards revisados no Moto.</td></tr>
+            <tr><td>Navegação lateral</td><td><span class="status review">Em refinamento</span></td><td>Drawer compacto, com acabamento escuro e borda dourada. Clique e arrasto com snap seguem em revisão funcional.</td></tr>
+            <tr><td>Indicadores</td><td><span class="status ok">Validado</span></td><td>Leitura operacional e ação de atualização com feedback visível.</td></tr>
+            <tr><td>Atividades</td><td><span class="status review">Ampliado</span></td><td>Sobreposição corrigida; fluxo passa a registrar tipo, responsável, resultado, próximo passo e vínculos CRM.</td></tr>
+            <tr><td>Clientes, negócios e agenda</td><td><span class="status review">Próxima etapa</span></td><td>Cadastro, atualização, anexos, relacionamento e retorno de ação serão verificados por cenário.</td></tr>
+            <tr><td>Imóveis e conteúdo do site</td><td><span class="status review">Em validação</span></td><td>Edição de imóvel permanece dentro do CRM; conteúdo editorial é parte do escopo comercial.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <h2>Fluxo operacional de referência</h2>
+      <section class="flow">
+        <div>Entrada no CRM → Painel de prioridades</div>
+        <div>Painel → Atividade, cliente, negócio, agenda ou imóvel relacionado</div>
+        <div>Registro de atividade → vínculo → resultado → próximo passo</div>
+        <div>Salvar → feedback de sucesso ou erro → retorno ao contexto de trabalho</div>
+        <div>Conteúdo do site → edição → salvamento auditável → retorno de publicação</div>
+      </section>
+
+      <h2>Correções já aplicadas</h2>
+      <section>
+        <ul>
+          <li>Login não perde mais a senha durante a digitação.</li>
+          <li>Ausência de vendedor não interrompe o carregamento do painel.</li>
+          <li>Sidebar recolhida não reserva coluna de layout.</li>
+          <li>Atividades não sobrepõem título, data e registros relacionados.</li>
+          <li>Imagem de marca quebrada no drawer foi corrigida.</li>
+          <li>Formulários e ações oferecem retorno visível de conclusão.</li>
+        </ul>
+      </section>
+
+      <h2>Próximos critérios de aceite</h2>
+      <section>
+        <ul>
+          <li>Validar cada ação de clientes, negócios, agenda, imóveis, relatórios e conteúdo em estados de sucesso, vazio, erro e exclusão.</li>
+          <li>Concluir o snap progressivo do drawer sem conflitar com o gesto nativo de voltar do Android.</li>
+          <li>Inventariar e substituir todas as imagens externas sem fallback local.</li>
+          <li>Registrar capturas de cada fluxo aprovado antes da versão final para stakeholders.</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

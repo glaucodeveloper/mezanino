@@ -1,0 +1,3 @@
+# Views
+
+- [Dashboard](./dashboard.md)

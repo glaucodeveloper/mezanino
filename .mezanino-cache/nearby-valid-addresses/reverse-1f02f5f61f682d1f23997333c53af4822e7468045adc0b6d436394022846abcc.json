@@ -1,0 +1,35 @@
+{
+  "place_id": 15822149,
+  "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+  "osm_type": "way",
+  "osm_id": 545702017,
+  "lat": "-13.0085419",
+  "lon": "-38.5319037",
+  "category": "building",
+  "type": "apartments",
+  "place_rank": 30,
+  "importance": 3.750133516437045e-05,
+  "addresstype": "building",
+  "name": "Edifício Napoli",
+  "display_name": "Edifício Napoli, 4313, Avenida Sete de Setembro, Barra, Salvador, Bahia, Região Nordeste, 40140-110, Brasil",
+  "address": {
+    "building": "Edifício Napoli",
+    "house_number": "4313",
+    "road": "Avenida Sete de Setembro",
+    "suburb": "Barra",
+    "district": "Salvador",
+    "city": "Salvador",
+    "state": "Bahia",
+    "ISO3166-2-lvl4": "BR-BA",
+    "region": "Região Nordeste",
+    "postcode": "40140-110",
+    "country": "Brasil",
+    "country_code": "br"
+  },
+  "boundingbox": [
+    "-13.0086441",
+    "-13.0084226",
+    "-38.5320864",
+    "-38.5317502"
+  ]
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Mezanino Imobiliaria</string>
+    <string name="title_activity_main">Mezanino Imobiliaria</string>
+    <string name="package_name">com.mezanino.imobiliaria</string>
+    <string name="custom_url_scheme">com.mezanino.imobiliaria</string>
+</resources>

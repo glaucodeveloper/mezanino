@@ -1,0 +1,68 @@
+name: Notificação de Novos Contatos e Orçamentos
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'cms-imobiliaria/data/site.json'
+      - 'cms-imobiliaria/data/site.okf.json'
+
+jobs:
+  notify:
+    name: Enviar Notificação de Lead
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Necessário para fazer o git diff com o commit anterior
+
+      - name: Extrair Detalhes do Novo Lead
+        id: extract_lead
+        run: |
+          # Analisa o que mudou no arquivo site.json para recuperar o lead recém-registrado
+          echo "Analisando commits para novos leads..."
+          
+          # Recupera os dados recém-inseridos na listagem de leads
+          NEW_LEAD_NAME=$(git diff HEAD~1 HEAD -- cms-imobiliaria/data/site.json | grep -E '"name":' | head -n 1 | sed -E 's/.*"name": *"([^"]*)".*/\1/' || echo "")
+          NEW_LEAD_SOURCE=$(git diff HEAD~1 HEAD -- cms-imobiliaria/data/site.json | grep -E '"source":' | head -n 1 | sed -E 's/.*"source": *"([^"]*)".*/\1/' || echo "")
+          NEW_LEAD_INTEREST=$(git diff HEAD~1 HEAD -- cms-imobiliaria/data/site.json | grep -E '"interest":' | head -n 1 | sed -E 's/.*"interest": *"([^"]*)".*/\1/' || echo "")
+          
+          if [ -z "$NEW_LEAD_NAME" ]; then
+            NEW_LEAD_NAME="Novo Lead / Contato"
+          fi
+          if [ -z "$NEW_LEAD_SOURCE" ]; then
+            NEW_LEAD_SOURCE="Contato do Site"
+          fi
+          if [ -z "$NEW_LEAD_INTEREST" ]; then
+            NEW_LEAD_INTEREST="Interesse em imóveis ou simulação de financiamento"
+          fi
+          
+          echo "lead_name=$NEW_LEAD_NAME" >> $GITHUB_OUTPUT
+          echo "lead_source=$NEW_LEAD_SOURCE" >> $GITHUB_OUTPUT
+          echo "lead_interest=$NEW_LEAD_INTEREST" >> $GITHUB_OUTPUT
+
+      - name: Enviar E-mail de Notificação
+        uses: dawidd6/action-send-mail@v3
+        with:
+          # Configurações de conexão SMTP (personalizáveis via Secrets do Repositório GitHub)
+          server_address: ${{ secrets.MAIL_SERVER || 'smtp.gmail.com' }}
+          server_port: ${{ secrets.MAIL_PORT || 465 }}
+          username: ${{ secrets.MAIL_USERNAME || 'notificador@suaimobiliaria.com' }}
+          password: ${{ secrets.MAIL_PASSWORD || 'senha_secreta_smtp' }}
+          subject: "Mezanino Imobiliária - Novo lead de [${{ steps.extract_lead.outputs.lead_name }}]"
+          to: icaroglauco@email.com
+          from: Mezanino Imobiliária <notificador@suaimobiliaria.com>
+          secure: true
+          html_body: |
+            <h2>🏡 Novo Lead Recebido!</h2>
+            <p>Um novo contato/orçamento foi registrado no Mezanino Imobiliária CMS.</p>
+            <hr/>
+            <ul>
+              <li><strong>Nome / Identificação:</strong> ${{ steps.extract_lead.outputs.lead_name }}</li>
+              <li><strong>Origem:</strong> ${{ steps.extract_lead.outputs.lead_source }}</li>
+              <li><strong>Interesse / Detalhes:</strong> ${{ steps.extract_lead.outputs.lead_interest }}</li>
+            </ul>
+            <hr/>
+            <p>Acesse o painel do dashboard interno para gerenciar a ficha completa do cliente e os detalhes operacionais.</p>

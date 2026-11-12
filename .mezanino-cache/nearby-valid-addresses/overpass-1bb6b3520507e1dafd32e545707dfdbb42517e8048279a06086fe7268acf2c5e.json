@@ -1,0 +1,530 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-07-23T14:42:12Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+    {
+      "type": "node",
+      "id": 2592859428,
+      "lat": -12.8767201,
+      "lon": -38.3083761,
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housename": "Drogasil",
+        "addr:housenumber": "2500",
+        "addr:street": "BA-099 (Estrada do Coco)",
+        "amenity": "pharmacy",
+        "brand": "Drogasil",
+        "brand:wikidata": "Q5308185",
+        "brand:wikipedia": "pt:Drogasil",
+        "healthcare": "pharmacy",
+        "name": "Drogasil",
+        "wheelchair": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2592862858,
+      "lat": -12.8768286,
+      "lon": -38.308419,
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housenumber": "2500",
+        "addr:street": "BA-099 (Estrada do Coco)",
+        "check_date": "2025-04-11",
+        "name": "Le Biscuit",
+        "shop": "stationery",
+        "wheelchair": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2613400605,
+      "lat": -12.8809609,
+      "lon": -38.3056727,
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housenumber": "33",
+        "addr:street": "Rua Praia de Arembepe",
+        "amenity": "bank",
+        "atm": "yes",
+        "brand": "Santander",
+        "brand:wikidata": "Q5835668",
+        "brand:wikipedia": "en:Santander Bank",
+        "name": "Santander"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2878183570,
+      "lat": -12.8794682,
+      "lon": -38.3127638,
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housenumber": "4",
+        "addr:postcode": "42700-000",
+        "addr:street": "Estrada do Coco",
+        "name": "Ramiro Bike Shop",
+        "opening_hours": "08:00-16:00",
+        "parts": "yes",
+        "service:bicycle:repair": "yes",
+        "service:bicycle:retail": "yes",
+        "shop": "bicycle"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6621481285,
+      "lat": -12.8807892,
+      "lon": -38.3068134,
+      "tags": {
+        "addr:housenumber": "25",
+        "addr:street": "Rua André L. R. da Fonte",
+        "email": "administrcao@dealernet.com.br",
+        "name": "Dealernet",
+        "office": "company",
+        "opening_hours": "Mo-Fr 08:00-18:00",
+        "phone": "+55 71 2106 2226",
+        "website": "https://www.dealernet.com.br/"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11809512144,
+      "lat": -12.9034378,
+      "lon": -38.3096833,
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housenumber": "1787",
+        "addr:postcode": "42706-020",
+        "addr:street": "Rua Amarilio Thiago dos Santos",
+        "addr:suburb": "Ipitanga",
+        "check_date": "2025-02-16",
+        "contact:email": "contato@nujelm.com",
+        "craft": "brewery",
+        "currency:XBT": "yes",
+        "name": "Cervejaria Nujel'm",
+        "operator": "@brp2pcripto",
+        "payment:cards": "yes",
+        "payment:credit_cards": "yes",
+        "payment:lightning": "yes",
+        "payment:lightning_contactless": "yes",
+        "payment:onchain": "yes",
+        "phone": "+55 71 99629 5497",
+        "product": "beer",
+        "website": "https://linktr.ee/nujel.m"
+      }
+    },
+    {
+      "type": "node",
+      "id": 12101242346,
+      "lat": -12.8937611,
+      "lon": -38.3272858,
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housenumber": "3092",
+        "addr:postcode": "42700-170",
+        "addr:street": "Avenida Santos Dumont",
+        "addr:suburb": "Recreio Ipitanga",
+        "addr:unit": "Sala 101 a 104",
+        "check_date": "2024-08-09",
+        "check_date:currency:XBT": "2025-01-11",
+        "contact:email": "coworking@ronaldofilho.com.br",
+        "contact:facebook": "https://www.facebook.com/rfcoworking",
+        "contact:instagram": "https://www.instagram.com/rfcoworking/",
+        "currency:XBT": "yes",
+        "name": "RF Coworking e Escritório Virtual",
+        "office": "coworking",
+        "opening_hours": "\"By appointment\"",
+        "payment:lightning": "no",
+        "payment:lightning_contactless": "no",
+        "payment:onchain": "yes",
+        "phone": "+55 71 99600 9500",
+        "website": "https://rfcoworking.com/"
+      }
+    },
+    {
+      "type": "node",
+      "id": 12498497792,
+      "lat": -12.8913184,
+      "lon": -38.3125157,
+      "tags": {
+        "addr:housenumber": "310",
+        "addr:street": "Rua Pataro Machado"
+      }
+    },
+    {
+      "type": "node",
+      "id": 12532952135,
+      "lat": -12.8905888,
+      "lon": -38.3210432,
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housenumber": "291",
+        "addr:postcode": "42702470",
+        "addr:street": "Rua Bernardino L. dos Santos",
+        "addr:suburb": "Itinga",
+        "amenity": "studio",
+        "check_date": "2025-04-26",
+        "check_date:currency:XBT": "2025-01-25",
+        "currency:BRL": "yes",
+        "currency:XBT": "yes",
+        "description": "Studio/ Produtora audiovisual",
+        "name": "B3 Studios",
+        "opening_hours": "Mo-fri 08:00-18:00",
+        "operator": "@brP2Pcripto",
+        "payment:coinos": "yes",
+        "payment:lightning": "yes",
+        "payment:lightning_contactless": "yes",
+        "payment:onchain": "yes",
+        "phone": "+55 71 98713 2357",
+        "studio": "audio",
+        "survey:date": "2025-01-25",
+        "website": "https://www.instagram.com/b3studios"
+      }
+    },
+    {
+      "type": "node",
+      "id": 12776342501,
+      "lat": -12.8824139,
+      "lon": -38.3132333,
+      "tags": {
+        "addr:housenumber": "152",
+        "addr:street": "Araponga",
+        "amenity": "clinic",
+        "internet_access": "wlan",
+        "name": "Image"
+      }
+    },
+    {
+      "type": "node",
+      "id": 13877758646,
+      "lat": -12.8924591,
+      "lon": -38.3239843,
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housenumber": "70",
+        "addr:street": "Rua Maria Isabel dos Santos",
+        "amenity": "place_of_worship",
+        "denomination": "catholic",
+        "name": "A Igreja de Jesus Cristo dos Santos dos Últimos Dias",
+        "religion": "christian"
+      }
+    },
+    {
+      "type": "way",
+      "id": 83639227,
+      "center": {
+        "lat": -12.8911627,
+        "lon": -38.3259271
+      },
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housenumber": "3423",
+        "addr:postcode": "42700-000",
+        "addr:street": "Avenida Santos Dumont",
+        "addr:suburb": "3.423",
+        "brand": "Atacadão",
+        "brand:wikidata": "Q2868739",
+        "building": "yes",
+        "check_date": "2026-01-04",
+        "name": "Atacadão",
+        "opening_hours": "Mo-Sa 07:00-22:00; Su 08:00-14:00; PH off",
+        "shop": "supermarket",
+        "website": "http://www.maxxiatacado.com.br/"
+      }
+    },
+    {
+      "type": "way",
+      "id": 102587530,
+      "center": {
+        "lat": -12.8872229,
+        "lon": -38.3094157
+      },
+      "tags": {
+        "addr:housenumber": "6",
+        "addr:street": "Avenida Luiz Tarquinio",
+        "amenity": "school",
+        "name": "Colégio Impacto",
+        "source": "Bing",
+        "website": "https://impactoonline.com/"
+      }
+    },
+    {
+      "type": "way",
+      "id": 180765184,
+      "center": {
+        "lat": -12.9008986,
+        "lon": -38.3033736
+      },
+      "tags": {
+        "addr:housenumber": "28",
+        "addr:postcode": "42700-000",
+        "addr:street": "Rua Carlos Roberto Rebolças",
+        "amenity": "place_of_worship",
+        "building": "yes",
+        "denomination": "catholic",
+        "religion": "christian"
+      }
+    },
+    {
+      "type": "way",
+      "id": 253349146,
+      "center": {
+        "lat": -12.879678,
+        "lon": -38.3089065
+      },
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housename": "Mandalas Villas Residence",
+        "addr:housenumber": "296",
+        "addr:postcode": "42700-000",
+        "addr:street": "Rua São Paulo",
+        "building": "apartments",
+        "building:levels": "9",
+        "name": "Mandala Villas Residence"
+      }
+    },
+    {
+      "type": "way",
+      "id": 264628213,
+      "center": {
+        "lat": -12.8886232,
+        "lon": -38.3225486
+      },
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:country": "BR",
+        "addr:housenumber": "2565",
+        "addr:street": "Avenida Santos Dumont",
+        "addr:suburb": "Itinga",
+        "brand": "Hyundai",
+        "brand:wikidata": "Q55931",
+        "brand:wikipedia": "en:Hyundai Motor Company",
+        "building": "commercial",
+        "name": "Caoa",
+        "opening_hours": "Mo-Fr 08:00-18:00; Sa 08:00-16:00; Su off",
+        "phone": "+55 71 3378 1186",
+        "shop": "car",
+        "source": "survey"
+      }
+    },
+    {
+      "type": "way",
+      "id": 284042863,
+      "center": {
+        "lat": -12.8909185,
+        "lon": -38.3147488
+      },
+      "tags": {
+        "addr:housenumber": "600",
+        "addr:street": "Avenida Luiz Tarquínio",
+        "amenity": "university",
+        "name": "Unime - União Metropolitana para o Desenvolvimento da Educação e Cultura",
+        "short_name": "UNIME",
+        "website": "https://www.unime.edu.br/"
+      }
+    },
+    {
+      "type": "way",
+      "id": 411125041,
+      "center": {
+        "lat": -12.9003776,
+        "lon": -38.3013623
+      },
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housenumber": "224",
+        "addr:postcode": "42700-000",
+        "addr:street": "Rua Garcia Lorca",
+        "addr:suburb": "Ipitanga",
+        "building": "industrial",
+        "name": "Plaka 7"
+      }
+    },
+    {
+      "type": "way",
+      "id": 590475483,
+      "center": {
+        "lat": -12.8991964,
+        "lon": -38.3314142
+      },
+      "tags": {
+        "addr:housenumber": "2376",
+        "addr:street": "Avenida Santos Dumont",
+        "building": "yes",
+        "layer": "1"
+      }
+    },
+    {
+      "type": "way",
+      "id": 1122311830,
+      "center": {
+        "lat": -12.8943013,
+        "lon": -38.3135641
+      },
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housenumber": "9595",
+        "addr:postcode": "42702260",
+        "addr:street": "Rua Pataro Machado",
+        "addr:suburb": "Centro",
+        "building:levels": "8",
+        "landuse": "residential",
+        "name": "Luggo Vilas Parque"
+      }
+    },
+    {
+      "type": "way",
+      "id": 1158302707,
+      "center": {
+        "lat": -12.8986126,
+        "lon": -38.3226864
+      },
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housenumber": "52",
+        "addr:postcode": "42700-000",
+        "addr:street": "Rua Saúde",
+        "addr:suburb": "Centro",
+        "amenity": "courthouse",
+        "building": "public",
+        "name": "1ª e 2ª Vara dos Juizados Especiais Cíveis de Lauro de Freitas"
+      }
+    },
+    {
+      "type": "way",
+      "id": 1175193112,
+      "center": {
+        "lat": -12.8799416,
+        "lon": -38.3076505
+      },
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housenumber": "416",
+        "addr:postcode": "42701400",
+        "addr:street": "Rua São Paulo",
+        "addr:suburb": "Pitangueiras",
+        "building": "apartments",
+        "building:levels": "7",
+        "name": "Villa Del Mar"
+      }
+    },
+    {
+      "type": "way",
+      "id": 1175193903,
+      "center": {
+        "lat": -12.8793869,
+        "lon": -38.3075573
+      },
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housenumber": "407",
+        "addr:postcode": "42701400",
+        "addr:street": "Rua São Paulo",
+        "addr:suburb": "Pitangueiras",
+        "building": "apartments",
+        "building:levels": "7",
+        "name": "Vistta Imperial"
+      }
+    },
+    {
+      "type": "way",
+      "id": 1175194141,
+      "center": {
+        "lat": -12.8790989,
+        "lon": -38.3086237
+      },
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housenumber": "248",
+        "addr:postcode": "42701400",
+        "addr:street": "Rua Leonardo R da Silva",
+        "addr:suburb": "Pitangueiras",
+        "building": "commercial",
+        "building:levels": "7",
+        "name": "Infinity"
+      }
+    },
+    {
+      "type": "way",
+      "id": 1175194424,
+      "center": {
+        "lat": -12.8786138,
+        "lon": -38.3083951
+      },
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housenumber": "257",
+        "addr:postcode": "42700-000",
+        "addr:street": "Rua Leonardo R da Silva",
+        "addr:suburb": "Pitangueiras",
+        "building": "commercial",
+        "building:levels": "7",
+        "name": "Multiplus"
+      }
+    },
+    {
+      "type": "way",
+      "id": 1442410723,
+      "center": {
+        "lat": -12.8923389,
+        "lon": -38.3300685
+      },
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housenumber": "2063",
+        "addr:postcode": "42703-160",
+        "addr:street": "R. Dr. Gerino de Souza Filho",
+        "addr:suburb": "Itinga",
+        "air_conditioning": "yes",
+        "building": "warehouse",
+        "building:levels": "3",
+        "internet_access": "wlan",
+        "name": "Polo Logistica",
+        "office": "company",
+        "official_name": "Polo Logistica Ltda",
+        "opening_hours": "Mo-Fr 07:00-19:30",
+        "phone": "+55 71 3444 0416",
+        "website": "https://www.polologistica.com.br",
+        "wheelchair": "yes"
+      }
+    },
+    {
+      "type": "way",
+      "id": 1494575077,
+      "center": {
+        "lat": -12.8894806,
+        "lon": -38.3269478
+      },
+      "tags": {
+        "addr:city": "Lauro de Freitas",
+        "addr:housenumber": "213",
+        "addr:postcode": "42700-000",
+        "addr:street": "R. 15 de Janeiro",
+        "addr:suburb": "Recreio de Ipitanga",
+        "building": "yes",
+        "leisure": "fitness_centre",
+        "name": "Allp fit"
+      }
+    },
+    {
+      "type": "relation",
+      "id": 7934894,
+      "center": {
+        "lat": -12.8847521,
+        "lon": -38.3016933
+      },
+      "tags": {
+        "addr:housenumber": "805",
+        "addr:street": "Avenida Praia de Itapoan",
+        "name": "Villaverde Street Mall",
+        "shop": "mall",
+        "type": "multipolygon"
+      }
+    }
+  ]
+}

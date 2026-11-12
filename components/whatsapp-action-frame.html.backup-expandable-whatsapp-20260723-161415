@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    >
+    <title>WhatsApp Mezanino</title>
+    <style>
+      :root {
+        font-family: Inter, Manrope, system-ui, sans-serif;
+        color: #17263a;
+        background: #efeae2;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      body {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        background:
+          radial-gradient(
+            circle at 12px 12px,
+            rgba(99, 76, 51, .055) 2px,
+            transparent 2px
+          ) 0 0 / 34px 34px,
+          #efeae2;
+      }
+
+      .chat-head {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-height: 72px;
+        padding: 12px 14px;
+        color: #fff;
+        background: #082b59;
+        box-shadow: 0 5px 18px rgba(8, 43, 89, .18);
+      }
+
+      .chat-avatar {
+        width: 43px;
+        height: 43px;
+        flex: 0 0 auto;
+        display: grid;
+        place-items: center;
+        border: 2px solid rgba(255,255,255,.8);
+        border-radius: 50%;
+        background: #fff;
+        color: #0b5992;
+        font-family: Georgia, serif;
+        font-size: 1.35rem;
+        font-weight: 800;
+      }
+
+      .chat-head-copy {
+        min-width: 0;
+        display: grid;
+        gap: 3px;
+      }
+
+      .chat-head-copy strong {
+        overflow: hidden;
+        font-size: .96rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .chat-head-copy span {
+        color: rgba(255,255,255,.74);
+        font-size: .72rem;
+      }
+
+      .chat-close {
+        width: 36px;
+        height: 36px;
+        margin-left: auto;
+        border: 0;
+        border-radius: 50%;
+        background: rgba(255,255,255,.11);
+        color: #fff;
+        cursor: pointer;
+        font-size: 1.25rem;
+      }
+
+      .chat-messages {
+        min-height: 0;
+        overflow: auto;
+        padding: 18px 15px 24px;
+      }
+
+      .message {
+        width: fit-content;
+        max-width: 88%;
+        margin-bottom: 10px;
+        padding: 11px 13px 8px;
+        border-radius: 4px 13px 13px 13px;
+        background: #fff;
+        box-shadow: 0 2px 5px rgba(30, 36, 42, .08);
+        color: #263448;
+        font-size: .84rem;
+        line-height: 1.5;
+      }
+
+      .message small {
+        display: block;
+        margin-top: 6px;
+        color: #7a8490;
+        font-size: .62rem;
+        text-align: right;
+      }
+
+      .message--context {
+        display: none;
+        margin-left: auto;
+        border-radius: 13px 4px 13px 13px;
+        background: #d9fdd3;
+      }
+
+      .message--context.is-visible {
+        display: block;
+      }
+
+      .chat-form {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 48px;
+        gap: 9px;
+        align-items: end;
+        padding: 10px;
+        background: rgba(239, 234, 226, .96);
+        border-top: 1px solid rgba(53, 61, 70, .08);
+      }
+
+      .chat-input-shell {
+        display: flex;
+        align-items: center;
+        min-height: 48px;
+        padding: 8px 13px;
+        border: 1px solid rgba(33, 47, 61, .08);
+        border-radius: 23px;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(38, 48, 58, .07);
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 26px;
+        max-height: 92px;
+        resize: none;
+        border: 0;
+        outline: 0;
+        color: #263448;
+        background: transparent;
+        font: inherit;
+        font-size: .84rem;
+        line-height: 1.45;
+      }
+
+      textarea::placeholder {
+        color: #7b8490;
+      }
+
+      .chat-send {
+        width: 48px;
+        height: 48px;
+        display: grid;
+        place-items: center;
+        border: 0;
+        border-radius: 50%;
+        background: #25d366;
+        color: #fff;
+        cursor: pointer;
+        box-shadow: 0 7px 18px rgba(20, 134, 62, .27);
+      }
+
+      .chat-send svg {
+        width: 23px;
+        height: 23px;
+        fill: currentColor;
+      }
+
+      .chat-note {
+        grid-column: 1 / -1;
+        margin: -2px 8px 0;
+        color: #75808b;
+        font-size: .61rem;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="chat-head">
+      <div class="chat-avatar" aria-hidden="true">M</div>
+
+      <div class="chat-head-copy">
+        <strong>Mezanino Imobiliária</strong>
+        <span id="phone-display">
+          Atendimento pelo WhatsApp
+        </span>
+      </div>
+
+      <button
+        class="chat-close"
+        type="button"
+        aria-label="Fechar conversa"
+        id="close-button"
+      >×</button>
+    </header>
+
+    <main class="chat-messages">
+      <div class="message">
+        Olá! Como podemos ajudar com seu próximo imóvel?
+        <small>agora</small>
+      </div>
+
+      <div
+        class="message message--context"
+        id="context-message"
+      >
+        <span id="context-copy"></span>
+        <small>contexto da página</small>
+      </div>
+    </main>
+
+    <form class="chat-form" id="chat-form">
+      <div class="chat-input-shell">
+        <textarea
+          id="message-input"
+          rows="1"
+          placeholder="Digite sua mensagem"
+          aria-label="Mensagem para a Mezanino"
+        ></textarea>
+      </div>
+
+      <button
+        class="chat-send"
+        type="submit"
+        aria-label="Enviar pelo WhatsApp"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2 .01 7Z"/>
+        </svg>
+      </button>
+
+      <p class="chat-note">
+        A conversa será aberta no aplicativo ou no WhatsApp Web.
+      </p>
+    </form>
+
+    <script>
+      (() => {
+        const parentWindow = window.parent;
+        const config =
+          parentWindow.MezaninoContactConfig || {};
+        const phoneDigits = String(
+          config.phoneDigits ||
+          "5577981590101",
+        ).replace(/\D/g, "");
+        const phoneDisplay =
+          config.phoneDisplay ||
+          "(77) 98159-0101";
+        const input =
+          document.getElementById(
+            "message-input",
+          );
+        const form =
+          document.getElementById(
+            "chat-form",
+          );
+        const contextMessage =
+          document.getElementById(
+            "context-message",
+          );
+        const contextCopy =
+          document.getElementById(
+            "context-copy",
+          );
+        let context = {};
+
+        document.getElementById(
+          "phone-display",
+        ).textContent = phoneDisplay;
+
+        const updateContext = (
+          nextContext,
+        ) => {
+          context = nextContext || {};
+          const propertyTitle = String(
+            context.propertyTitle || "",
+          ).trim();
+
+          contextMessage.classList.toggle(
+            "is-visible",
+            Boolean(propertyTitle),
+          );
+          contextCopy.textContent =
+            propertyTitle
+              ? `Tenho interesse em: ${propertyTitle}`
+              : "";
+        };
+
+        const buildMessage = () => {
+          const typed = input.value.trim();
+          const propertyTitle = String(
+            context.propertyTitle || "",
+          ).trim();
+          const pageUrl = String(
+            context.pageUrl ||
+            parentWindow.location.href,
+          );
+          const parts = [];
+
+          parts.push(
+            typed ||
+            "Olá! Gostaria de falar com um corretor da Mezanino Imobiliária.",
+          );
+
+          if (propertyTitle)
+            parts.push(
+              `Imóvel: ${propertyTitle}`,
+            );
+
+          if (pageUrl)
+            parts.push(`Página: ${pageUrl}`);
+
+          return parts.join("\n\n");
+        };
+
+        form.addEventListener(
+          "submit",
+          (event) => {
+            event.preventDefault();
+
+            const url =
+              "https://api.whatsapp.com/send" +
+              `?phone=${encodeURIComponent(phoneDigits)}` +
+              `&text=${encodeURIComponent(buildMessage())}`;
+            const anchor =
+              document.createElement("a");
+
+            anchor.href = url;
+            anchor.target = "_blank";
+            anchor.rel =
+              "noopener noreferrer";
+            document.body.appendChild(anchor);
+            anchor.click();
+            anchor.remove();
+          },
+        );
+
+        document.getElementById(
+          "close-button",
+        ).addEventListener(
+          "click",
+          () => {
+            parentWindow.postMessage(
+              {
+                type:
+                  "mezanino-whatsapp-close",
+              },
+              parentWindow.location.origin,
+            );
+          },
+        );
+
+        window.addEventListener(
+          "message",
+          (event) => {
+            if (
+              event.origin !==
+              parentWindow.location.origin
+            ) {
+              return;
+            }
+
+            if (
+              event.data?.type ===
+              "mezanino-whatsapp-open"
+            ) {
+              updateContext(
+                event.data.context,
+              );
+
+              window.setTimeout(
+                () => input.focus(),
+                90,
+              );
+            }
+          },
+        );
+
+        updateContext(
+          parentWindow
+            .MezaninoWhatsWidgetContext?.() ||
+          {},
+        );
+      })();
+    </script>
+  </body>
+</html>

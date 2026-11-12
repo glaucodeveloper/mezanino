@@ -1,0 +1,34 @@
+{
+  "place_id": 16048428,
+  "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+  "osm_type": "node",
+  "osm_id": 8579350011,
+  "lat": "-12.8334094",
+  "lon": "-38.2653228",
+  "category": "place",
+  "type": "house",
+  "place_rank": 30,
+  "importance": 5.991989013499683e-05,
+  "addresstype": "place",
+  "name": "",
+  "display_name": "00, Rua Alice Uzeda, Vila Fonte da Caixa, Abrantes, Camaçari, Bahia, Região Nordeste, 42827-662, Brasil",
+  "address": {
+    "house_number": "00",
+    "road": "Rua Alice Uzeda",
+    "residential": "Vila Fonte da Caixa",
+    "district": "Abrantes",
+    "city": "Camaçari",
+    "state": "Bahia",
+    "ISO3166-2-lvl4": "BR-BA",
+    "region": "Região Nordeste",
+    "postcode": "42827-662",
+    "country": "Brasil",
+    "country_code": "br"
+  },
+  "boundingbox": [
+    "-12.8334594",
+    "-12.8333594",
+    "-38.2653728",
+    "-38.2652728"
+  ]
+}
