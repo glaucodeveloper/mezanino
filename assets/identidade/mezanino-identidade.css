@@ -1705,3 +1705,73 @@ body { background: var(--mezanino-preview-paper) !important; }
     background: linear-gradient(90deg, rgba(247,250,248,.54), rgba(247,250,248,.18) 62%, transparent) !important;
   }
 }
+
+/* Hero da campanha atual: título em uma linha, junto ao painel de busca. */
+@font-face {
+  font-family: 'Mezanino Zodiak';
+  src: url('./fonts/Zodiak-Variable.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+.app-shell.route-home #home.hero {
+  background: url('./hero-familia-novo-lar.png') center 6% / cover no-repeat !important;
+}
+.app-shell.route-home #home.hero::before {
+  display: block !important;
+  background: linear-gradient(180deg, rgba(247,250,248,.20), rgba(247,250,248,.34) 72%, rgba(247,250,248,.46)) !important;
+}
+.app-shell.route-home #home.hero .hero-overlay {
+  background: linear-gradient(180deg, rgba(247,250,248,.08), rgba(247,250,248,.24)) !important;
+}
+.app-shell.route-home #home.hero .hero-stack {
+  justify-content: space-between !important;
+}
+.app-shell.route-home #home.hero .mezanino-hero-editorial {
+  align-self: center !important;
+  max-width: 100% !important;
+  margin: auto auto clamp(82px, 10vh, 106px) !important;
+  padding: 0 !important;
+  text-align: center !important;
+}
+.app-shell.route-home #home.hero .mezanino-hero-kicker {
+  margin: 0 0 8px !important;
+  font-size: 10px !important;
+  letter-spacing: .16em !important;
+}
+.app-shell.route-home #home.hero .hero-title {
+  width: max-content !important;
+  max-width: calc(100vw - 34px) !important;
+  margin: 0 auto !important;
+  color: #05343f !important;
+  font-family: 'Mezanino Zodiak', 'Cormorant Garamond', Georgia, serif !important;
+  font-size: clamp(38px, 5.1vw, 72px) !important;
+  font-weight: 400 !important;
+  line-height: 1.04 !important;
+  letter-spacing: -.045em !important;
+  text-align: center !important;
+  text-wrap: nowrap !important;
+  text-shadow: 0 1px 22px rgba(247,250,248,.7) !important;
+}
+.app-shell.route-home #home.hero .mezanino-hero-lead { display: none !important; }
+
+@media (max-width: 760px) {
+  .app-shell.route-home #home.hero {
+    background-position: center 18% !important;
+  }
+  .app-shell.route-home #home.hero .hero-shell {
+    padding-top: clamp(84px, 11vh, 112px) !important;
+  }
+  .app-shell.route-home #home.hero .mezanino-hero-editorial {
+    margin-bottom: 16px !important;
+  }
+  .app-shell.route-home #home.hero .mezanino-hero-kicker {
+    font-size: 8px !important;
+    letter-spacing: .12em !important;
+  }
+  .app-shell.route-home #home.hero .hero-title {
+    max-width: calc(100vw - 34px) !important;
+    font-size: clamp(22px, 7.1vw, 34px) !important;
+  }
+}

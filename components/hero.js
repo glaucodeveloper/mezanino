@@ -121,8 +121,7 @@ const HeroComponent = ({ id, props }) => {
                 <!-- Original Phrase -->
                 <div class="mezanino-hero-editorial">
                    <p class="mezanino-hero-kicker">MEZANINO · SOLUÇÕES IMOBILIÁRIAS</p>
-                   <h1 class="hero-title">Sonhe, conecte<br>e <em>realize.</em></h1>
-                   <p class="mezanino-hero-lead">Uma nova perspectiva para encontrar o seu lugar. Imóveis, pessoas e possibilidades em conexão.</p>
+                   <h1 class="hero-title">Sonhe, conecte e realize</h1>
                  </div>
 
                 <!-- Main Search Bar Card -->
