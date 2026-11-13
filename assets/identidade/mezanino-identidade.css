@@ -1722,10 +1722,10 @@ body { background: var(--mezanino-preview-paper) !important; }
 }
 .app-shell.route-home #home.hero::before {
   display: block !important;
-  background: rgba(247,250,248,.15) !important;
+  background: linear-gradient(180deg, rgba(247,250,248,.20), rgba(247,250,248,.34) 72%, rgba(247,250,248,.46)) !important;
 }
 .app-shell.route-home #home.hero .hero-overlay {
-  background: transparent !important;
+  background: linear-gradient(180deg, rgba(247,250,248,.08), rgba(247,250,248,.24)) !important;
 }
 .app-shell.route-home #home.hero .hero-stack {
   justify-content: space-between !important;
