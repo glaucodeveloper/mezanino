@@ -120,7 +120,7 @@ const HeroComponent = ({ id, props }) => {
                 
                 <!-- Original Phrase -->
                 <div class="mezanino-hero-editorial">
-                   <h1 class="hero-title"><span class="hero-title-outline" aria-hidden="true">Sonhe, conecte e realize</span><span class="hero-title-text">Sonhe, conecte e realize</span></h1>
+                   <h1 class="hero-title"><span class="hero-title-text">Sonhe, conecte e realize</span></h1>
                  </div>
 
                 <!-- Main Search Bar Card -->

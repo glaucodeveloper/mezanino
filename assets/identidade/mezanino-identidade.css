@@ -1721,11 +1721,10 @@ body { background: var(--mezanino-preview-paper) !important; }
   background: url('./hero-familia-novo-lar.png') center 6% / cover no-repeat !important;
 }
 .app-shell.route-home #home.hero::before {
-  display: block !important;
-  background: linear-gradient(180deg, rgba(247,250,248,.20), rgba(247,250,248,.34) 72%, rgba(247,250,248,.46)) !important;
+  display: none !important;
 }
 .app-shell.route-home #home.hero .hero-overlay {
-  background: linear-gradient(180deg, rgba(247,250,248,.08), rgba(247,250,248,.24)) !important;
+  background: transparent !important;
 }
 .app-shell.route-home #home.hero .hero-stack {
   justify-content: space-between !important;
@@ -1753,20 +1752,7 @@ body { background: var(--mezanino-preview-paper) !important; }
   letter-spacing: -.045em !important;
   text-align: center !important;
   text-wrap: nowrap !important;
-  text-shadow: none !important;
-}
-.app-shell.route-home #home.hero .hero-title-outline {
-  position: absolute !important;
-  inset: 0 !important;
-  z-index: 2 !important;
-  color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
-  -webkit-text-stroke: 0 !important;
-  filter: url(#hero-title-inner-edge) !important;
-  mix-blend-mode: difference !important;
-  opacity: .15 !important;
-  white-space: nowrap !important;
-  pointer-events: none !important;
+  text-shadow: 0 0 18px rgba(247,250,248,1), 0 0 45px rgba(247,250,248,.95), 0 0 80px rgba(247,250,248,.75) !important;
 }
 .app-shell.route-home #home.hero .hero-title-text {
   position: relative !important;
