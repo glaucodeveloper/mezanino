@@ -1721,7 +1721,8 @@ body { background: var(--mezanino-preview-paper) !important; }
   background: url('./hero-familia-novo-lar.png') center 6% / cover no-repeat !important;
 }
 .app-shell.route-home #home.hero::before {
-  display: none !important;
+  display: block !important;
+  background: rgba(247,250,248,.15) !important;
 }
 .app-shell.route-home #home.hero .hero-overlay {
   background: transparent !important;
@@ -1757,11 +1758,11 @@ body { background: var(--mezanino-preview-paper) !important; }
 .app-shell.route-home #home.hero .hero-title-outline {
   position: absolute !important;
   inset: 0 !important;
-  z-index: 0 !important;
-  color: transparent !important;
-  -webkit-text-fill-color: transparent !important;
-  -webkit-text-stroke: clamp(1px, .11vw, 1.5px) #fff !important;
-  paint-order: stroke fill !important;
+  z-index: 2 !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  -webkit-text-stroke: 0 !important;
+  filter: url(#hero-title-inner-edge) !important;
   mix-blend-mode: difference !important;
   opacity: .15 !important;
   white-space: nowrap !important;
@@ -1874,12 +1875,12 @@ body { background: var(--mezanino-preview-paper) !important; }
 }
 @media (min-width: 761px) {
   .app-shell.route-home #home.hero .mezanino-hero-editorial {
-    transform: translateY(clamp(70px, 17vh, 145px)) !important;
+    transform: translateY(var(--hero-title-shift, clamp(70px, 17vh, 145px))) !important;
   }
 }
 @media (max-width: 760px) {
   .app-shell.route-home #home.hero .mezanino-hero-editorial {
-    transform: translateY(clamp(50px, 9vh, 75px)) !important;
+    transform: translateY(var(--hero-title-shift, clamp(50px, 9vh, 75px))) !important;
   }
   .app-shell.route-home .featured-section--grid {
     padding-top: clamp(190px, 28vh, 260px) !important;
@@ -1887,6 +1888,25 @@ body { background: var(--mezanino-preview-paper) !important; }
 }
 @media (max-width: 430px) {
   .app-shell.route-home #home.hero .mezanino-hero-editorial {
-    transform: translateY(clamp(70px, 13vh, 110px)) !important;
+    transform: translateY(var(--hero-title-shift, clamp(70px, 13vh, 110px))) !important;
   }
+}
+
+/* Hero na altura da tela, com mínimo de metade da fotografia proporcional. */
+.app-shell.route-home #home.hero {
+  width: 100% !important;
+  height: 100vh !important;
+  min-height: 37.5vw !important;
+  aspect-ratio: auto !important;
+  background-size: cover !important;
+  background-position: center 6% !important;
+}
+.app-shell.route-home #home.hero .hero-shell {
+  position: absolute !important;
+  inset: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+@media (max-width: 760px) {
+  .app-shell.route-home #home.hero { background-position: center 18% !important; }
 }

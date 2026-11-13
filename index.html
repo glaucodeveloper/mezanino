@@ -47,7 +47,7 @@
   <link rel="preload" href="./assets/identidade/fonts/Raleway-VariableFont_wght.ttf" as="font" type="font/ttf" crossorigin />
   <link rel="preload" href="./assets/identidade/fonts/Raleway-Italic-VariableFont_wght.ttf" as="font" type="font/ttf" crossorigin />
   <link rel="preload" as="image" href="./assets/identidade/hero-familia-novo-lar.png" type="image/png" fetchpriority="high" />
-  <link rel="stylesheet" href="./assets/identidade/mezanino-identidade.css?v=20261113-v38" />
+  <link rel="stylesheet" href="./assets/identidade/mezanino-identidade.css?v=20261113-v47" />
   <!-- MEZANINO IDENTIDADE 2026 END -->
 <!-- MEZANINO-MOBILE-V7 START -->
 <meta name="mezanino-mobile-version" content="20261111-v7">
@@ -55,6 +55,16 @@
   <meta name="mezanino-versao-v10" content="20261111-v10">
 </head>
   <body>
+    <svg aria-hidden="true" width="0" height="0" style="position:absolute;overflow:hidden">
+      <defs>
+        <filter id="hero-title-inner-edge" color-interpolation-filters="sRGB">
+          <feMorphology in="SourceAlpha" operator="erode" radius="1" result="inner" />
+          <feComposite in="SourceAlpha" in2="inner" operator="out" result="edge" />
+          <feFlood flood-color="#fff" result="color" />
+          <feComposite in="color" in2="edge" operator="in" />
+        </filter>
+      </defs>
+    </svg>
     <div id="app" class="app-shell"></div>
     <script src="./assets/identidade/mezanino-imagens.js"></script>
 <script src="./runtime-config.js" charset="UTF-8"></script>
@@ -93,5 +103,6 @@
     <script src="./components/financing.js" charset="UTF-8"></script>
     <script src="./components/floating-whats.js?v=20261111-v6" charset="UTF-8"></script>
     <script src="./events/app-events.js" charset="UTF-8"></script>
+    <script src="./components/hero-layout.js" charset="UTF-8"></script>
   </body>
 </html>
