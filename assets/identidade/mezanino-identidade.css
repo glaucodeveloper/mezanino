@@ -1886,7 +1886,8 @@ body { background: var(--mezanino-preview-paper) !important; }
     transform: translateY(var(--hero-title-shift, clamp(50px, 9vh, 75px))) !important;
   }
   .app-shell.route-home .featured-section--grid {
-    padding-top: clamp(190px, 28vh, 260px) !important;
+    padding-top: clamp(190px, 28vh, 175px) !important;
+    z-index: 0;
   }
 }
 @media (max-width: 430px) {
@@ -1911,7 +1912,7 @@ body { background: var(--mezanino-preview-paper) !important; }
   min-height: 0 !important;
 }
 @media (max-width: 760px) {
-  .app-shell.route-home #home.hero { background-position: center 18% !important; }
+  .app-shell.route-home #home.hero { background-position: center 18% !important; z-index: 1;}
 }
 
 /* Busca mais compacta em monitores, sem reduzir os controles de toque. */
