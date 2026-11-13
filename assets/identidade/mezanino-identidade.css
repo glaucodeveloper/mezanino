@@ -1762,7 +1762,7 @@ body { background: var(--mezanino-preview-paper) !important; }
     padding-top: clamp(84px, 11vh, 112px) !important;
   }
   .app-shell.route-home #home.hero .mezanino-hero-editorial {
-    margin-bottom: 16px !important;
+    margin-bottom: 0 !important;
   }
   .app-shell.route-home #home.hero .hero-title {
     max-width: calc(100vw - 34px) !important;
@@ -1774,7 +1774,7 @@ body { background: var(--mezanino-preview-paper) !important; }
    os alvos de toque em dispositivos móveis. */
 .app-shell.route-home #home.hero .custom-search-panel {
   padding: clamp(15px, min(2.1vw, 2.6vh), 30px) !important;
-  transform: translateY(clamp(-118px, -15vh, -72px)) !important;
+  transform: translateY(clamp(-60px, -7vh, -24px)) !important;
   border: 1px solid rgba(255, 255, 255, .72) !important;
   border-radius: clamp(16px, 1.6vw, 24px) !important;
   background: rgba(250, 253, 251, .78) !important;
@@ -1813,7 +1813,7 @@ body { background: var(--mezanino-preview-paper) !important; }
     max-width: min(100%, 980px) !important;
   }
   .app-shell.route-home #home.hero .mezanino-hero-editorial {
-    margin-bottom: clamp(118px, 15vh, 150px) !important;
+    margin-bottom: clamp(82px, 10vh, 106px) !important;
   }
   .app-shell.route-home #home.hero .custom-search-panel .custom-search-row {
     grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(130px, 160px) !important;
@@ -1827,7 +1827,7 @@ body { background: var(--mezanino-preview-paper) !important; }
 @media (max-width: 760px) {
   .app-shell.route-home #home.hero .custom-search-panel {
     padding: 12px !important;
-    transform: translateY(clamp(-28px, -3vh, -16px)) !important;
+    transform: translateY(clamp(-10px, -1.2vh, -4px)) !important;
   }
   .app-shell.route-home #home.hero .custom-search-panel .custom-select-trigger,
   .app-shell.route-home #home.hero .custom-search-panel .custom-search-btn {
