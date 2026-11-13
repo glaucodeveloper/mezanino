@@ -1854,3 +1854,40 @@ body { background: var(--mezanino-preview-paper) !important; }
     min-height: 46px !important;
   }
 }
+
+/* O painel se prolonga abaixo da fotografia. */
+.app-shell.route-home #home.hero .hero-shell {
+  padding-bottom: 0 !important;
+  box-sizing: border-box !important;
+}
+.app-shell.route-home #home.hero .hero-stack {
+  height: 100% !important;
+  min-height: 0 !important;
+  padding-top: 0 !important;
+}
+.app-shell.route-home #home.hero .custom-search-panel {
+  position: relative !important;
+  margin: 0 auto !important;
+  transform: translateY(50%) !important;
+}
+.app-shell.route-home .featured-section--grid {
+  padding-top: 160px !important;
+}
+@media (min-width: 761px) {
+  .app-shell.route-home #home.hero .mezanino-hero-editorial {
+    transform: translateY(clamp(70px, 17vh, 145px)) !important;
+  }
+}
+@media (max-width: 760px) {
+  .app-shell.route-home #home.hero .mezanino-hero-editorial {
+    transform: translateY(clamp(50px, 9vh, 75px)) !important;
+  }
+  .app-shell.route-home .featured-section--grid {
+    padding-top: clamp(190px, 28vh, 260px) !important;
+  }
+}
+@media (max-width: 430px) {
+  .app-shell.route-home #home.hero .mezanino-hero-editorial {
+    transform: translateY(clamp(70px, 13vh, 110px)) !important;
+  }
+}
