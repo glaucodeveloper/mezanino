@@ -1,0 +1,103 @@
+/* MEZANINO-MOBILE-V6 — Correção final do menu mobile, após o tema institucional. */
+@media (max-width:760px) {
+  .app-shell .topbar,
+  .app-shell.route-home .topbar {
+    min-height: 72px !important;
+    height: auto !important;
+    max-height: 72px !important;
+    overflow: hidden !important;
+    background: #05343f !important;
+  }
+  .app-shell .topbar.topbar--mobile-open,
+  .app-shell.route-home .topbar.topbar--mobile-open {
+    max-height: 100dvh !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    background: #05343f !important;
+  }
+  .app-shell .topbar .topbar-main {
+    height: auto !important;
+    min-height: 72px !important;
+    background: #05343f !important;
+  }
+  .app-shell .topbar .topbar-main-container {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) 44px !important;
+    grid-template-areas: 'brand menu' 'nav nav' !important;
+    width: calc(100% - 32px) !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 72px !important;
+    margin: 0 auto !important;
+    padding: 10px 0 !important;
+    align-items: center !important;
+  }
+  .app-shell .topbar .topbar-main-container .topbar-brand { grid-area: brand !important; }
+  .app-shell .topbar .topbar-main-container .topbar-menu-button {
+    grid-area: menu !important;
+    justify-self: end !important;
+    display: inline-grid !important;
+    color: #05343f !important;
+    background: #b0d5b1 !important;
+    border: 1px solid #89b18e !important;
+    opacity: 1 !important;
+  }
+  .app-shell .topbar .topbar-menu-button-lines::before,
+  .app-shell .topbar .topbar-menu-button-lines::after,
+  .app-shell .topbar .topbar-menu-button-lines > span {
+    background: #05343f !important;
+  }
+  .app-shell .topbar.topbar--mobile-open .topbar-menu-button-lines > span { opacity: 0 !important; }
+  .app-shell .topbar:not(.topbar--mobile-open) .topbar-main-container #topbar-mobile-nav { display: none !important; }
+  .app-shell .topbar.topbar--mobile-open .topbar-main-container #topbar-mobile-nav {
+    grid-area: nav !important;
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) !important;
+    gap: 3px !important;
+    width: 100% !important;
+    margin: 10px 0 0 !important;
+    padding: 12px !important;
+    background: #f7faf8 !important;
+    border: 1px solid #b0d5b1 !important;
+    border-radius: 15px !important;
+    box-shadow: 0 10px 26px rgba(5,52,63,.16) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  .app-shell .topbar.topbar--mobile-open .topbar-main-container #topbar-mobile-nav a,
+  .app-shell .topbar.topbar--mobile-open .topbar-main-container #topbar-mobile-nav a span {
+    color: #05343f !important;
+    -webkit-text-fill-color: #05343f !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    line-height: 1.5 !important;
+    letter-spacing: .01em !important;
+    text-decoration: none !important;
+  }
+  .app-shell .topbar.topbar--mobile-open .topbar-main-container #topbar-mobile-nav a {
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    min-height: 47px !important;
+    padding: 10px 14px !important;
+    border-radius: 9px !important;
+    border: none !important;
+    background: transparent !important;
+  }
+  .app-shell .topbar.topbar--mobile-open .topbar-main-container #topbar-mobile-nav a:hover,
+  .app-shell .topbar.topbar--mobile-open .topbar-main-container #topbar-mobile-nav a.active,
+  .app-shell .topbar.topbar--mobile-open .topbar-main-container #topbar-mobile-nav a:focus-visible {
+    color: #02474c !important;
+    -webkit-text-fill-color: #02474c !important;
+    background: #e1efe5 !important;
+  }
+  .app-shell .topbar.topbar--mobile-open .topbar-main-container #topbar-mobile-nav .phone-in-bar-whatsapp-icon {
+    fill: #178c49 !important;
+    opacity: 1 !important;
+  }
+  /* Evita a faixa vazia do painel de pesquisa duplicado abaixo do menu. */
+  .app-shell .topbar.topbar--mobile-open #topbar-mobile-search,
+  .app-shell .topbar.topbar--mobile-open .topbar-shell { display: none !important; }
+}

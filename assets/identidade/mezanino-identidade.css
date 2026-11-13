@@ -1,0 +1,1707 @@
+/* Mezanino — identidade institucional 2026.
+ * Manual de Marca: Azul Abissal, Verde Mineral, Verde Sálvia, Cinza Névoa e Preto Carvão.
+ * Este arquivo vem depois de styles.css, isolando a atualização de marca.
+ */
+@font-face {
+  font-family: 'Mezanino Raleway';
+  src: url('./fonts/Raleway-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mezanino Raleway';
+  src: url('./fonts/Raleway-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+:root {
+  --brand-abissal: #05343f;
+  --brand-mineral: #02474c;
+  --brand-salvia: #b0d5b1;
+  --brand-nevoa: #dbdbdb;
+  --brand-carvao: #131313;
+  --brand-neve: #f7faf8;
+  --brand-linha: rgba(2, 71, 76, .18);
+  --brand-linha-clara: rgba(176, 213, 177, .42);
+  --ink: var(--brand-carvao);
+  --coal: var(--brand-abissal);
+  --gold: var(--brand-mineral); /* compatibilidade com os tokens legados */
+  --gold-dark: var(--brand-abissal);
+  --line: var(--brand-linha);
+  --muted: #496366;
+  --wash: #edf4ef;
+  --cream: var(--brand-neve);
+  --font-body: 'Mezanino Raleway', 'Raleway', 'Segoe UI', sans-serif;
+  --font-ui: var(--font-body);
+  --font-display: var(--font-body);
+}
+
+html { color-scheme: light; }
+body, button, input, select, textarea {
+  font-family: var(--font-body);
+}
+h1, h2, h3, h4, h5, h6 { font-family: var(--font-body); }
+body {
+  color: var(--brand-carvao);
+  background: linear-gradient(150deg, #fbfcfa 0%, #f0f5f1 50%, #f9fbf8 100%);
+}
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, [role='button']:focus-visible {
+  outline: 3px solid var(--brand-salvia);
+  outline-offset: 3px;
+}
+
+/* Cabeçalho: marca em versão estendida e proporções preservadas. */
+.topbar, .topbar .topbar-main, .topbar-main,
+.topbar-white-contact {
+  background: var(--brand-abissal) !important;
+  color: var(--brand-salvia) !important;
+}
+.topbar .topbar-main { border-bottom: 1px solid var(--brand-linha-clara) !important; }
+.topbar .topbar-nav a,
+.topbar .phone-in-bar,
+.topbar .topbar-white-phone,
+.topbar .topbar-white-contact a {
+  color: #e8f4eb !important;
+}
+.topbar .topbar-nav a:hover,
+.topbar .phone-in-bar:hover { color: var(--brand-salvia) !important; }
+.topbar-brand { display: inline-flex !important; align-items: center !important; min-height: 52px; }
+.topbar-brand-image {
+  display: block;
+  width: clamp(176px, 19vw, 272px) !important;
+  max-width: 100%;
+  height: auto !important;
+  max-height: 80px;
+  aspect-ratio: 915 / 179;
+  object-fit: contain !important;
+  object-position: left center;
+}
+.topbar .topbar-menu-button { color: var(--brand-salvia) !important; }
+
+/* Fotografia original mantida. A primeira imagem é antecipada com preload no HTML. */
+.hero {
+  isolation: isolate;
+  background-color: var(--brand-abissal) !important;
+  background-position: 100% 14% !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+}
+.hero::before {
+  content: '';
+  display: block !important;
+  position: absolute !important;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(5,52,63,.10) 0%, rgba(5,52,63,.04) 40%, rgba(5,52,63,.24) 100%) !important;
+}
+.hero .hero-overlay {
+  background: linear-gradient(90deg, rgba(5,52,63,.10), transparent 55%) !important;
+  pointer-events: none;
+}
+.hero .hero-title {
+  color: var(--brand-abissal) !important;
+  font-family: var(--font-body) !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 18px rgba(255,255,255,.22);
+}
+.hero .custom-search-panel {
+  background: rgba(255, 255, 255, .98) !important;
+  border: 1px solid var(--brand-linha-clara) !important;
+  box-shadow: 0 18px 55px rgba(5,52,63,.16) !important;
+  backdrop-filter: blur(8px);
+}
+.hero .custom-select-trigger { border-color: #d7e8dd !important; }
+.hero .custom-select-trigger:hover,
+.hero .custom-select-trigger.is-open { border-color: var(--brand-mineral) !important; }
+.hero .custom-select-trigger:focus-visible { outline: 2px solid var(--brand-mineral); }
+
+/* Contornos orgânicos inspirados na geometria do símbolo — usados como moldura e textura,
+   sem manipular as proporções do logotipo oficial. */
+.hero .hero-shell { position: relative; }
+.hero .hero-shell::before {
+  content: '';
+  position: absolute;
+  top: 14%;
+  right: clamp(0px, 3vw, 65px);
+  width: clamp(110px, 16vw, 235px);
+  aspect-ratio: 1;
+  background: url('./contornos.svg') center / contain no-repeat;
+  opacity: .48;
+  pointer-events: none;
+  z-index: 0;
+  filter: drop-shadow(0 1px 3px rgba(5, 52, 63, .09));
+}
+
+.section, .featured, .listing, .ad-banner { position: relative; }
+.section-title h2, .detail-copy h2, .dashboard-head h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -.035em;
+}
+.section-title::after {
+  content: '';
+  display: block;
+  width: clamp(56px, 7vw, 95px);
+  height: 2px;
+  margin-top: 12px;
+  background: var(--brand-mineral);
+  opacity: .7;
+}
+
+/* Texturas e patterns removidos; preserva-se apenas o contorno geométrico. */
+.section:nth-of-type(even)::before { content: none !important; background: none !important; }
+.ad-banner {
+  background-color: var(--brand-abissal) !important;
+  background-image: none !important;
+  border: 1px solid var(--brand-linha-clara);
+}
+.site-footer, .footer, footer {
+  background: #05343f !important;
+  background-image: none !important;
+}
+.site-footer::before, .site-footer::after,
+.footer::before, .footer::after,
+footer::before, footer::after {
+  content: none !important;
+  background: none !important;
+  background-image: none !important;
+}
+
+.gold-btn, .gold-btn:hover, .tab.active, .pill-btn.primary {
+  background: var(--brand-mineral) !important;
+  color: #fff !important;
+  border-color: rgba(176, 213, 177, .35) !important;
+}
+.gold-btn:hover { background: var(--brand-abissal) !important; }
+.gold-btn, .tab, .pill-btn, .ghost-btn { transition: background-color 160ms, border-color 160ms, transform 160ms; }
+.property-card, .list-card, .detail-panel, .panel, .search-panel, .custom-search-panel {
+  border-color: var(--brand-linha) !important;
+}
+.property-card:hover, .list-card:hover { border-color: rgba(2, 71, 76, .38) !important; }
+
+/* Opt-in para cards fotográficos renderizados dinamicamente. */
+img[data-mezanino-photo] { image-rendering: auto; }
+img[data-mezanino-photo][data-loaded='false'] { background-color: #dce8df; }
+
+@media (max-width: 768px) {
+  .hero .hero-shell::before { width: 110px; top: 15%; right: 10px; opacity: .16; }
+  .section:nth-of-type(even)::before { width: 18vw; opacity: .055; }
+  .topbar-brand-image { width: clamp(145px, 49vw, 210px) !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gold-btn, .tab, .pill-btn, .ghost-btn { transition: none; }
+}
+
+/* MEZANINO HOME / REFERÊNCIA VISUAL 2026 — atualização v2
+ * Mantém o HeroComponent e a busca do CRM; não cria catálogo fictício.
+ */
+:root {
+  --mezanino-preview-paper: #f9faf7;
+  --mezanino-preview-forest: #05343f;
+  --mezanino-preview-mineral: #02474c;
+  --mezanino-preview-sage: #b0d5b1;
+}
+body { background: var(--mezanino-preview-paper) !important; }
+.app-shell .topbar,
+.app-shell.route-home .topbar,
+.app-shell.route-home.is-scrolled .topbar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  background: #05343f !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 4px 28px rgba(5, 52, 63, .11) !important;
+  overflow: visible !important;
+}
+.app-shell .topbar .topbar-main {
+  background: #05343f !important;
+  padding: 0 0 !important;
+  min-height: 72px !important;
+  box-shadow: none !important;
+}
+.app-shell .topbar .topbar-main-container {
+  width: min(1180px, calc(100% - 36px)) !important;
+  max-width: 1180px !important;
+  min-height: 52px !important;
+  padding-inline: 0 !important;
+  display: flex !important;
+  gap: 20px !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+.app-shell .topbar .topbar-main-container .topbar-brand {
+  position: relative !important;
+  inset: auto !important;
+  height: auto !important;
+  /*! min-height: 46px !important; */
+  max-width: min(50%, 260px) !important;
+  /*! flex: 0 1 260px; */
+  padding: 0 !important;
+  border: 0 !important;
+  transform: none !important;
+  height: 100px !important;
+}
+.app-shell .topbar .topbar-brand-image {
+  display: block !important;
+  /*! width: 100% !important; */
+  /*! max-width: 275px !important; */
+  /*! max-height: 57px !important; */
+  /*! height: auto !important; */
+  object-fit: contain !important;
+  height: 100% !important;
+}
+.app-shell .topbar .topbar-main-container .topbar-nav {
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: clamp(11px, 2.4vw, 32px) !important;
+  justify-content: flex-end !important;
+}
+.app-shell .topbar .topbar-main-container .topbar-nav a {
+  color: #e9f5ed !important;
+  font-family: var(--font-body) !important;
+  font-size: clamp(10px, 0.9vw, 16px) !important;
+  font-weight: 700 !important;
+  letter-spacing: .04em !important;
+  border-bottom: 0 !important;
+  text-transform: none !important;
+}
+.app-shell .topbar .topbar-main-container .topbar-nav a:hover,
+.app-shell .topbar .topbar-main-container .topbar-nav a.active {
+  color: #b0d5b1 !important;
+  border-bottom: 0 !important;
+}
+.app-shell .topbar .topbar-search-shell { background: #05343f; }
+
+/* A foto enviada pelo usuário recebe o tratamento tonal da paleta oficial. */
+.hero {
+  min-height: clamp(600px, 100vh, 830px) !important;
+  height: auto !important;
+  padding: 0 !important;
+  background-position: center 0% !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  color: #05343f !important;
+  isolation: isolate;
+}
+.hero .hero-overlay {
+  background: transparent !important;
+  pointer-events: none !important;
+  height: 100vh;
+}
+.hero .hero-shell {
+  width: min(1180px, calc(100% - 56px)) !important;
+  min-height: clamp(600px, 100vh, 830px) !important;
+  height: auto !important;
+  padding: clamp(124px, 13vh, 174px) 0 75px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+}
+.hero .hero-stack {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  gap: 0;
+  width: 100% !important;
+  max-width: 1180px !important;
+  margin: 0 auto !important;
+  padding-top: 3vh;
+}
+.hero .mezanino-hero-editorial {
+  position: relative;
+  z-index: 2;
+  margin: 10vh auto 0 0;
+  padding: 0 4px;
+  max-width: 680px;
+  text-align: left;
+}
+.hero .mezanino-hero-kicker {
+  margin: 0 0 18px !important;
+  padding: 0 !important;
+  color: #02474c !important;
+  letter-spacing: .23em;
+  font: 800 11px/1.4 var(--font-body) !important;
+}
+.hero .hero-title {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: auto !important;
+  max-width: 680px !important;
+  color: #05343f !important;
+  text-align: left !important;
+  opacity: 1 !important;
+  letter-spacing: -.055em !important;
+  font-family: var(--font-body) !important;
+  font-weight: 500 !important;
+  font-size: clamp(42px, 5.8vw, 82px) !important;
+  line-height: 1.04 !important;
+  text-shadow: 0 1px 18px rgba(255,255,255,.25) !important;
+  -webkit-text-stroke: 0 transparent !important;
+}
+.hero .hero-title em {
+  font-family: var(--font-display) !important;
+  color: #02474c !important;
+  font-weight: 400 !important;
+  font-style: italic !important;
+}
+.hero .mezanino-hero-lead {
+  font-family: var(--font-body) !important;
+  font-size: clamp(13px, 1.45vw, 16px) !important;
+  font-weight: 500 !important;
+  line-height: 1.65 !important;
+  color: #163b3d !important;
+  text-shadow: 0 1px 10px rgba(255,255,255,.35);
+  margin: 22px 0 0 !important;
+  max-width: 410px;
+}
+.hero .hero-shell::before {
+  display: block !important;
+  top: 24% !important;
+  right: 4% !important;
+  width: clamp(110px, 12vw, 160px) !important;
+  background-image: url('./contornos.svg') !important;
+  opacity: .54 !important;
+  z-index: 1 !important;
+}
+.hero .custom-search-panel {
+  width: 100% !important;
+  max-width: min(1150px, 100%) !important;
+  margin: 48px auto 0 !important;
+  padding: 25px 30px 22px !important;
+  background: #fff !important;
+  border: 1px solid #dce8df !important;
+  border-radius: 5px !important;
+  transform: translateY(-8vh) !important;
+  box-shadow: 0 19px 55px rgba(5,52,63,.16) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.hero .custom-search-panel::before { display: none !important; }
+.hero .mezanino-search-tabs {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  border-bottom: 1px solid #e6eee9;
+  margin-bottom: 20px;
+}
+.hero .mezanino-search-tab {
+  cursor: pointer;
+  background: none;
+  color: #728b87;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  font: 700 12px/1.4 var(--font-body);
+  padding: 0 0 13px;
+}
+.hero .mezanino-search-tab.is-active,
+.hero .mezanino-search-tab:hover {
+  color: #02474c;
+  border-bottom-color: #02474c;
+}
+.hero .custom-search-panel .custom-search-row {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(130px, 170px) !important;
+  gap: 12px !important;
+  width: 100% !important;
+  max-width: none !important;
+  grid-template-areas: none !important;
+  align-items: stretch !important;
+}
+.hero .custom-search-panel .custom-select-field {
+  min-width: 0 !important;
+  grid-area: auto !important;
+}
+.hero .custom-search-panel .custom-select-trigger {
+  min-height: 53px !important;
+  background: #f7faf8 !important;
+  border: 1px solid #dce8df !important;
+  border-radius: 3px !important;
+  color: #05343f !important;
+  font: 600 12px/1.4 var(--font-body) !important;
+  padding: 12px 15px !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.hero .custom-search-panel .custom-select-trigger:hover,
+.hero .custom-search-panel .custom-select-trigger.is-open {
+  border-color: #02474c !important;
+  background: #edf4ef !important;
+  color: #02474c !important;
+  box-shadow: 0 0 0 2px rgba(176,213,177,.25) !important;
+}
+.hero .custom-search-panel .custom-select-trigger > span:last-child {
+  color: #496d67 !important;
+}
+.hero .custom-search-panel .custom-search-btn {
+  grid-area: auto !important;
+  position: static !important;
+  min-height: 53px !important;
+  height: auto !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 12px 18px !important;
+  transform: none !important;
+  border-radius: 3px !important;
+  color: #fff !important;
+  background: #02474c !important;
+  font: 800 12px/1.4 var(--font-body) !important;
+}
+.hero .custom-search-panel .custom-search-btn:hover { background: #05343f !important; }
+.hero .custom-search-panel [name="propertyCode"] { color: #05343f !important; }
+.hero .custom-search-panel [data-route="comprar"],
+.hero .custom-search-panel [name="propertyCode"]::placeholder { color: #476b65 !important; }
+.hero .custom-search-panel .dropdown-option-row.is-selected-row,
+.hero .custom-search-panel .dropdown-option-row.is-active-row {
+  color: #02474c !important;
+  background: #edf4ef !important;
+  box-shadow: inset 3px 0 0 #02474c !important;
+}
+.hero .custom-search-panel input[type="checkbox"] { accent-color: #02474c !important; }
+
+/* Editorial, imóveis reais e chamada final: a camada visual reflete a prévia exibida. */
+.featured-section--grid { background: #f9faf7 !important; padding-top: 135px !important; }
+.featured-section--grid .section-title .eyebrow {
+  color: #02474c !important;
+  text-transform: uppercase;
+  letter-spacing: .22em;
+  font-weight: 800;
+  font-family: var(--font-body);
+}
+.featured-section--grid .section-title h2 {
+  font-family: var(--font-display) !important;
+  font-size: clamp(34px, 4.4vw, 55px) !important;
+  font-weight: 400 !important;
+  line-height: 1.12 !important;
+  letter-spacing: -.04em !important;
+  color: #05343f !important;
+}
+.featured-section--grid .featured-mini-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+}
+.featured-section--grid .featured-home-closing {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  margin-top: 30px;
+  padding: 24px 0 0;
+  border-top: 1px solid #dce8df;
+}
+.featured-home-closing-kicker {
+  color: #02474c;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.featured-home-closing p {
+  max-width: 600px;
+  margin: 8px 0 0;
+  color: #476b65;
+  font-size: 15px;
+  line-height: 1.7;
+}
+.featured-home-closing > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  color: #02474c;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+.featured-home-closing > a span { color: #bd8d44; font-size: 20px; }
+.featured-home-closing > a:hover { color: #05343f; text-decoration: underline; text-decoration-color: #b0d5b1; }
+.featured-section--grid .featured-mini-card {
+  border: 1px solid #e2ebe4 !important;
+  border-radius: 2px !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  overflow: hidden;
+}
+.featured-section--grid .featured-mini-media {
+  min-height: 185px;
+  overflow: hidden;
+}
+.featured-section--grid .featured-mini-media img {
+  object-fit: cover !important;
+  width: 100%;
+  transition: transform 450ms ease;
+}
+.featured-section--grid .featured-mini-card:hover .featured-mini-media img { transform: scale(1.025); }
+.featured-section--grid .featured-mini-body h3,
+.featured-section--grid .featured-mini-body h3 a { color: #05343f !important; font-family: var(--font-body) !important; }
+.featured-section--grid .badge { background: #b0d5b1 !important; color: #05343f !important; }
+.mezanino-brand-statement {
+  padding: 64px 5%;
+  background: #05343f;
+  color: #eff7ef;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.mezanino-brand-statement::before { content: none !important; background: none !important; }
+.mezanino-brand-statement::after {
+  content: '';
+  position: absolute;
+  right: -6%;
+  top: -45%;
+  width: 290px;
+  aspect-ratio: 1;
+  background: url('./contornos.svg') center/contain no-repeat;
+  opacity: .08;
+  pointer-events: none;
+}
+.mezanino-brand-statement-inner {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+}
+.mezanino-brand-statement-kicker {
+  font: 800 11px/1.4 var(--font-body);
+  letter-spacing: .22em;
+  color: #b0d5b1;
+  margin: 0 0 14px;
+}
+.mezanino-brand-statement h2 {
+  font: 400 clamp(32px, 4.2vw, 52px)/1.14 var(--font-display) !important;
+  margin: 0 0 14px !important;
+  color: #eff7ef !important;
+}
+.mezanino-brand-statement p:not(.mezanino-brand-statement-kicker) {
+  font: 500 13px/1.7 var(--font-body);
+  color: #b0d5b1;
+  margin: 0;
+}
+.mezanino-brand-statement a {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  font: 800 12px/1.4 var(--font-body);
+  color: #05343f !important;
+  background: #b0d5b1;
+  border-radius: 3px;
+  padding: 15px 22px;
+  white-space: nowrap;
+}
+@media (max-width: 980px) {
+  .hero .custom-search-panel .custom-search-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-areas: none !important;
+  }
+  .hero .custom-search-panel .custom-search-btn { grid-column: 1 / -1 !important; }
+  .featured-section--grid .featured-mini-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+}
+@media (max-width: 760px) {
+  .app-shell .topbar { max-height: unset !important; }
+  .app-shell .topbar .topbar-main-container { width: calc(100% - 32px) !important; min-height: 60px !important; }
+  .app-shell .topbar .topbar-main-container .topbar-brand { max-width: 55% !important; min-width: 0 !important; }
+  .app-shell .topbar .topbar-brand-image { width: min(100%, 205px) !important; }
+  .app-shell .topbar .topbar-main-container .topbar-nav:not(.is-open) { /* visibilidade segue lógica original mobile */ }
+  .hero { background-position: 63% center !important; }
+  .hero .hero-shell {
+    width: calc(100% - 34px) !important;
+    min-height: 0 !important;
+    padding: 140px 0 80px !important;
+    align-items: flex-start !important;
+  }
+  .hero .hero-stack { width: 100% !important; max-width: none !important; }
+  .hero .mezanino-hero-editorial { max-width: 380px; }
+  .hero .mezanino-hero-kicker { font-size: 9px !important; letter-spacing: .12em !important; }
+  .hero .hero-title { font-size: clamp(37px, 10vw, 56px) !important; max-width: 12ch !important; margin-bottom: 0 !important; }
+  .hero .mezanino-hero-lead { max-width: 280px; font-size: 12px !important; }
+  .hero .hero-shell::before { width: 100px !important; opacity: .2 !important; top: 23% !important; }
+  .hero .custom-search-panel {
+    transform: translateY(22px) !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 30px auto 0 !important;
+    padding: 18px !important;
+    background: #fff !important;
+  }
+  .hero .custom-search-panel .custom-search-row {
+    width: 100% !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    grid-template-areas: none !important;
+  }
+  .hero .custom-search-panel .custom-search-btn { grid-column: 1 / -1 !important; height: auto !important; margin: 0 !important; min-height: 53px !important; }
+  .featured-section--grid { padding-top: 105px !important; }
+  .featured-section--grid .featured-mini-grid { grid-template-columns: 1fr !important; }
+  .featured-section--grid .featured-home-closing { align-items: flex-start; flex-direction: column; gap: 16px; margin-top: 24px; padding-top: 20px; }
+  .mezanino-brand-statement-inner { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 430px) {
+  .hero { min-height: 0 !important; }
+  .hero .hero-shell { min-height: 0 !important; }
+  .hero .custom-search-panel .custom-search-row { grid-template-columns: 1fr !important; }
+  .hero .custom-search-panel .custom-select-trigger { min-height: 46px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .featured-section--grid .featured-mini-media img { transition: none !important; }
+}
+
+
+/* MEZANINO FOOTER V4 — logotipo oficial e fundo liso, sem grafismos. */
+.site-footer {
+  color: #eff8f2 !important;
+  background: #05343f !important;
+  background-image: none !important;
+  position: relative;
+  padding: clamp(40px, 5vw, 72px) 0 !important;
+  border-top: 1px solid rgba(176, 213, 177, .20);
+  overflow: hidden;
+}
+.site-footer::before, .site-footer::after { display: none !important; content: none !important; }
+.site-footer .footer-grid {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  gap: clamp(25px, 4vw, 60px) !important;
+  align-items: start;
+  width: min(1180px, calc(100% - 44px)) !important;
+  max-width: 1180px !important;
+  margin-inline: auto !important;
+}
+.site-footer .footer-grid > * { min-width: 0; }
+.site-footer .mezanino-footer-brand {
+  display: inline-flex !important;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  text-decoration: none !important;
+}
+.site-footer img.mezanino-footer-logo {
+  display: block !important;
+  width: clamp(165px, 21vw, 250px) !important;
+  max-width: 100% !important;
+  height: auto !important;
+  max-height: 70px !important;
+  object-fit: contain !important;
+  object-position: left center;
+  filter: none !important;
+}
+.site-footer h4, .site-footer p, .site-footer a {
+  color: #eaf5ec !important;
+  font-family: var(--font-body) !important;
+}
+.site-footer p { font-size: 13px !important; line-height: 1.75 !important; }
+.site-footer .footer-contact-column h4 { font-size: 18px !important; color: #b0d5b1 !important; }
+.site-footer a:hover, .site-footer a:focus-visible { color: #b0d5b1 !important; }
+.site-footer .footer-contact-column a {
+  font-size: 12px !important;
+  letter-spacing: .01em !important;
+}
+@media(max-width: 700px) {
+  .site-footer .footer-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 32px !important;
+  }
+  .site-footer .footer-contact-column {
+    align-items: flex-start !important;
+    text-align: left !important;
+  }
+  .site-footer .footer-contact-column > div:last-child { justify-content: flex-start !important; }
+  .site-footer img.mezanino-footer-logo { width: min(230px, 80vw) !important; }
+}
+
+/* FOTOGRAFIA PERSONALIZADA — GERADO */
+
+/* MEZANINO-MOBILE-V7 START — contraste, geometria e estado aberto.
+   Corrige diretamente o CSS institucional; nao depende de uma segunda folha. */
+@media screen and (max-width: 760px) {
+  .app-shell .topbar,
+  .app-shell.route-home .topbar,
+  .app-shell.route-home.is-scrolled .topbar {
+    height: auto !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
+    background: #05343f !important;
+    overflow: hidden !important;
+    z-index: 10001 !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+  .app-shell .topbar.topbar--mobile-open,
+  .app-shell.route-home .topbar.topbar--mobile-open,
+  .app-shell.route-home.is-scrolled .topbar.topbar--mobile-open {
+    height: auto !important;
+    min-height: 72px !important;
+    max-height: 100dvh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain !important;
+    background: #05343f !important;
+  }
+  .app-shell .topbar .topbar-main {
+    height: auto !important;
+    min-height: 72px !important;
+    padding: 0 !important;
+    background: #05343f !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+  }
+  .app-shell .topbar .topbar-main-container {
+    box-sizing: border-box !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 44px !important;
+    grid-template-rows: auto auto !important;
+    grid-template-areas: 'brand menu' 'nav nav' !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: calc(100% - 32px) !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 72px !important;
+    margin: 0 auto !important;
+    padding: 10px 0 !important;
+    gap: 0 12px !important;
+  }
+  .app-shell .topbar .topbar-main-container .topbar-brand {
+    grid-area: brand !important;
+    position: static !important;
+    inset: auto !important;
+    justify-self: start !important;
+    width: min(230px, 64vw) !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 46px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .app-shell .topbar .topbar-main-container .topbar-brand-image {
+    width: min(230px, 64vw) !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 51px !important;
+    object-fit: contain !important;
+    object-position: left center !important;
+  }
+  .app-shell .topbar .topbar-main-container .topbar-menu-button,
+  .app-shell .topbar.topbar--mobile-open .topbar-menu-button {
+    grid-area: menu !important;
+    justify-self: end !important;
+    align-self: center !important;
+    position: static !important;
+    width: 44px !important;
+    height: 44px !important;
+    display: inline-grid !important;
+    place-items: center !important;
+    color: #05343f !important;
+    -webkit-text-fill-color: #05343f !important;
+    border: 1px solid #91b996 !important;
+    background: #b0d5b1 !important;
+    border-radius: 12px !important;
+    opacity: 1 !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+  .app-shell .topbar .topbar-menu-button-lines::before,
+  .app-shell .topbar .topbar-menu-button-lines::after,
+  .app-shell .topbar .topbar-menu-button-lines > span {
+    background: #05343f !important;
+    opacity: 1;
+  }
+  .app-shell .topbar.topbar--mobile-open .topbar-menu-button-lines > span {
+    opacity: 0 !important;
+  }
+  .app-shell .topbar:not(.topbar--mobile-open) #topbar-mobile-nav {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+  .app-shell .topbar.topbar--mobile-open .topbar-main-container #topbar-mobile-nav {
+    grid-area: nav !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 3px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 10px !important;
+    margin: 10px 0 2px !important;
+    background: #f7faf8 !important;
+    color: #05343f !important;
+    border: 1px solid #b0d5b1 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 9px 28px rgba(5,52,63,.15) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    overflow: visible !important;
+    transform: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    mix-blend-mode: normal !important;
+  }
+  .app-shell .topbar.topbar--mobile-open .topbar-main-container #topbar-mobile-nav a,
+  .app-shell .topbar.topbar--mobile-open .topbar-main-container #topbar-mobile-nav a span,
+  .app-shell .topbar.topbar--mobile-open .topbar-main-container #topbar-mobile-nav .phone-in-bar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    min-height: 46px !important;
+    margin: 0 !important;
+    padding: 10px 13px !important;
+    border-radius: 9px !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: #05343f !important;
+    -webkit-text-fill-color: #05343f !important;
+    font-family: var(--font-body, 'Segoe UI', sans-serif) !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    letter-spacing: .012em !important;
+    line-height: 1.45 !important;
+    text-shadow: none !important;
+    text-decoration: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    filter: none !important;
+    transform: none !important;
+    pointer-events: auto !important;
+    mix-blend-mode: normal !important;
+  }
+  .app-shell .topbar.topbar--mobile-open .topbar-main-container #topbar-mobile-nav a span {
+    width: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+  }
+  .app-shell .topbar.topbar--mobile-open .topbar-main-container #topbar-mobile-nav a:hover,
+  .app-shell .topbar.topbar--mobile-open .topbar-main-container #topbar-mobile-nav a.active,
+  .app-shell .topbar.topbar--mobile-open .topbar-main-container #topbar-mobile-nav a:focus-visible {
+    color: #02474c !important;
+    -webkit-text-fill-color: #02474c !important;
+    background: #e1efe5 !important;
+  }
+  .app-shell .topbar.topbar--mobile-open .topbar-main-container #topbar-mobile-nav .phone-in-bar--whatsapp {
+    border-top: 1px solid #dae9df !important;
+    border-radius: 0 !important;
+    margin-top: 3px !important;
+    padding-top: 13px !important;
+  }
+  .app-shell .topbar.topbar--mobile-open #topbar-mobile-nav .phone-in-bar-whatsapp-icon {
+    fill: #168a48 !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+  .app-shell .topbar.topbar--mobile-open #topbar-mobile-search,
+  .app-shell .topbar.topbar--mobile-open .topbar-shell {
+    display: none !important;
+  }
+}
+/* MEZANINO-MOBILE-V7 END */
+
+/* MEZANINO-V9 START — hero 100vh, texturas pontuais, financiamento sem simulador. */
+/* Aplicar textura em um canto da barra, sem prejudicar o contraste da marca. */
+.app-shell .topbar,
+.app-shell.route-home .topbar,
+.app-shell.route-home.is-scrolled .topbar {
+  background: #05343f !important;
+}
+.app-shell .topbar .topbar-main {
+  background-color: #05343f !important;
+  background-image:
+    linear-gradient(90deg, #05343f 6%, rgba(5,52,63,.98) 45%, rgba(5,52,63,.38) 100%),
+    url('./textura-abissal.jpg') !important;
+  background-size: cover, min(60vw, 650px) auto !important;
+  background-position: center, right top !important;
+  background-repeat: no-repeat !important;
+}
+/* Na seção institucional, a textura ocupa o canto oposto da topbar. */
+.mezanino-brand-statement {
+  background-color: #05343f !important;
+  background-image:
+    linear-gradient(90deg, rgba(5,52,63,.47) 0%, rgba(5,52,63,.97) 54%, #05343f 100%),
+    url('./textura-mineral.jpg') !important;
+  background-size: cover, min(72vw, 650px) auto !important;
+  background-position: center, left bottom !important;
+  background-repeat: no-repeat !important;
+}
+.mezanino-brand-statement::before { content: none !important; }
+.mezanino-brand-statement-inner { position: relative; z-index: 1; }
+
+/* Financiamento: somente introdução editorial, sem cálculo, cards ou etapas criadas. */
+.mezanino-financing-clean {
+  background: #f9faf7 !important;
+  min-height: 65vh;
+  padding: clamp(115px, 15vh, 185px) 0 clamp(75px, 10vh, 130px) !important;
+}
+.mezanino-financing-clean .financing-hero {
+  display: block !important;
+  width: min(850px, 100%);
+  max-width: 100%;
+  margin: 0 auto;
+  padding: clamp(30px, 6vw, 80px) clamp(15px, 4vw, 60px);
+  background: #f7faf8;
+  border: 1px solid rgba(2, 71, 76, .17);
+  border-radius: 4px;
+  box-shadow: none;
+  text-align: left;
+}
+.mezanino-financing-clean .financing-hero-text { max-width: 700px; }
+.mezanino-financing-clean .financing-hero-text h2 {
+  color: #05343f !important;
+  font: 500 clamp(36px, 5vw, 62px)/1.1 var(--font-display, Georgia, serif) !important;
+}
+.mezanino-financing-clean .financing-hero-text p {
+  max-width: 580px;
+  color: #365b5b !important;
+  font: 500 clamp(13px, 1.2vw, 16px)/1.7 var(--font-body, sans-serif) !important;
+}
+
+@media (max-width: 760px) {
+  .app-shell .topbar .topbar-main {
+    background-image:
+      linear-gradient(90deg, #05343f 5%, rgba(5,52,63,.95) 60%, rgba(5,52,63,.38) 100%),
+      url('./textura-abissal.jpg') !important;
+    background-size: cover, 230px auto !important;
+    background-position: center, right top !important;
+  }
+  .app-shell .hero,
+  .app-shell.route-home .hero,
+  #home.hero {
+    height: 100vh !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    background-position: 61% center !important;
+  }
+  .app-shell .hero .hero-shell,
+  .app-shell.route-home .hero .hero-shell {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    width: calc(100% - 34px) !important;
+    padding: clamp(90px, 13vh, 125px) 0 16px !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    box-sizing: border-box !important;
+  }
+  .app-shell .hero .hero-stack,
+  .app-shell.route-home .hero .hero-stack {
+    height: 100% !important;
+    min-height: 0 !important;
+    justify-content: space-between !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .app-shell .hero .custom-search-panel,
+  .app-shell.route-home .hero .custom-search-panel {
+    position: relative !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    margin: 18px auto 0 !important;
+    padding: 14px !important;
+    transform: none !important;
+    z-index: 3 !important;
+  }
+  .app-shell .hero .mezanino-hero-editorial { margin: 0 !important; }
+  .app-shell .hero .hero-title { margin: 0 !important; }
+  .app-shell .featured-section--grid { padding-top: 105px !important; }
+  .mezanino-brand-statement {
+    background-size: cover, 260px auto !important;
+    background-position: center, left bottom !important;
+  }
+}
+@media (max-width: 430px) and (max-height: 720px) {
+  .app-shell .hero .hero-shell { padding-top: 88px !important; }
+  .app-shell .hero .hero-title { font-size: clamp(32px, 9vw, 41px) !important; }
+  .app-shell .hero .mezanino-hero-lead { font-size: 11px !important; }
+  .app-shell .hero .custom-search-panel { margin-top: 10px !important; padding: 10px !important; }
+}
+/* MEZANINO-V9 END */
+
+/* MEZANINO V10 — acabamento do detalhe e altura de hero controlada */
+:root { --mezanino-page: #f7faf8; --mezanino-line: rgba(2,71,76,.17); }
+
+/* Hero 100vh também em desktop, sem os min-height herdados de versões anteriores. */
+@media (min-width: 761px) {
+  .app-shell.route-home #home.hero,
+  .app-shell #home.hero {
+    height: 100vh !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    z-index: 10;
+  }
+  .app-shell #home.hero .hero-shell {
+    box-sizing: border-box !important;
+    height: 100% !important;
+    min-height: 100vh !important;
+    padding: clamp(92px, 12vh, 140px) 0 32px !important;
+  }
+  .app-shell #home.hero .hero-stack {
+    height: 100% !important;
+    min-height:  100vh !important;
+    justify-content: space-between !important;
+  }
+  .app-shell #home.hero .custom-search-panel {
+    position: relative !important;
+    /*! transform: none !important; */
+    margin: 0 auto !important;
+  }
+  .app-shell.route-home .featured-section--grid { padding-top: 118px !important; }
+}
+
+/* Detalhes: sequência editorial -> galeria -> dados, com coluna de conversão compacta. */
+.app-shell .detail-section.mezanino-detail-v10 {
+  background: #f7faf8 !important;
+  padding-bottom: 90px !important;
+}
+.app-shell .mezanino-detail-v10 .detail-intro {
+  max-width: 1230px !important;
+  margin: 0 auto 26px !important;
+  padding-inline: 22px !important;
+}
+.mezanino-detail-v10 .mezanino-detail-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: #557471;
+  font: 700 11px/1.4 var(--font-body, sans-serif);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.mezanino-detail-v10 .mezanino-detail-breadcrumb a {
+  color: #02474c !important;
+  text-decoration: none;
+}
+.mezanino-detail-v10 .mezanino-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  padding: 15px 0 16px;
+  border-bottom: 1px solid var(--mezanino-line);
+}
+.mezanino-detail-v10 .mezanino-detail-header h1 {
+  max-width: 880px;
+  margin: 0;
+  color: #05343f !important;
+  font: 500 clamp(32px, 3.5vw, 56px)/1.12 var(--font-display, Georgia, serif) !important;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+.mezanino-detail-v10 .mezanino-detail-header p {
+  margin: 11px 0 0;
+  color: #58726e;
+  font: 500 13px/1.5 var(--font-body, sans-serif);
+}
+.app-shell .mezanino-detail-v10 .detail-layout {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.76fr) minmax(305px, .86fr) !important;
+  align-items: start !important;
+  gap: clamp(22px, 3vw, 42px) !important;
+  max-width: 1230px !important;
+  margin: 0 auto !important;
+  padding-inline: 22px !important;
+}
+.mezanino-detail-v10 .detail-layout > div,
+.mezanino-detail-v10 .detail-layout > aside { min-width: 0; }
+.mezanino-detail-v10 .gallery {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+.mezanino-detail-v10 .gallery-main {
+  height: clamp(355px, 36vw, 520px) !important;
+  max-height: 60vh !important;
+  grid-column: 1 / -1 !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+.mezanino-detail-v10 .gallery-thumb {
+  height: clamp(88px, 9vw, 120px) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+.mezanino-detail-v10 .gallery-item {
+  border: 1px solid rgba(2,71,76,.12) !important;
+  background: #e5ece8;
+}
+.mezanino-detail-v10 .gallery-item img {
+  object-fit: cover !important;
+  transition: transform .35s ease;
+}
+.mezanino-detail-v10 .gallery-item:hover img { transform: scale(1.035); }
+.mezanino-detail-v10 .gallery-more {
+  font: 700 12px/1.4 var(--font-body, sans-serif) !important;
+  background: rgba(5,52,63,.62) !important;
+  letter-spacing: .12em;
+}
+.mezanino-detail-v10 .detail-copy {
+  margin-top: 25px;
+  padding: clamp(22px, 3vw, 36px) !important;
+  border: 1px solid var(--mezanino-line) !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+}
+.mezanino-detail-v10 .detail-copy h2 {
+  color: #05343f !important;
+  font: 500 clamp(28px, 2.7vw, 40px)/1.14 var(--font-display, Georgia, serif) !important;
+  margin: 8px 0 12px;
+}
+.mezanino-detail-v10 .detail-copy .feature-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 10px 24px;
+  padding: 0;
+  margin: 22px 0;
+  list-style: none;
+}
+.mezanino-detail-v10 .detail-copy .feature-list li {
+  border-bottom: 1px solid #e6ede8;
+  padding: 11px 0;
+  color: #315b58;
+  font: 600 13px/1.5 var(--font-body, sans-serif);
+}
+.mezanino-detail-v10 .detail-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0;
+  border-bottom: 1px solid #e4ebe6;
+}
+.mezanino-detail-v10 .detail-tabs button { border-radius: 6px 6px 0 0; }
+.mezanino-detail-v10 .detail-tab-panel {
+  background: #f9fbf9 !important;
+  border: 1px solid #e1ebe5 !important;
+  border-radius: 9px !important;
+  padding: clamp(16px,2vw,26px) !important;
+  overflow: hidden;
+}
+.mezanino-detail-v10 .detail-tab-panel h3 {
+  color: #05343f !important;
+  font-family: var(--font-display, Georgia, serif) !important;
+  font-size: clamp(24px, 2vw, 30px) !important;
+  font-weight: 500 !important;
+}
+.mezanino-detail-v10 .detail-layout .detail-panel {
+  position: sticky !important;
+  top: 110px !important;
+  border: 1px solid #dce8df !important;
+  border-radius: 12px !important;
+  padding: clamp(22px, 2.6vw, 32px) !important;
+  background: #fff !important;
+  box-shadow: 0 15px 45px rgba(5,52,63,.06) !important;
+  overflow: visible;
+}
+.mezanino-detail-v10 .mezanino-detail-card-kicker {
+  display: block;
+  margin: 0 0 11px;
+  color: #36706d !important;
+  font: 800 10px/1.5 var(--font-body, sans-serif);
+  letter-spacing: .14em;
+}
+.mezanino-detail-v10 .detail-panel > h3 {
+  margin: 0 0 11px !important;
+  color: #05343f !important;
+  font: 500 clamp(22px, 2.1vw, 28px)/1.18 var(--font-display, Georgia, serif) !important;
+  letter-spacing: -.02em;
+}
+.mezanino-detail-v10 .detail-panel > .location { color: #59726f !important; font-size: 12px !important; }
+.mezanino-detail-v10 .detail-panel > .meta { margin: 15px 0 !important; }
+.mezanino-detail-v10 .detail-panel > .price {
+  display: block;
+  margin: 16px 0 18px !important;
+  color: #05343f !important;
+  font: 750 clamp(24px, 2.6vw, 36px)/1.12 var(--font-body, sans-serif) !important;
+  letter-spacing: -.045em;
+}
+.mezanino-detail-v10 .detail-panel .action-stack { gap: 9px !important; }
+.mezanino-detail-v10 .detail-panel .action-stack button,
+.mezanino-detail-v10 .detail-panel .action-stack a { min-height: 44px !important; border-radius: 6px !important; font-size: 12px !important; }
+.mezanino-detail-v10 .detail-panel .broker-card {
+  margin-top: 22px !important;
+  padding: 18px !important;
+  border: 1px solid #e1eae4 !important;
+  border-radius: 10px !important;
+  background: #f9faf8 !important;
+  box-shadow: none !important;
+}
+.mezanino-detail-v10 .detail-panel .broker-card > strong { color: #05343f; font-size: 15px; }
+.mezanino-detail-v10 .detail-panel .mini-field input {
+  min-height: 39px;
+  background: white !important;
+  border: 1px solid #d5e2db !important;
+  border-radius: 5px !important;
+  color: #05343f !important;
+}
+.mezanino-detail-v10 .detail-panel .broker-card button.gold-btn { border-radius: 6px !important; }
+
+/* Imóveis relacionados: seção editorial alinhada à galeria e cards consistentes. */
+.app-shell .mezanino-detail-v10 > .container:last-child {
+  max-width: 1230px !important;
+  margin: clamp(52px, 7vw, 88px) auto 0 !important;
+  padding: 34px 22px 0 !important;
+  border-top: 1px solid var(--mezanino-line) !important;
+}
+.mezanino-detail-v10 > .container:last-child .section-title {
+  display: flex !important;
+  margin: 0 0 24px !important;
+  align-items: end !important;
+}
+.mezanino-detail-v10 > .container:last-child .section-title .eyebrow {
+  display: block !important;
+  margin-bottom: 8px !important;
+  color: #36706d !important;
+  font: 800 10px/1.4 var(--font-body, sans-serif) !important;
+  letter-spacing: .15em !important;
+  text-transform: uppercase !important;
+}
+.mezanino-detail-v10 > .container:last-child .section-title h2 {
+  margin: 0 !important;
+  color: #05343f !important;
+  font: 500 clamp(28px, 3vw, 42px)/1.12 var(--font-display, Georgia, serif) !important;
+}
+.mezanino-detail-v10 > .container:last-child .property-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+}
+.mezanino-detail-v10 > .container:last-child .property-card {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  border: 1px solid #dce8df !important;
+  border-radius: 10px !important;
+  background: #fff !important;
+  box-shadow: 0 8px 24px rgba(5,52,63,.055) !important;
+  transition: transform .2s ease, box-shadow .2s ease !important;
+}
+.mezanino-detail-v10 > .container:last-child .property-card:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 15px 32px rgba(5,52,63,.10) !important;
+}
+.mezanino-detail-v10 > .container:last-child .property-card .card-media {
+  height: auto !important;
+  aspect-ratio: 16 / 10 !important;
+  background: #e6eee9 !important;
+}
+.mezanino-detail-v10 > .container:last-child .property-card .card-media img { object-fit: cover !important; }
+.mezanino-detail-v10 > .container:last-child .property-card .property-body { padding: 18px !important; }
+.mezanino-detail-v10 > .container:last-child .property-card .property-type {
+  display: inline-block !important;
+  margin-bottom: 8px !important;
+  color: #36706d !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: .12em !important;
+  text-transform: uppercase !important;
+}
+.mezanino-detail-v10 > .container:last-child .property-card h3 {
+  display: -webkit-box !important;
+  overflow: hidden !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  min-height: 2.5em !important;
+  color: #05343f !important;
+  font-size: 16px !important;
+  line-height: 1.3 !important;
+}
+.mezanino-detail-v10 > .container:last-child .property-card .price { color: #05343f !important; }
+.mezanino-detail-v10 > .container:last-child .property-card .location {
+  margin: 8px 0 12px !important;
+  color: #58726e !important;
+  font-size: 12px !important;
+}
+.mezanino-detail-v10 > .container:last-child .property-card .meta {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
+.mezanino-detail-v10 > .container:last-child .property-card .meta span {
+  padding: 5px 8px !important;
+  border-radius: 4px !important;
+  background: #f0f6f2 !important;
+  color: #315b58 !important;
+  font-size: 10px !important;
+}
+
+@media (max-width: 980px) {
+  .app-shell .mezanino-detail-v10 .detail-layout {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .mezanino-detail-v10 .detail-layout .detail-panel { position: static !important; }
+  .mezanino-detail-v10 .gallery-main { height: min(55vw, 480px) !important; }
+  .app-shell .mezanino-detail-v10 > .container:last-child .property-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+}
+@media (max-width: 760px) {
+  .app-shell .detail-section.mezanino-detail-v10 { padding-top: 98px !important; padding-bottom: 55px !important; }
+  .app-shell .mezanino-detail-v10 .detail-intro,
+  .app-shell .mezanino-detail-v10 .detail-layout { padding-inline: 16px !important; }
+  .mezanino-detail-v10 .mezanino-detail-header h1 { font-size: clamp(30px, 8vw, 42px) !important; }
+  .mezanino-detail-v10 .gallery-main { height: clamp(240px, 65vw, 380px) !important; max-height: none !important; }
+  .mezanino-detail-v10 .gallery-thumb { height: clamp(72px, 20vw, 105px) !important; }
+  .mezanino-detail-v10 .detail-copy { padding: 21px !important; }
+  .mezanino-detail-v10 .detail-copy .feature-list { grid-template-columns: 1fr !important; gap: 0; }
+  .mezanino-detail-v10 .detail-panel .broker-card { padding: 15px !important; }
+  .app-shell .mezanino-detail-v10 > .container:last-child { margin-top: 44px !important; padding: 26px 16px 0 !important; }
+  .app-shell .mezanino-detail-v10 > .container:last-child .property-grid { gap: 12px !important; }
+  .mezanino-detail-v10 > .container:last-child .property-card .property-body { padding: 13px !important; }
+  .mezanino-detail-v10 > .container:last-child .property-card h3 { font-size: 14px !important; }
+}
+@media (max-width: 430px) {
+  .app-shell.route-home #home.hero, .app-shell #home.hero { height: 100vh !important; min-height: 0 !important; }
+  .app-shell #home.hero .hero-shell { height: 100% !important; min-height: 0 !important; }
+  .app-shell #home.hero .hero-stack { height: 100% !important; }
+  .app-shell .mezanino-detail-v10 > .container:last-child .property-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Listagem de imóveis alinhada à identidade abissal, mineral e sálvia. */
+.app-shell .listing-section {
+  background: #f7faf8 !important;
+  background-image: radial-gradient(circle at 96% 0, rgba(176,213,177,.17), transparent 24rem) !important;
+}
+.app-shell .listing-section .section-title h2,
+.app-shell .listing-section .filter-head strong { color: #05343f !important; }
+.app-shell .listing-section .section-title p { color: #58726e !important; }
+.app-shell .listing-section .filter-box {
+  border: 1px solid rgba(2,71,76,.2) !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  box-shadow: 0 12px 32px rgba(5,52,63,.055) !important;
+}
+.app-shell .listing-section .filter-head { padding-bottom: 16px !important; border-bottom: 1px solid #e4ede7 !important; }
+.app-shell .listing-section .filter-head strong { font-size: clamp(27px, 2.3vw, 34px) !important; }
+.app-shell .listing-section .filter-head button { color: #02474c !important; }
+.app-shell .listing-section .mini-field label { color: #315b58 !important; }
+.app-shell .listing-section .check-list { gap: 0 !important; }
+.app-shell .listing-section .check-list label {
+  padding: 9px 0 !important;
+  border-bottom: 1px solid #edf2ee !important;
+  color: #365b5b !important;
+}
+.app-shell .listing-section .check-list input { accent-color: #02474c !important; }
+.app-shell .listing-section .mini-field select,
+.app-shell .listing-section .mini-field input:not([type="range"]) {
+  border: 1px solid #ceded5 !important;
+  border-radius: 6px !important;
+  background: #fff !important;
+  color: #05343f !important;
+}
+.app-shell .listing-section input[type="range"] { accent-color: #02474c !important; }
+.app-shell .listing-section .list-toolbar {
+  border: 1px solid rgba(2,71,76,.18) !important;
+  border-radius: 12px !important;
+  background: rgba(255,255,255,.96) !important;
+  box-shadow: 0 8px 24px rgba(5,52,63,.045) !important;
+  backdrop-filter: none !important;
+}
+.app-shell .listing-section .list-toolbar > strong { color: #05343f !important; }
+.app-shell .listing-section .sort-field > span,
+.app-shell .listing-section .results-meta-strip { color: #315b58 !important; }
+.app-shell .listing-section .view-toggle .square-btn {
+  border: 1px solid #cbded3 !important;
+  border-radius: 6px !important;
+  background: #fff !important;
+  color: #05343f !important;
+}
+.app-shell .listing-section .view-toggle .square-btn.active {
+  border-color: #05343f !important;
+  background: #05343f !important;
+  color: #eff8f1 !important;
+}
+.app-shell .listing-section .property-grid.listing-grid {
+  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  gap: 18px !important;
+}
+.app-shell .listing-section .property-grid.listing-grid .property-card {
+  overflow: hidden !important;
+  border: 1px solid rgba(2,71,76,.2) !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  box-shadow: 0 8px 24px rgba(5,52,63,.05) !important;
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease !important;
+}
+.app-shell .listing-section .property-grid.listing-grid .property-card::before { content: none !important; }
+.app-shell .listing-section .property-grid.listing-grid .property-card:hover {
+  transform: translateY(-3px) !important;
+  border-color: rgba(2,71,76,.42) !important;
+  box-shadow: 0 16px 34px rgba(5,52,63,.1) !important;
+}
+.app-shell .listing-section .property-grid.listing-grid .card-media { aspect-ratio: 16 / 10 !important; height: auto !important; }
+.app-shell .listing-section .property-grid.listing-grid .property-body { background: #fff !important; }
+.app-shell .listing-section .property-grid.listing-grid .property-type { color: #36706d !important; }
+.app-shell .listing-section .property-grid.listing-grid .property-body h3,
+.app-shell .listing-section .property-grid.listing-grid .property-body .price { color: #05343f !important; }
+.app-shell .listing-section .property-grid.listing-grid .property-body .location,
+.app-shell .listing-section .property-grid.listing-grid .property-body .meta { color: #58726e !important; }
+.app-shell .listing-section .property-grid.listing-grid .badge { background: #05343f !important; color: #eff8f1 !important; }
+@media (max-width: 720px) {
+  .app-shell .listing-section .property-grid.listing-grid { grid-template-columns: 1fr !important; }
+  .app-shell .listing-section .filter-box,
+  .app-shell .listing-section .list-toolbar { border-radius: 10px !important; }
+}
+
+/* Hierarquia da listagem e respiro para âncoras sob a navegação fixa. */
+.app-shell .listing-section > .container > .section-title {
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  gap: 24px !important;
+  margin: 0 0 24px !important;
+}
+.app-shell .listing-section > .container > .section-title .eyebrow {
+  display: block !important;
+  color: #36706d !important;
+}
+.app-shell .listing-section > .container > .section-title h2 {
+  display: block !important;
+  color: #05343f !important;
+}
+.app-shell .listing-section > .container > .section-title p {
+  display: block !important;
+  color: #58726e !important;
+}
+.app-shell .mezanino-detail-v10 > .container:last-child {
+  scroll-margin-top: 96px !important;
+}
+.app-shell .dashboard-nav img.brand,
+.app-shell .editor-shell .dashboard-nav img.brand {
+  display: block !important;
+  width: min(205px, 100%) !important;
+  height: auto !important;
+  max-height: 44px !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+}
+
+/* Cartões da listagem em modo lista, na linguagem visual da marca. */
+.app-shell #comprar .list-stack {
+  display: grid !important;
+  gap: 12px !important;
+}
+.app-shell #comprar .list-stack .list-card {
+  display: grid !important;
+  grid-template-columns: 224px minmax(0, 1fr) 178px !important;
+  grid-template-areas: "photo info price" !important;
+  align-items: center !important;
+  gap: 22px !important;
+  min-width: 0 !important;
+  padding: 12px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(2,71,76,.2) !important;
+  border-radius: 10px !important;
+  background: #fff !important;
+  box-shadow: 0 5px 18px rgba(5,52,63,.045) !important;
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease !important;
+}
+.app-shell #comprar .list-stack .list-card:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(2,71,76,.42) !important;
+  box-shadow: 0 12px 26px rgba(5,52,63,.09) !important;
+}
+.app-shell #comprar .list-stack .list-card::before { content: none !important; }
+.app-shell #comprar .list-stack .list-card > img {
+  grid-area: photo !important;
+  width: 100% !important;
+  height: 148px !important;
+  border-radius: 7px !important;
+  object-fit: cover !important;
+}
+.app-shell #comprar .list-stack .list-info {
+  grid-area: info !important;
+  min-width: 0 !important;
+}
+.app-shell #comprar .list-stack .list-info .property-type {
+  display: inline-block !important;
+  margin-bottom: 5px !important;
+  color: #36706d !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: .1em !important;
+  text-transform: uppercase !important;
+}
+.app-shell #comprar .list-stack .list-info h3 {
+  display: -webkit-box !important;
+  overflow: hidden !important;
+  margin: 0 0 6px !important;
+  color: #05343f !important;
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  line-height: 1.28 !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+}
+.app-shell #comprar .list-stack .list-info .location {
+  margin: 0 0 8px !important;
+  color: #58726e !important;
+  font-size: 12px !important;
+}
+.app-shell #comprar .list-stack .list-info .meta {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 5px !important;
+  color: #315b58 !important;
+}
+.app-shell #comprar .list-stack .list-info .meta span {
+  padding: 4px 7px !important;
+  border: 1px solid #e0eae3 !important;
+  border-radius: 4px !important;
+  background: #f7faf8 !important;
+  font-size: 10px !important;
+}
+.app-shell #comprar .list-stack .list-price {
+  grid-area: price !important;
+  align-self: stretch !important;
+  align-content: center !important;
+  justify-items: start !important;
+  gap: 10px !important;
+  padding: 8px 0 8px 18px !important;
+  border-left: 1px solid #e3ece5 !important;
+}
+.app-shell #comprar .list-stack .list-price .price {
+  color: #05343f !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+}
+
+/* Um passo menor na tipografia da página Comprar/Alugar, sem afetar outras rotas. */
+.app-shell #comprar .section-title h2 { font-size: clamp(26px, 2.5vw, 34px) !important; }
+.app-shell #comprar .section-title p,
+.app-shell #comprar .filter-stack,
+.app-shell #comprar .mini-field,
+.app-shell #comprar .list-toolbar,
+.app-shell #comprar .pager button { font-size: 13px !important; }
+.app-shell #comprar .filter-head strong { font-size: clamp(25px, 2.15vw, 32px) !important; }
+.app-shell #comprar .list-stack .list-info h3 { font-size: 16px !important; }
+@media (max-width: 980px) {
+  .app-shell #comprar .list-stack .list-card {
+    grid-template-columns: 190px minmax(0, 1fr) 146px !important;
+    gap: 16px !important;
+  }
+  .app-shell #comprar .list-stack .list-price { padding-left: 12px !important; }
+}
+@media (max-width: 720px) {
+  .app-shell #comprar .list-stack .list-card {
+    grid-template-columns: 126px minmax(0, 1fr) !important;
+    grid-template-areas: "photo info" "photo price" !important;
+    align-items: start !important;
+    gap: 8px 14px !important;
+    padding: 10px !important;
+  }
+  .app-shell #comprar .list-stack .list-card > img { height: 126px !important; }
+  .app-shell #comprar .list-stack .list-price {
+    align-self: start !important;
+    justify-items: start !important;
+    padding: 0 !important;
+    border-left: 0 !important;
+  }
+}
+@media (max-width: 430px) {
+  .app-shell #comprar .list-stack .list-card {
+    grid-template-columns: 94px minmax(0, 1fr) !important;
+    grid-template-areas: "photo info" "photo price" !important;
+    gap: 6px 10px !important;
+  }
+  .app-shell #comprar .list-stack .list-card > img { height: 110px !important; }
+  .app-shell #comprar .list-stack .list-info h3 { font-size: 14px !important; }
+  .app-shell #comprar .list-stack .list-info .meta span { font-size: 9px !important; }
+  .app-shell #comprar .list-stack .list-price .price { font-size: 16px !important; }
+}
+
+/* No celular, o painel segue a ordem natural depois do texto do hero. */
+@media (max-width: 760px) {
+  .app-shell #home.hero .hero-stack { display: flex !important; flex-direction: column !important; }
+  .app-shell #home.hero .custom-search-panel {
+    position: relative !important;
+    transform: none !important;
+    margin: 0 auto !important;
+  }
+}
+
+/* Paleta institucional também na chamada do mapa e no breadcrumb do imóvel. */
+.app-shell .eye-eyebrow,
+.app-shell .map-navigation-section .map-section-title .eyebrow {
+  color: #02474c !important;
+}
+.app-shell .eye-eyebrow::before,
+.app-shell .map-navigation-section .map-section-title .eyebrow::before {
+  background: #b0d5b1 !important;
+}
+.app-shell .map-navigation-section .map-reset-button {
+  color: #02474c !important;
+}
+.app-shell .map-navigation-section .map-reset-button:hover,
+.app-shell .map-navigation-section .map-reset-button:focus-visible {
+  color: #05343f !important;
+  text-decoration: underline;
+  text-decoration-color: #b0d5b1;
+}
+
+/* Em celulares, abre espaço para o botão flutuante sem cobrir o Buscar. */
+@media (max-width: 430px) {
+  .app-shell.route-home #home.hero {
+    background-position: 35% center !important;
+  }
+
+  .app-shell.route-home #home.hero .custom-search-panel {
+    padding-bottom: 60px !important;
+  }
+}
+@media (max-width: 430px) and (max-height: 600px) {
+  .app-shell.route-home #home.hero .custom-search-panel {
+    padding-bottom: 10px !important;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 980px) {
+  .app-shell.route-home #home.hero .custom-search-panel .custom-search-btn {
+    width: calc(100% - 76px) !important;
+    justify-self: start !important;
+  }
+}
+
+@media (min-width: 981px) and (max-width: 1150px) {
+  .app-shell.route-home #home.hero .custom-search-panel .custom-search-btn {
+    transform: translateX(-76px) !important;
+  }
+}
+
+@media (max-width: 430px) and (max-height: 600px) {
+  .app-shell.route-home #home.hero .custom-search-panel .custom-search-btn {
+    width: calc(100% - 56px) !important;
+    justify-self: start !important;
+  }
+
+  .app-shell.route-home #home.hero .hero-overlay {
+    background: linear-gradient(90deg, rgba(247,250,248,.58), rgba(247,250,248,.22) 58%, transparent) !important;
+  }
+}
+
+@media (min-width: 431px) and (max-width: 760px) {
+  .app-shell.route-home #home.hero .hero-overlay {
+    background: linear-gradient(90deg, rgba(247,250,248,.54), rgba(247,250,248,.18) 62%, transparent) !important;
+  }
+}
