@@ -1739,6 +1739,8 @@ body { background: var(--mezanino-preview-paper) !important; }
 }
 .app-shell.route-home #home.hero .mezanino-hero-kicker { display: none !important; }
 .app-shell.route-home #home.hero .hero-title {
+  position: relative !important;
+  isolation: isolate !important;
   width: max-content !important;
   max-width: calc(100vw - 34px) !important;
   margin: 0 auto !important;
@@ -1751,6 +1753,22 @@ body { background: var(--mezanino-preview-paper) !important; }
   text-align: center !important;
   text-wrap: nowrap !important;
   text-shadow: none !important;
+}
+.app-shell.route-home #home.hero .hero-title-outline {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  -webkit-text-stroke: clamp(1px, .11vw, 1.5px) #fff !important;
+  paint-order: stroke fill !important;
+  mix-blend-mode: difference !important;
+  white-space: nowrap !important;
+  pointer-events: none !important;
+}
+.app-shell.route-home #home.hero .hero-title-text {
+  position: relative !important;
+  z-index: 1 !important;
 }
 .app-shell.route-home #home.hero .mezanino-hero-lead { display: none !important; }
 
