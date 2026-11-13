@@ -1750,7 +1750,7 @@ body { background: var(--mezanino-preview-paper) !important; }
   letter-spacing: -.045em !important;
   text-align: center !important;
   text-wrap: nowrap !important;
-  text-shadow: 0 1px 22px rgba(247,250,248,.7) !important;
+  text-shadow: none !important;
 }
 .app-shell.route-home #home.hero .mezanino-hero-lead { display: none !important; }
 
