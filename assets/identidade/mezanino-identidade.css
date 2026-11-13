@@ -1744,7 +1744,7 @@ body { background: var(--mezanino-preview-paper) !important; }
   width: max-content !important;
   max-width: calc(100vw - 34px) !important;
   margin: 0 auto !important;
-  color: #05343f !important;
+  color: #ececec !important;
   font-family: 'Mezanino Zodiak', 'Cormorant Garamond', Georgia, serif !important;
   font-size: clamp(38px, 5.1vw, 72px) !important;
   font-weight: 400 !important;
@@ -1752,7 +1752,7 @@ body { background: var(--mezanino-preview-paper) !important; }
   letter-spacing: -.045em !important;
   text-align: center !important;
   text-wrap: nowrap !important;
-  text-shadow: 0 0 70px rgba(247,250,248,.9), 0 0 170px rgba(247,250,248,.8), 0 0 280px rgba(247,250,248,.65) !important;
+  text-shadow: 0 0 60px rgb(108, 56, 56), 0 0 170px rgba(56, 56, 56, 0.94), 0 0 280px rgba(255, 255, 255, 0.82) !important;
 }
 .app-shell.route-home #home.hero .hero-title-text {
   position: relative !important;
