@@ -1721,7 +1721,8 @@ body { background: var(--mezanino-preview-paper) !important; }
   background: url('./hero-familia-novo-lar.png') center 6% / cover no-repeat !important;
 }
 .app-shell.route-home #home.hero::before {
-  display: none !important;
+  display: block !important;
+  background: linear-gradient(180deg, rgba(247,250,248,.08), rgba(247,250,248,.14)) !important;
 }
 .app-shell.route-home #home.hero .hero-overlay {
   background: transparent !important;
