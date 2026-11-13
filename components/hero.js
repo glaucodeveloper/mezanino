@@ -120,7 +120,6 @@ const HeroComponent = ({ id, props }) => {
                 
                 <!-- Original Phrase -->
                 <div class="mezanino-hero-editorial">
-                   <p class="mezanino-hero-kicker">MEZANINO · SOLUÇÕES IMOBILIÁRIAS</p>
                    <h1 class="hero-title">Sonhe, conecte e realize</h1>
                  </div>
 
