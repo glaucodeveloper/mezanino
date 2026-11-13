@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 
 const repository = "glaucodeveloper/mezanino";
-const workflow = "pages.yml";
+const workflow = "static.yml";
 const credentialInput = "protocol=https\nhost=github.com\n\n";
 
 let credentialOutput;
@@ -46,7 +46,8 @@ const response = await fetch(
 );
 
 if (response.status !== 204) {
-  console.error(`GitHub recusou o deploy (${response.status} ${response.statusText}).`);
+  const details = await response.text();
+  console.error(`GitHub recusou o deploy (${response.status} ${response.statusText}): ${details}`);
   process.exit(1);
 }
 
