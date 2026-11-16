@@ -5,7 +5,7 @@
         <div class="container footer-grid" style="grid-template-columns: 1fr 1fr; gap: 40px;">
           <div>
             <a class="mezanino-footer-brand" href="#home" data-route="home" aria-label="Voltar ao início — Mezanino Imobiliária">
-              <img class="mezanino-footer-logo" src="./assets/identidade/logo-assinatura-horizontal.svg" alt="Mezanino Soluções Imobiliárias" loading="lazy" decoding="async">
+              <img class="mezanino-footer-logo" src="./assets/identidade/logo-proporcao-oficial.svg" alt="Mezanino Soluções Imobiliárias" loading="lazy" decoding="async">
             </a>
             <p style="margin: 15px 0 20px; color: #4a5568; max-width: 420px;">Conectando sonhos, pessoas e imóveis.</p>
             <p style="color: #bd8d44; font-weight: 500; font-size: 0.92rem;">Instagram · Facebook · WhatsApp · YouTube</p>

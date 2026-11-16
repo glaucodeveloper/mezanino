@@ -75,7 +75,7 @@ textarea:focus-visible, [role='button']:focus-visible {
   max-width: 100%;
   height: auto !important;
   max-height: 80px;
-  aspect-ratio: 670 / 140;
+  aspect-ratio: 1050 / 160;
   object-fit: contain !important;
   object-position: left center;
 }
