@@ -77,8 +77,8 @@ textarea:focus-visible, [role='button']:focus-visible {
 }
 .app-shell .mezanino-brand-lockup img.mezanino-brand-subtitle {
   display: block !important;
-  margin: 0 0 0 21% !important;
-  width: 53% !important;
+  margin: -5px 0 0 21% !important;
+  width: 73% !important;
   height: auto !important;
   aspect-ratio: 490 / 42 !important;
   object-fit: contain !important;
@@ -708,9 +708,10 @@ body { background: var(--mezanino-preview-paper) !important; }
   background: transparent !important;
   text-decoration: none !important;
 }
+.site-footer .mezanino-brand-lockup { width: clamp(165px, 21vw, 250px); }
 .site-footer img.mezanino-footer-logo {
   display: block !important;
-  width: clamp(165px, 21vw, 250px) !important;
+  width: 100% !important;
   max-width: 100% !important;
   height: auto !important;
   max-height: 70px !important;
@@ -739,7 +740,7 @@ body { background: var(--mezanino-preview-paper) !important; }
     text-align: left !important;
   }
   .site-footer .footer-contact-column > div:last-child { justify-content: flex-start !important; }
-  .site-footer img.mezanino-footer-logo { width: min(230px, 80vw) !important; }
+  .site-footer .mezanino-brand-lockup { width: min(230px, 80vw); }
 }
 
 /* FOTOGRAFIA PERSONALIZADA — GERADO */
