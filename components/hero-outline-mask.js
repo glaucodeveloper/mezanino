@@ -3,7 +3,7 @@
   if (!app) return;
 
   const photo = new Image();
-  photo.src = new URL("./assets/identidade/hero-familia-novo-lar.png", document.baseURI).href;
+  photo.src = new URL("./assets/identidade/hero-familia-progressiva.jpg", document.baseURI).href;
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   let hero = null;

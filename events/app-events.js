@@ -1176,11 +1176,11 @@ const MapNavigationComponent = ({ props }) => {
           <section id="mapa-imoveis" class="section map-navigation-section">
             <style>
               .map-navigation-section {
-                --map-blue: #082b59;
-                --map-blue-2: #0c467f;
-                --map-gold: #c8923e;
-                --map-ink: #16273f;
-                --map-border: rgba(22,39,63,.12);
+                --map-blue: #02474c;
+                --map-blue-2: #17615b;
+                --map-gold: #316b5b;
+                --map-ink: #05343f;
+                --map-border: rgba(5,52,63,.12);
                 background: #f7f6f2;
               }
               .map-navigation-section .map-section-title {
@@ -1200,7 +1200,7 @@ const MapNavigationComponent = ({ props }) => {
               .map-navigation-section .map-section-title p {
                 max-width: 540px;
                 margin: 0;
-                color: #687486;
+                color: #526d67;
                 line-height: 1.65;
               }
               .map-navigation-section .property-map-layout {
@@ -1374,20 +1374,20 @@ const MapNavigationComponent = ({ props }) => {
                 overflow: visible;
               }
               .map-navigation-section .mezanino-map-pin path {
-                fill: var(--map-blue-2);
+                fill: #02474c;
                 stroke: #fff;
                 stroke-width: 2;
               }
               .map-navigation-section .mezanino-map-pin circle {
-                fill: var(--map-gold);
+                fill: #b0d5b1;
                 stroke: #fff;
                 stroke-width: 2;
               }
               .map-navigation-section .mezanino-map-pin.is-active path {
-                fill: var(--map-gold);
+                fill: #b0d5b1;
               }
               .map-navigation-section .mezanino-map-pin.is-active circle {
-                fill: var(--map-blue);
+                fill: #02474c;
               }
               .map-navigation-section .leaflet-control-zoom a {
                 color: var(--map-blue);
@@ -1422,7 +1422,7 @@ const MapNavigationComponent = ({ props }) => {
               }
               .map-navigation-section .map-detail-location {
                 margin: 0;
-                color: #6c7887;
+                color: #526d67;
                 font-size: .86rem;
                 line-height: 1.5;
               }
@@ -1436,7 +1436,7 @@ const MapNavigationComponent = ({ props }) => {
                 padding: 7px 9px;
                 border-radius: 6px;
                 background: #f2f4f6;
-                color: #506074;
+                color: #526d67;
                 font-size: .72rem;
               }
               .map-navigation-section .map-detail-price {
