@@ -154,7 +154,7 @@ const TopbarComponent = ({ props }) => {
 
               <div class="container topbar-main-container">
                 <a class="topbar-brand" href="#home" data-route="home" style="text-decoration: none; border-bottom: 0;">
-                  <img class="topbar-brand-image" src="./assets/identidade/logo-proporcao-oficial.svg" alt="Mezanino Soluções Imobiliárias">
+                  <img class="topbar-brand-image" src="./assets/identidade/logo-proporcao-oficial.svg?v=2" alt="Mezanino Soluções Imobiliárias">
                 </a>
                 
                 <button
